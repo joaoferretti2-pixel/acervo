@@ -221,427 +221,557 @@ body{margin:0;background:#F2EEE3}
 <body>
 <div id="root"></div>
 
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="text/babel" data-presets="react">
-const { useState, useEffect, useMemo, useRef } = React;
+<script>
+"use strict";
+(function () {
 
-// ---------- armazenamento: localStorage (fica salvo neste navegador) ----------
-const KEYS = { items: "acervo:items", playlists: "acervo:playlists", links: "acervo:links", theme: "acervo:theme" };
-const PAGE_BG = { dark: "#13172A", light: "#F2EEE3" };
-function loadKey(key){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : []; } catch { return []; } }
-function saveKey(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); } catch {} }
-function loadStr(key){ try{ return localStorage.getItem(key); } catch { return null; } }
-function saveStr(key, val){ try{ localStorage.setItem(key, val); } catch {} }
+  // ===== Camada de dados (HOJE: localStorage no navegador) =====
+  // No futuro, para sincronizar entre aparelhos e ter login, basta trocar
+  // estas quatro funções por chamadas a um backend (ex.: Supabase).
+  var KEYS = { items: "acervo:items", playlists: "acervo:playlists", links: "acervo:links", theme: "acervo:theme" };
+  function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+  function saveRaw(key, val) { try { localStorage.setItem(key, typeof val === "string" ? val : JSON.stringify(val)); } catch (e) {} }
 
-// ---------- helpers ----------
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-const RATING_WORDS = ["sem nota", "ruim", "fraco", "bom", "ótimo", "favorito"];
-const fmtAvg = (n) => (n == null ? "—" : n.toFixed(1).replace(".", ","));
-const statusOf = (i) => i.status || "done";
-const verb = (type, status) =>
-  status === "wish" ? (type === "movie" ? "Quero ver" : "Quero ler") : (type === "movie" ? "Visto" : "Lido");
-const TINTS = ["#23314d", "#3a2b46", "#2b3d3a", "#43382a", "#3f2a2c", "#2c3550"];
-function tintFor(str){ let h=0; for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))>>>0; return TINTS[h%TINTS.length]; }
-function initialsOf(title){ const m=(title||"").match(/[A-Za-zÀ-ÿ0-9]/g); return (m?m[0]:"?").toUpperCase(); }
-
-function Cover({ item, cls = "av-cover" }) {
-  const [bad, setBad] = useState(false);
-  if (item.cover && !bad) return (<div className={cls}><img src={item.cover} alt="" onError={() => setBad(true)} /></div>);
-  return (<div className={cls + " av-coverph"} style={{ "--tint": tintFor(item.title) }}><span className="av-coverinit">{initialsOf(item.title)}</span></div>);
-}
-
-function Lamps({ value = 0, onChange, size = 14, idleHint = false }) {
-  const [hover, setHover] = useState(0);
-  const interactive = typeof onChange === "function";
-  const shown = interactive && hover ? hover : value;
-  return (
-    <span className="av-lamps" role={interactive ? "group" : undefined}>
-      {[1, 2, 3, 4, 5].map((n) => {
-        const on = n <= shown; const style = { "--d": size + "px" };
-        if (!interactive) return <span key={n} className={"av-lamp" + (on ? " on" : "")} style={style} />;
-        return (<button key={n} type="button" className={"av-lamp av-lampbtn" + (on ? " on" : "")} style={style}
-          aria-label={"Nota " + n + " — " + RATING_WORDS[n]}
-          onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)} onFocus={() => setHover(n)} onBlur={() => setHover(0)}
-          onClick={() => onChange(n === value ? 0 : n)} />);
-      })}
-      {idleHint && interactive && <span className="av-lampword">{RATING_WORDS[shown]}</span>}
-    </span>
-  );
-}
-
-function Chip({ children }) { return children ? <span className="av-chip">{children}</span> : null; }
-function TypeTab({ type }) { return <span className={"av-typetab " + (type === "movie" ? "film" : "book")}>{type === "movie" ? "Filme" : "Livro"}</span>; }
-function ThemeToggle({ theme, onToggle }) {
-  return (
-    <div className="av-themeseg" role="group" aria-label="Tema">
-      <button className={theme === "light" ? "on" : ""} onClick={() => theme !== "light" && onToggle()}>Claro</button>
-      <button className={theme === "dark" ? "on" : ""} onClick={() => theme !== "dark" && onToggle()}>Escuro</button>
-    </div>
-  );
-}
-
-function Modal({ title, onClose, children, footer }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const f = ref.current && ref.current.querySelector("input, textarea, button");
-    if (f) f.focus();
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  return (
-    <div className="av-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="av-modal" ref={ref} role="dialog" aria-modal="true" aria-label={title}>
-        <div className="av-modalhead"><h3>{title}</h3><button className="av-x" onClick={onClose} aria-label="Fechar">✕</button></div>
-        <div className="av-modalbody">{children}</div>
-        {footer && <div className="av-modalfoot">{footer}</div>}
-      </div>
-    </div>
-  );
-}
-
-function ItemCard({ item, context, onAddTo, onEdit, onDelete, onRemoveFrom, onMarkDone }) {
-  const wish = statusOf(item) === "wish";
-  return (
-    <article className="av-card">
-      <Cover key={item.cover || "ph"} item={item} />
-      <div className="av-cardbody">
-        <div className="av-cardtop"><TypeTab type={item.type} />{wish && <span className="av-wishchip">{verb(item.type, "wish")}</span>}</div>
-        <h4 className="av-title">{item.title}</h4>
-        {item.subtitle && <p className="av-sub">{item.subtitle}</p>}
-        {!wish && <div className="av-cardrate"><Lamps value={item.rating} /></div>}
-        {item.notes && <p className="av-notes">{item.notes}</p>}
-        <footer className="av-cardfoot">
-          {wish && context === "library" && (
-            <button className="av-markbtn" onClick={() => onMarkDone(item)}>✓ {item.type === "movie" ? "Marcar como visto" : "Marcar como lido"}</button>
-          )}
-          {context === "library" && <button className="av-ghost sm" onClick={() => onAddTo(item)}>+ Coleção</button>}
-          <button className="av-ghost sm" onClick={() => onEdit(item)}>Editar</button>
-          {context === "library"
-            ? <button className="av-ghost sm danger" onClick={() => onDelete(item)}>Excluir</button>
-            : <button className="av-ghost sm danger" onClick={() => onRemoveFrom(item)}>Remover</button>}
-        </footer>
-      </div>
-    </article>
-  );
-}
-
-function PlaylistCard({ pl, count, avg, onOpen, onDelete }) {
-  return (
-    <article className="av-card av-pl" onClick={() => onOpen(pl.id)}>
-      <div className="av-cardbody">
-        <div className="av-plhead"><h4 className="av-title">{pl.name}</h4><Chip>{pl.tag}</Chip></div>
-        {pl.description && <p className="av-notes">{pl.description}</p>}
-        <div className="av-plmeta">
-          <span>{count} {count === 1 ? "item" : "itens"}</span><span className="av-dot">·</span><span>média {fmtAvg(avg)}</span>
-          <button className="av-ghost sm danger av-pldel" onClick={(e) => { e.stopPropagation(); onDelete(pl); }}>Excluir</button>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function App() {
-  const [items, setItems] = useState(() => loadKey(KEYS.items));
-  const [playlists, setPlaylists] = useState(() => loadKey(KEYS.playlists));
-  const [links, setLinks] = useState(() => loadKey(KEYS.links));
-  const [theme, setTheme] = useState(() => { const t = loadStr(KEYS.theme); return (t === "dark" || t === "light") ? t : "light"; });
-
-  const [screen, setScreen] = useState("library");
-  const [tab, setTab] = useState("movie");
-  const [statusView, setStatusView] = useState("done");
-  const [openPl, setOpenPl] = useState(null);
-  const [minRating, setMinRating] = useState(0);
-  const [query, setQuery] = useState("");
-  const [itemModal, setItemModal] = useState(null);
-  const [plModal, setPlModal] = useState(null);
-  const [addTo, setAddTo] = useState(null);
-
-  useEffect(() => { document.title = "Acervo"; }, []);
-  useEffect(() => { document.body.style.background = PAGE_BG[theme]; const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute("content", PAGE_BG[theme]); }, [theme]);
-
-  const putItems = (next) => { setItems(next); saveKey(KEYS.items, next); };
-  const putPlaylists = (next) => { setPlaylists(next); saveKey(KEYS.playlists, next); };
-  const putLinks = (next) => { setLinks(next); saveKey(KEYS.links, next); };
-  const toggleTheme = () => { const t = theme === "dark" ? "light" : "dark"; setTheme(t); saveStr(KEYS.theme, t); };
-
-  const openNewItem = () => setItemModal({ mode: "new", draft: { type: tab, status: statusView, title: "", subtitle: "", cover: "", rating: 0, notes: "" } });
-  const openEditItem = (it) => setItemModal({ mode: "edit", draft: { ...it } });
-  const saveItem = () => {
-    const dr = itemModal.draft; if (!dr.title.trim()) return;
-    const clean = { ...dr, title: dr.title.trim(), cover: (dr.cover || "").trim(), rating: dr.status === "wish" ? 0 : dr.rating };
-    if (itemModal.mode === "new") putItems([{ id: uid(), createdAt: new Date().toISOString(), ...clean }, ...items]);
-    else putItems(items.map((x) => (x.id === dr.id ? { ...x, ...clean } : x)));
-    setItemModal(null);
+  // ===== Estado =====
+  var state = {
+    items: load(KEYS.items, []),
+    playlists: load(KEYS.playlists, []),
+    links: load(KEYS.links, []),
+    theme: (load(KEYS.theme, "light") === "dark" ? "dark" : "light"),
+    screen: "library", tab: "movie", statusView: "done",
+    openPl: null, minRating: 0, query: "",
+    itemModal: null, plModal: null, addTo: null, _mo: false
   };
-  const deleteItem = (it) => { putItems(items.filter((x) => x.id !== it.id)); putLinks(links.filter((l) => l.itemId !== it.id)); };
-  const markDone = (it) => { const updated = { ...it, status: "done" }; putItems(items.map((x) => (x.id === it.id ? updated : x))); setItemModal({ mode: "edit", draft: updated }); };
-
-  const openNewPl = () => setPlModal({ draft: { name: "", tag: "", description: "" } });
-  const savePl = () => {
-    const dr = plModal.draft; if (!dr.name.trim()) return;
-    putPlaylists([{ id: uid(), createdAt: new Date().toISOString(), name: dr.name.trim(), tag: dr.tag.trim(), description: dr.description.trim() }, ...playlists]);
-    setPlModal(null);
+  var persist = {
+    items: function () { saveRaw(KEYS.items, state.items); },
+    playlists: function () { saveRaw(KEYS.playlists, state.playlists); },
+    links: function () { saveRaw(KEYS.links, state.links); },
+    theme: function () { saveRaw(KEYS.theme, state.theme); }
   };
-  const deletePl = (pl) => { putPlaylists(playlists.filter((p) => p.id !== pl.id)); putLinks(links.filter((l) => l.playlistId !== pl.id)); if (openPl === pl.id) { setOpenPl(null); setScreen("playlists"); } };
 
-  const hasLink = (plId, itemId) => links.some((l) => l.playlistId === plId && l.itemId === itemId);
-  const toggleLink = (plId, item) => {
-    if (hasLink(plId, item.id)) putLinks(links.filter((l) => !(l.playlistId === plId && l.itemId === item.id)));
-    else putLinks([...links, { playlistId: plId, itemId: item.id, itemType: item.type }]);
-  };
-  const removeFromPl = (plId, item) => putLinks(links.filter((l) => !(l.playlistId === plId && l.itemId === item.id)));
+  // ===== Helpers =====
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  var RATING_WORDS = ["sem nota", "ruim", "fraco", "bom", "ótimo", "favorito"];
+  function fmtAvg(n) { return n == null ? "—" : n.toFixed(1).replace(".", ","); }
+  function statusOf(i) { return i.status || "done"; }
+  function verb(type, status) { return status === "wish" ? (type === "movie" ? "Quero ver" : "Quero ler") : (type === "movie" ? "Visto" : "Lido"); }
+  var TINTS = ["#23314d", "#3a2b46", "#2b3d3a", "#43382a", "#3f2a2c", "#2c3550"];
+  function tintFor(str) { var h = 0; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return TINTS[h % TINTS.length]; }
+  function initialsOf(title) { var m = (title || "").match(/[A-Za-zÀ-ÿ0-9]/g); return (m ? m[0] : "?").toUpperCase(); }
+  var PAGE_BG = { dark: "#13172A", light: "#F2EEE3" };
 
-  const counts = useMemo(() => ({
-    movie: items.filter((i) => statusOf(i) === statusView && i.type === "movie").length,
-    book: items.filter((i) => statusOf(i) === statusView && i.type === "book").length,
-  }), [items, statusView]);
+  // hyperscript: el(tag, props, ...children)
+  function el(tag, props) {
+    var node = document.createElement(tag);
+    if (props) {
+      for (var k in props) {
+        var v = props[k];
+        if (v == null || v === false) continue;
+        if (k === "class") node.className = v;
+        else if (k === "style" && typeof v === "object") { for (var sk in v) node.style[sk] = v[sk]; }
+        else if (k.slice(0, 2) === "on" && typeof v === "function") node.addEventListener(k.slice(2).toLowerCase(), v);
+        else if (k in node) { try { node[k] = v; } catch (e) { node.setAttribute(k, v); } }
+        else node.setAttribute(k, v);
+      }
+    }
+    for (var a = 2; a < arguments.length; a++) {
+      var kid = arguments[a];
+      if (kid == null || kid === false) continue;
+      if (Array.isArray(kid)) { for (var j = 0; j < kid.length; j++) { var c = kid[j]; if (c == null || c === false) continue; node.appendChild(typeof c === "object" ? c : document.createTextNode(String(c))); } }
+      else node.appendChild(typeof kid === "object" ? kid : document.createTextNode(String(kid)));
+    }
+    return node;
+  }
 
-  const libItems = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return items.filter((i) => statusOf(i) === statusView).filter((i) => i.type === tab)
-      .filter((i) => statusView === "wish" || i.rating >= minRating)
-      .filter((i) => !q || i.title.toLowerCase().includes(q) || (i.subtitle || "").toLowerCase().includes(q))
-      .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
-  }, [items, tab, statusView, minRating, query]);
-
-  const panorama = useMemo(() => {
-    const done = items.filter((i) => statusOf(i) === "done");
-    const wishItems = items.filter((i) => statusOf(i) === "wish");
-    const avgOf = (arr) => { const r = arr.filter((i) => i.rating > 0); return r.length ? r.reduce((s, i) => s + i.rating, 0) / r.length : null; };
-    const dist = [5, 4, 3, 2, 1].map((n) => ({ n, c: done.filter((i) => i.rating === n).length }));
-    const top = done.filter((i) => i.rating > 0).sort((a, b) => b.rating - a.rating || (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 6);
-    const byCol = playlists.map((p) => {
-      const list = links.filter((l) => l.playlistId === p.id).map((l) => items.find((i) => i.id === l.itemId)).filter(Boolean);
-      const r = list.filter((i) => i.rating > 0);
-      return { id: p.id, name: p.name, tag: p.tag, count: list.length, avg: r.length ? r.reduce((s, i) => s + i.rating, 0) / r.length : null };
-    }).sort((a, b) => b.count - a.count);
+  // ===== Dados derivados =====
+  function counts() {
     return {
-      total: done.length, movies: done.filter((i) => i.type === "movie").length, books: done.filter((i) => i.type === "book").length,
-      avgAll: avgOf(done), avgMovies: avgOf(done.filter((i) => i.type === "movie")), avgBooks: avgOf(done.filter((i) => i.type === "book")),
-      wish: wishItems.length, wishMovies: wishItems.filter((i) => i.type === "movie").length, wishBooks: wishItems.filter((i) => i.type === "book").length,
-      dist, top, byCol,
+      movie: state.items.filter(function (i) { return statusOf(i) === state.statusView && i.type === "movie"; }).length,
+      book: state.items.filter(function (i) { return statusOf(i) === state.statusView && i.type === "book"; }).length
     };
-  }, [items, playlists, links]);
+  }
+  function libItems() {
+    var q = state.query.trim().toLowerCase();
+    return state.items
+      .filter(function (i) { return statusOf(i) === state.statusView; })
+      .filter(function (i) { return i.type === state.tab; })
+      .filter(function (i) { return state.statusView === "wish" || i.rating >= state.minRating; })
+      .filter(function (i) { return !q || i.title.toLowerCase().indexOf(q) >= 0 || (i.subtitle || "").toLowerCase().indexOf(q) >= 0; })
+      .sort(function (a, b) { return (b.createdAt || "").localeCompare(a.createdAt || ""); });
+  }
+  function plStats(plId) {
+    var list = state.links.filter(function (l) { return l.playlistId === plId; })
+      .map(function (l) { return state.items.find(function (i) { return i.id === l.itemId; }); })
+      .filter(Boolean);
+    var rated = list.filter(function (i) { return i.rating > 0; });
+    var avg = rated.length ? rated.reduce(function (s, i) { return s + i.rating; }, 0) / rated.length : null;
+    return { list: list, count: list.length, avg: avg };
+  }
+  function panorama() {
+    var done = state.items.filter(function (i) { return statusOf(i) === "done"; });
+    var wishItems = state.items.filter(function (i) { return statusOf(i) === "wish"; });
+    var avgOf = function (arr) { var r = arr.filter(function (i) { return i.rating > 0; }); return r.length ? r.reduce(function (s, i) { return s + i.rating; }, 0) / r.length : null; };
+    var dist = [5, 4, 3, 2, 1].map(function (n) { return { n: n, c: done.filter(function (i) { return i.rating === n; }).length }; });
+    var top = done.filter(function (i) { return i.rating > 0; })
+      .sort(function (a, b) { return b.rating - a.rating || (b.createdAt || "").localeCompare(a.createdAt || ""); }).slice(0, 6);
+    var byCol = state.playlists.map(function (p) {
+      var list = state.links.filter(function (l) { return l.playlistId === p.id; })
+        .map(function (l) { return state.items.find(function (i) { return i.id === l.itemId; }); }).filter(Boolean);
+      var r = list.filter(function (i) { return i.rating > 0; });
+      return { id: p.id, name: p.name, tag: p.tag, count: list.length, avg: r.length ? r.reduce(function (s, i) { return s + i.rating; }, 0) / r.length : null };
+    }).sort(function (a, b) { return b.count - a.count; });
+    return {
+      total: done.length,
+      movies: done.filter(function (i) { return i.type === "movie"; }).length,
+      books: done.filter(function (i) { return i.type === "book"; }).length,
+      avgAll: avgOf(done),
+      avgMovies: avgOf(done.filter(function (i) { return i.type === "movie"; })),
+      avgBooks: avgOf(done.filter(function (i) { return i.type === "book"; })),
+      wish: wishItems.length,
+      wishMovies: wishItems.filter(function (i) { return i.type === "movie"; }).length,
+      wishBooks: wishItems.filter(function (i) { return i.type === "book"; }).length,
+      dist: dist, top: top, byCol: byCol
+    };
+  }
 
-  const plStats = (plId) => {
-    const list = links.filter((l) => l.playlistId === plId).map((l) => items.find((i) => i.id === l.itemId)).filter(Boolean);
-    const rated = list.filter((i) => i.rating > 0);
-    const avg = rated.length ? rated.reduce((s, i) => s + i.rating, 0) / rated.length : null;
-    return { list, count: list.length, avg };
-  };
+  // ===== Ações =====
+  function go(screen) { state.screen = screen; if (screen !== "playlist") state.openPl = null; render(); }
+  function setTheme(t) { state.theme = t; persist.theme(); render(); }
 
-  const activePl = playlists.find((p) => p.id === openPl);
-  const detail = activePl ? plStats(activePl.id) : null;
-  const d = itemModal && itemModal.draft;
+  function openNewItem() { state.itemModal = { mode: "new", draft: { type: state.tab, status: state.statusView, title: "", subtitle: "", cover: "", rating: 0, notes: "" } }; state._mo = true; render(); }
+  function openEditItem(it) { state.itemModal = { mode: "edit", draft: Object.assign({}, it) }; state._mo = true; render(); }
+  function closeItem() { state.itemModal = null; render(); }
+  function updateDraft(f, v) { state.itemModal.draft[f] = v; render(); }
+  function saveItem() {
+    var dr = state.itemModal.draft;
+    if (!dr.title.trim()) return;
+    var clean = Object.assign({}, dr, { title: dr.title.trim(), cover: (dr.cover || "").trim(), rating: dr.status === "wish" ? 0 : dr.rating });
+    if (state.itemModal.mode === "new") state.items.unshift(Object.assign({ id: uid(), createdAt: new Date().toISOString() }, clean));
+    else state.items = state.items.map(function (x) { return x.id === dr.id ? Object.assign({}, x, clean) : x; });
+    persist.items(); state.itemModal = null; render();
+  }
+  function deleteItem(it) {
+    state.items = state.items.filter(function (x) { return x.id !== it.id; });
+    state.links = state.links.filter(function (l) { return l.itemId !== it.id; });
+    persist.items(); persist.links(); render();
+  }
+  function markDone(it) {
+    var up = Object.assign({}, it, { status: "done" });
+    state.items = state.items.map(function (x) { return x.id === it.id ? up : x; });
+    persist.items(); state.itemModal = { mode: "edit", draft: up }; state._mo = true; render();
+  }
 
-  return (
-    <div className={"av-root theme-" + theme}>
-      <aside className="av-side">
-        <div className="av-brand"><span className="av-logo">Acervo</span><span className="av-tag">o que você viu e leu</span></div>
-        <nav className="av-nav">
-          <button className={"av-navitem" + (screen === "library" ? " active" : "")} onClick={() => setScreen("library")}>Biblioteca</button>
-          <button className={"av-navitem" + ((screen === "playlists" || screen === "playlist") ? " active" : "")} onClick={() => { setScreen("playlists"); setOpenPl(null); }}>Coleções</button>
-          <button className={"av-navitem" + (screen === "stats" ? " active" : "")} onClick={() => { setScreen("stats"); setOpenPl(null); }}>Panorama</button>
-        </nav>
-        <div className="av-sidefoot">
-          <span>{items.length} registros · {playlists.length} coleções</span>
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        </div>
-      </aside>
+  function openNewPl() { state.plModal = { draft: { name: "", tag: "", description: "" } }; state._mo = true; render(); }
+  function updatePlDraft(f, v) { state.plModal.draft[f] = v; render(); }
+  function savePl() {
+    var dr = state.plModal.draft;
+    if (!dr.name.trim()) return;
+    state.playlists.unshift({ id: uid(), createdAt: new Date().toISOString(), name: dr.name.trim(), tag: dr.tag.trim(), description: dr.description.trim() });
+    persist.playlists(); state.plModal = null; render();
+  }
+  function deletePl(pl) {
+    state.playlists = state.playlists.filter(function (p) { return p.id !== pl.id; });
+    state.links = state.links.filter(function (l) { return l.playlistId !== pl.id; });
+    persist.playlists(); persist.links();
+    if (state.openPl === pl.id) { state.openPl = null; state.screen = "playlists"; }
+    render();
+  }
 
-      <main className="av-main">
-        {screen === "library" && (
-          <Library tab={tab} setTab={setTab} counts={counts} statusView={statusView} setStatusView={setStatusView}
-            items={libItems} query={query} setQuery={setQuery} minRating={minRating} setMinRating={setMinRating}
-            onNew={openNewItem} onAddTo={setAddTo} onEdit={openEditItem} onDelete={deleteItem} onMarkDone={markDone} />
-        )}
-        {screen === "playlists" && (
-          <Playlists playlists={playlists} stats={plStats} onNew={openNewPl} onOpen={(id) => { setOpenPl(id); setScreen("playlist"); }} onDelete={deletePl} />
-        )}
-        {screen === "playlist" && activePl && (
-          <PlaylistDetail pl={activePl} detail={detail} onBack={() => { setScreen("playlists"); setOpenPl(null); }} onEdit={openEditItem} onRemove={(it) => removeFromPl(activePl.id, it)} />
-        )}
-        {screen === "stats" && <Stats d={panorama} onAdd={openNewItem} />}
-      </main>
+  function hasLink(plId, itemId) { return state.links.some(function (l) { return l.playlistId === plId && l.itemId === itemId; }); }
+  function toggleLink(plId, item) {
+    if (hasLink(plId, item.id)) state.links = state.links.filter(function (l) { return !(l.playlistId === plId && l.itemId === item.id); });
+    else state.links.push({ playlistId: plId, itemId: item.id, itemType: item.type });
+    persist.links();
+  }
+  function removeFromPl(plId, item) {
+    state.links = state.links.filter(function (l) { return !(l.playlistId === plId && l.itemId === item.id); });
+    persist.links(); render();
+  }
 
-      <nav className="av-bottom">
-        <button className={screen === "library" ? "on" : ""} onClick={() => setScreen("library")}>Biblioteca</button>
-        <button className={(screen === "playlists" || screen === "playlist") ? "on" : ""} onClick={() => { setScreen("playlists"); setOpenPl(null); }}>Coleções</button>
-        <button className={screen === "stats" ? "on" : ""} onClick={() => { setScreen("stats"); setOpenPl(null); }}>Panorama</button>
-        <button className="av-themebtn" onClick={toggleTheme} aria-label="Alternar tema">{theme === "dark" ? "☀" : "☾"}</button>
-      </nav>
+  // ===== Componentes =====
+  function TypeTab(type) { return el("span", { "class": "av-typetab " + (type === "movie" ? "film" : "book") }, type === "movie" ? "Filme" : "Livro"); }
+  function Chip(text) { return text ? el("span", { "class": "av-chip" }, text) : null; }
 
-      {itemModal && (
-        <Modal title={itemModal.mode === "new" ? "Adicionar ao acervo" : "Editar registro"} onClose={() => setItemModal(null)}
-          footer={<>
-            <button className="av-ghost" onClick={() => setItemModal(null)}>Cancelar</button>
-            <button className="av-primary" disabled={!d.title.trim()} onClick={saveItem}>{itemModal.mode === "new" ? "Adicionar" : "Salvar"}</button>
-          </>}>
-          <label className="av-label">Tipo</label>
-          <div className="av-seg">
-            {["movie", "book"].map((t) => (<button key={t} className={"av-segbtn" + (d.type === t ? " on" : "")} onClick={() => setItemModal((m) => ({ ...m, draft: { ...m.draft, type: t } }))}>{t === "movie" ? "Filme" : "Livro"}</button>))}
-          </div>
-          <label className="av-label">Situação</label>
-          <div className="av-seg">
-            {[["done", "Concluídos"], ["wish", "Desejados"]].map(([k, lbl]) => (<button key={k} className={"av-segbtn" + (d.status === k ? " on" : "")} onClick={() => setItemModal((m) => ({ ...m, draft: { ...m.draft, status: k } }))}>{lbl}</button>))}
-          </div>
-          <label className="av-label">Título</label>
-          <input className="av-input" value={d.title} placeholder={d.type === "movie" ? "ex: Cinema Paradiso" : "ex: Noites Brancas"} onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, title: e.target.value } }))} />
-          <label className="av-label">{d.type === "movie" ? "Direção ou ano" : "Autor"} <span className="av-opt">opcional</span></label>
-          <input className="av-input" value={d.subtitle} placeholder={d.type === "movie" ? "ex: Tornatore, 1988" : "ex: Dostoiévski"} onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, subtitle: e.target.value } }))} />
-          <label className="av-label">Capa <span className="av-opt">URL da imagem, opcional</span></label>
-          <div className="av-cvrow">
-            <input className="av-input" value={d.cover} placeholder="cole o link de uma imagem da capa" onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, cover: e.target.value } }))} />
-            <Cover key={d.cover || "ph"} item={d} cls="av-cvprev" />
-          </div>
-          {d.status === "done" && (<>
-            <label className="av-label">Nota</label>
-            <Lamps size={20} value={d.rating} idleHint onChange={(v) => setItemModal((m) => ({ ...m, draft: { ...m.draft, rating: v } }))} />
-          </>)}
-          <label className="av-label">Observação <span className="av-opt">opcional</span></label>
-          <textarea className="av-input av-area" rows={3} value={d.notes} placeholder={d.status === "wish" ? "por que quer ver/ler…" : "o que ficou de você…"} onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, notes: e.target.value } }))} />
-        </Modal>
-      )}
+  function Placeholder(item, cls) {
+    return el("div", { "class": cls + " av-coverph", style: { "--tint": tintFor(item.title) } }, el("span", { "class": "av-coverinit" }, initialsOf(item.title)));
+  }
+  function Cover(item, cls) {
+    cls = cls || "av-cover";
+    if (item.cover) {
+      var wrap = el("div", { "class": cls });
+      var img = el("img", { alt: "", src: item.cover });
+      img.addEventListener("error", function () { wrap.replaceWith(Placeholder(item, cls)); });
+      wrap.appendChild(img);
+      return wrap;
+    }
+    return Placeholder(item, cls);
+  }
 
-      {plModal && (
-        <Modal title="Nova coleção" onClose={() => setPlModal(null)}
-          footer={<>
-            <button className="av-ghost" onClick={() => setPlModal(null)}>Cancelar</button>
-            <button className="av-primary" disabled={!plModal.draft.name.trim()} onClick={savePl}>Criar coleção</button>
-          </>}>
-          <label className="av-label">Nome</label>
-          <input className="av-input" value={plModal.draft.name} placeholder="ex: Literatura russa" onChange={(e) => setPlModal((m) => ({ ...m, draft: { ...m.draft, name: e.target.value } }))} />
-          <label className="av-label">Tema ou gênero <span className="av-opt">opcional</span></label>
-          <input className="av-input" value={plModal.draft.tag} placeholder="ex: Drama · Noir · Ensaio" onChange={(e) => setPlModal((m) => ({ ...m, draft: { ...m.draft, tag: e.target.value } }))} />
-          <label className="av-label">Descrição <span className="av-opt">opcional</span></label>
-          <textarea className="av-input av-area" rows={2} value={plModal.draft.description} placeholder="uma linha sobre o que reúne esta coleção" onChange={(e) => setPlModal((m) => ({ ...m, draft: { ...m.draft, description: e.target.value } }))} />
-        </Modal>
-      )}
+  function Lamps(value, onChange, size, idleHint) {
+    var wrap = el("span", { "class": "av-lamps" });
+    var dots = [];
+    var word = null;
+    function paint(n) { for (var i = 0; i < dots.length; i++) dots[i].classList.toggle("on", i < n); }
+    for (var i = 1; i <= 5; i++) {
+      (function (i) {
+        var style = { "--d": (size || 14) + "px" };
+        if (!onChange) {
+          var s = el("span", { "class": "av-lamp" + (i <= value ? " on" : ""), style: style });
+          dots.push(s); wrap.appendChild(s);
+        } else {
+          var b = el("button", {
+            type: "button", "class": "av-lamp av-lampbtn" + (i <= value ? " on" : ""), style: style, "aria-label": "Nota " + i,
+            onmouseenter: function () { paint(i); if (word) word.textContent = RATING_WORDS[i]; },
+            onmouseleave: function () { paint(value); if (word) word.textContent = RATING_WORDS[value]; },
+            onclick: function () { onChange(i === value ? 0 : i); }
+          });
+          dots.push(b); wrap.appendChild(b);
+        }
+      })(i);
+    }
+    if (idleHint && onChange) { word = el("span", { "class": "av-lampword" }, RATING_WORDS[value]); wrap.appendChild(word); }
+    return wrap;
+  }
 
-      {addTo && (
-        <Modal title="Adicionar à coleção" onClose={() => setAddTo(null)} footer={<button className="av-primary" onClick={() => setAddTo(null)}>Concluído</button>}>
-          <p className="av-modalsub">“{addTo.title}”</p>
-          {playlists.length === 0 ? (
-            <div className="av-empty sm"><p>Nenhuma coleção ainda.</p><button className="av-primary" onClick={() => { setAddTo(null); openNewPl(); }}>Criar a primeira</button></div>
-          ) : (
-            <ul className="av-pllist">
-              {playlists.map((p) => {
-                const on = hasLink(p.id, addTo.id);
-                return (<li key={p.id}>
-                  <button className={"av-pltoggle" + (on ? " on" : "")} onClick={() => toggleLink(p.id, addTo)}>
-                    <span className="av-check">{on ? "✓" : ""}</span><span className="av-pltname">{p.name}</span>{p.tag && <Chip>{p.tag}</Chip>}
-                  </button>
-                </li>);
-              })}
-            </ul>
-          )}
-        </Modal>
-      )}
-    </div>
-  );
-}
+  function ItemCard(item, context) {
+    var wish = statusOf(item) === "wish";
+    var body = el("div", { "class": "av-cardbody" });
+    body.appendChild(el("div", { "class": "av-cardtop" }, TypeTab(item.type), wish ? el("span", { "class": "av-wishchip" }, verb(item.type, "wish")) : null));
+    body.appendChild(el("h4", { "class": "av-title" }, item.title));
+    if (item.subtitle) body.appendChild(el("p", { "class": "av-sub" }, item.subtitle));
+    if (!wish) body.appendChild(el("div", { "class": "av-cardrate" }, Lamps(item.rating)));
+    if (item.notes) body.appendChild(el("p", { "class": "av-notes" }, item.notes));
+    var foot = el("div", { "class": "av-cardfoot" });
+    if (wish && context === "library") foot.appendChild(el("button", { "class": "av-markbtn", onclick: function () { markDone(item); } }, "✓ " + (item.type === "movie" ? "Marcar como visto" : "Marcar como lido")));
+    if (context === "library") foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { state.addTo = item; render(); } }, "+ Coleção"));
+    foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { openEditItem(item); } }, "Editar"));
+    if (context === "library") foot.appendChild(el("button", { "class": "av-ghost sm danger", onclick: function () { deleteItem(item); } }, "Excluir"));
+    else foot.appendChild(el("button", { "class": "av-ghost sm danger", onclick: function () { removeFromPl(state.openPl, item); } }, "Remover"));
+    body.appendChild(foot);
+    return el("article", { "class": "av-card" }, Cover(item), body);
+  }
 
-function Library({ tab, setTab, counts, statusView, setStatusView, items, query, setQuery, minRating, setMinRating, onNew, onAddTo, onEdit, onDelete, onMarkDone }) {
-  const wishView = statusView === "wish";
-  return (
-    <section>
-      <div className="av-screenhead"><div><p className="av-eyebrow">Seu acervo</p><h1 className="av-h1">Biblioteca</h1></div><button className="av-primary" onClick={onNew}>+ Adicionar</button></div>
-      <div className="av-statusview">
-        <button className={statusView === "done" ? "on" : ""} onClick={() => setStatusView("done")}>Concluídos</button>
-        <button className={statusView === "wish" ? "on" : ""} onClick={() => setStatusView("wish")}>Desejados</button>
-      </div>
-      <div className="av-tabs">
-        <button className={"av-tab" + (tab === "movie" ? " on" : "")} onClick={() => setTab("movie")}>Filmes <span className="av-count">{counts.movie}</span></button>
-        <button className={"av-tab" + (tab === "book" ? " on" : "")} onClick={() => setTab("book")}>Livros <span className="av-count">{counts.book}</span></button>
-      </div>
-      <div className="av-filters">
-        <input className="av-search" placeholder="Buscar por título ou autor…" value={query} onChange={(e) => setQuery(e.target.value)} />
-        {!wishView && (
-          <div className="av-minrate"><span className="av-minlabel">nota mínima</span><Lamps value={minRating} onChange={setMinRating} />{minRating > 0 && <button className="av-clear" onClick={() => setMinRating(0)}>limpar</button>}</div>
-        )}
-      </div>
-      {items.length === 0 ? (
-        <div className="av-empty">
-          <p>{wishView ? (tab === "movie" ? "Nada na lista de filmes que você quer ver." : "Nada na lista de livros que você quer ler.") : (tab === "movie" ? "Nenhum filme por aqui ainda." : "Nenhum livro por aqui ainda.")}</p>
-          <button className="av-primary" onClick={onNew}>Adicionar o primeiro</button>
-        </div>
-      ) : (
-        <div className="av-grid">{items.map((it) => (<ItemCard key={it.id} item={it} context="library" onAddTo={onAddTo} onEdit={onEdit} onDelete={onDelete} onMarkDone={onMarkDone} />))}</div>
-      )}
-    </section>
-  );
-}
+  function PlaylistCard(pl) {
+    var s = plStats(pl.id);
+    var body = el("div", { "class": "av-cardbody" });
+    body.appendChild(el("div", { "class": "av-plhead" }, el("h4", { "class": "av-title" }, pl.name), Chip(pl.tag)));
+    if (pl.description) body.appendChild(el("p", { "class": "av-notes" }, pl.description));
+    body.appendChild(el("div", { "class": "av-plmeta" },
+      el("span", null, s.count + " " + (s.count === 1 ? "item" : "itens")),
+      el("span", { "class": "av-dot" }, "·"),
+      el("span", null, "média " + fmtAvg(s.avg)),
+      el("button", { "class": "av-ghost sm danger av-pldel", onclick: function (e) { e.stopPropagation(); deletePl(pl); } }, "Excluir")
+    ));
+    return el("article", { "class": "av-card av-pl", onclick: function () { state.openPl = pl.id; state.screen = "playlist"; render(); } }, body);
+  }
 
-function Playlists({ playlists, stats, onNew, onOpen, onDelete }) {
-  return (
-    <section>
-      <div className="av-screenhead"><div><p className="av-eyebrow">Por tema ou gênero</p><h1 className="av-h1">Coleções</h1></div><button className="av-primary" onClick={onNew}>+ Nova coleção</button></div>
-      {playlists.length === 0 ? (
-        <div className="av-empty"><p>Nenhuma coleção ainda. Crie uma para agrupar filmes e livros por tema.</p><button className="av-primary" onClick={onNew}>Criar coleção</button></div>
-      ) : (
-        <div className="av-grid">{playlists.map((pl) => { const s = stats(pl.id); return <PlaylistCard key={pl.id} pl={pl} count={s.count} avg={s.avg} onOpen={onOpen} onDelete={onDelete} />; })}</div>
-      )}
-    </section>
-  );
-}
+  // pequenos auxiliares de formulário
+  function seg(label, on, onclick) { return el("button", { "class": "av-segbtn" + (on ? " on" : ""), onclick: onclick }, label); }
+  function inputField(focusId, value, placeholder, oninput) {
+    var i = el("input", { "class": "av-input", placeholder: placeholder, "data-focus-id": focusId, oninput: function (e) { oninput(e.target.value); } });
+    i.value = value || "";
+    return i;
+  }
+  function labelOpt(text, opt) { return el("label", { "class": "av-label" }, text, " ", el("span", { "class": "av-opt" }, opt || "opcional")); }
+  function ModalShell(title, onClose, bodyNode, footNode) {
+    var head = el("div", { "class": "av-modalhead" }, el("h3", null, title), el("button", { "class": "av-x", "aria-label": "Fechar", onclick: onClose }, "✕"));
+    var modal = el("div", { "class": "av-modal", role: "dialog", "aria-modal": "true", "aria-label": title }, head, bodyNode, footNode || null);
+    var back = el("div", { "class": "av-backdrop" }, modal);
+    back.addEventListener("mousedown", function (e) { if (e.target === back) onClose(); });
+    return back;
+  }
 
-function PlaylistDetail({ pl, detail, onBack, onEdit, onRemove }) {
-  return (
-    <section>
-      <button className="av-back" onClick={onBack}>← Coleções</button>
-      <div className="av-screenhead"><div><p className="av-eyebrow">Coleção</p><h1 className="av-h1">{pl.name}</h1>{pl.tag && <div className="av-detailtag"><Chip>{pl.tag}</Chip></div>}</div></div>
-      {pl.description && <p className="av-detaildesc">{pl.description}</p>}
-      <div className="av-stats"><span>{detail.count} {detail.count === 1 ? "item" : "itens"}</span><span className="av-dot">·</span><span className="av-statavg">média {fmtAvg(detail.avg)}</span><Lamps value={detail.avg ? Math.round(detail.avg) : 0} /></div>
-      {detail.list.length === 0 ? (
-        <div className="av-empty"><p>Coleção vazia. Adicione itens pela Biblioteca, no botão “+ Coleção”.</p></div>
-      ) : (
-        <div className="av-grid">{detail.list.map((it) => (<ItemCard key={it.id} item={it} context="playlist" onEdit={onEdit} onRemoveFrom={onRemove} />))}</div>
-      )}
-    </section>
-  );
-}
+  function ItemModal() {
+    var dr = state.itemModal.draft;
+    var body = el("div", { "class": "av-modalbody" });
+    body.appendChild(el("label", { "class": "av-label" }, "Tipo"));
+    body.appendChild(el("div", { "class": "av-seg" },
+      seg("Filme", dr.type === "movie", function () { updateDraft("type", "movie"); }),
+      seg("Livro", dr.type === "book", function () { updateDraft("type", "book"); })
+    ));
+    body.appendChild(el("label", { "class": "av-label" }, "Situação"));
+    body.appendChild(el("div", { "class": "av-seg" },
+      seg("Concluídos", dr.status === "done", function () { updateDraft("status", "done"); }),
+      seg("Desejados", dr.status === "wish", function () { updateDraft("status", "wish"); })
+    ));
+    body.appendChild(el("label", { "class": "av-label" }, "Título"));
+    body.appendChild(inputField("f-title", dr.title, dr.type === "movie" ? "ex: Cinema Paradiso" : "ex: Noites Brancas", function (v) { updateDraft("title", v); }));
+    body.appendChild(labelOpt(dr.type === "movie" ? "Direção ou ano" : "Autor"));
+    body.appendChild(inputField("f-sub", dr.subtitle, dr.type === "movie" ? "ex: Tornatore, 1988" : "ex: Dostoiévski", function (v) { updateDraft("subtitle", v); }));
+    body.appendChild(labelOpt("Capa", "URL da imagem, opcional"));
+    body.appendChild(el("div", { "class": "av-cvrow" },
+      inputField("f-cover", dr.cover, "cole o link de uma imagem da capa", function (v) { updateDraft("cover", v); }),
+      Cover(dr, "av-cvprev")
+    ));
+    if (dr.status === "done") {
+      body.appendChild(el("label", { "class": "av-label" }, "Nota"));
+      body.appendChild(Lamps(dr.rating, function (v) { updateDraft("rating", v); }, 20, true));
+    }
+    body.appendChild(labelOpt("Observação"));
+    var ta = el("textarea", { "class": "av-input av-area", rows: 3, "data-focus-id": "f-notes", placeholder: dr.status === "wish" ? "por que quer ver/ler…" : "o que ficou de você…", oninput: function (e) { updateDraft("notes", e.target.value); } });
+    ta.value = dr.notes || "";
+    body.appendChild(ta);
+    var foot = el("div", { "class": "av-modalfoot" },
+      el("button", { "class": "av-ghost", onclick: closeItem }, "Cancelar"),
+      el("button", { "class": "av-primary", disabled: !dr.title.trim(), onclick: saveItem }, state.itemModal.mode === "new" ? "Adicionar" : "Salvar")
+    );
+    return ModalShell(state.itemModal.mode === "new" ? "Adicionar ao acervo" : "Editar registro", closeItem, body, foot);
+  }
 
-function Stats({ d, onAdd }) {
-  if (d.total === 0 && d.wish === 0) {
-    return (
-      <section>
-        <div className="av-screenhead"><div><p className="av-eyebrow">Seu acervo em números</p><h1 className="av-h1">Panorama</h1></div></div>
-        <div className="av-empty"><p>Ainda não há nada para medir. Adicione filmes e livros para ver o panorama do seu acervo.</p><button className="av-primary" onClick={onAdd}>Adicionar o primeiro</button></div>
-      </section>
+  function PlModal() {
+    var dr = state.plModal.draft;
+    var body = el("div", { "class": "av-modalbody" });
+    body.appendChild(el("label", { "class": "av-label" }, "Nome"));
+    body.appendChild(inputField("p-name", dr.name, "ex: Literatura russa", function (v) { updatePlDraft("name", v); }));
+    body.appendChild(labelOpt("Tema ou gênero"));
+    body.appendChild(inputField("p-tag", dr.tag, "ex: Drama · Noir · Ensaio", function (v) { updatePlDraft("tag", v); }));
+    body.appendChild(labelOpt("Descrição"));
+    var ta = el("textarea", { "class": "av-input av-area", rows: 2, "data-focus-id": "p-desc", placeholder: "uma linha sobre o que reúne esta coleção", oninput: function (e) { updatePlDraft("description", e.target.value); } });
+    ta.value = dr.description || "";
+    body.appendChild(ta);
+    var close = function () { state.plModal = null; render(); };
+    var foot = el("div", { "class": "av-modalfoot" },
+      el("button", { "class": "av-ghost", onclick: close }, "Cancelar"),
+      el("button", { "class": "av-primary", disabled: !dr.name.trim(), onclick: savePl }, "Criar coleção")
+    );
+    return ModalShell("Nova coleção", close, body, foot);
+  }
+
+  function AddToModal() {
+    var it = state.addTo;
+    var close = function () { state.addTo = null; render(); };
+    var body = el("div", { "class": "av-modalbody" });
+    body.appendChild(el("p", { "class": "av-modalsub" }, "“" + it.title + "”"));
+    if (state.playlists.length === 0) {
+      body.appendChild(el("div", { "class": "av-empty sm" },
+        el("p", null, "Nenhuma coleção ainda."),
+        el("button", { "class": "av-primary", onclick: function () { state.addTo = null; openNewPl(); } }, "Criar a primeira")
+      ));
+    } else {
+      var ul = el("ul", { "class": "av-pllist" });
+      state.playlists.forEach(function (p) {
+        var on = hasLink(p.id, it.id);
+        var btn = el("button", { "class": "av-pltoggle" + (on ? " on" : ""), onclick: function () { toggleLink(p.id, it); render(); } },
+          el("span", { "class": "av-check" }, on ? "✓" : ""), el("span", { "class": "av-pltname" }, p.name), Chip(p.tag));
+        ul.appendChild(el("li", null, btn));
+      });
+      body.appendChild(ul);
+    }
+    var foot = el("div", { "class": "av-modalfoot" }, el("button", { "class": "av-primary", onclick: close }, "Concluído"));
+    return ModalShell("Adicionar à coleção", close, body, foot);
+  }
+
+  function Modals() {
+    if (state.itemModal) return ItemModal();
+    if (state.plModal) return PlModal();
+    if (state.addTo) return AddToModal();
+    return null;
+  }
+
+  // ===== Telas =====
+  function Library() {
+    var sec = el("section");
+    sec.appendChild(el("div", { "class": "av-screenhead" },
+      el("div", null, el("p", { "class": "av-eyebrow" }, "Seu acervo"), el("h1", { "class": "av-h1" }, "Biblioteca")),
+      el("button", { "class": "av-primary", onclick: openNewItem }, "+ Adicionar")
+    ));
+    sec.appendChild(el("div", { "class": "av-statusview" },
+      el("button", { "class": state.statusView === "done" ? "on" : "", onclick: function () { state.statusView = "done"; render(); } }, "Concluídos"),
+      el("button", { "class": state.statusView === "wish" ? "on" : "", onclick: function () { state.statusView = "wish"; render(); } }, "Desejados")
+    ));
+    var c = counts();
+    sec.appendChild(el("div", { "class": "av-tabs" },
+      el("button", { "class": "av-tab" + (state.tab === "movie" ? " on" : ""), onclick: function () { state.tab = "movie"; render(); } }, "Filmes ", el("span", { "class": "av-count" }, String(c.movie))),
+      el("button", { "class": "av-tab" + (state.tab === "book" ? " on" : ""), onclick: function () { state.tab = "book"; render(); } }, "Livros ", el("span", { "class": "av-count" }, String(c.book)))
+    ));
+    var filters = el("div", { "class": "av-filters" });
+    var search = el("input", { "class": "av-search", placeholder: "Buscar por título ou autor…", "data-focus-id": "search", oninput: function (e) { state.query = e.target.value; render(); } });
+    search.value = state.query;
+    filters.appendChild(search);
+    if (state.statusView !== "wish") {
+      var mr = el("div", { "class": "av-minrate" }, el("span", { "class": "av-minlabel" }, "nota mínima"), Lamps(state.minRating, function (v) { state.minRating = v; render(); }));
+      if (state.minRating > 0) mr.appendChild(el("button", { "class": "av-clear", onclick: function () { state.minRating = 0; render(); } }, "limpar"));
+      filters.appendChild(mr);
+    }
+    sec.appendChild(filters);
+    var list = libItems();
+    if (list.length === 0) {
+      var msg = state.statusView === "wish"
+        ? (state.tab === "movie" ? "Nada na lista de filmes que você quer ver." : "Nada na lista de livros que você quer ler.")
+        : (state.tab === "movie" ? "Nenhum filme por aqui ainda." : "Nenhum livro por aqui ainda.");
+      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, msg), el("button", { "class": "av-primary", onclick: openNewItem }, "Adicionar o primeiro")));
+    } else {
+      var grid = el("div", { "class": "av-grid" });
+      list.forEach(function (it) { grid.appendChild(ItemCard(it, "library")); });
+      sec.appendChild(grid);
+    }
+    return sec;
+  }
+
+  function Playlists() {
+    var sec = el("section");
+    sec.appendChild(el("div", { "class": "av-screenhead" },
+      el("div", null, el("p", { "class": "av-eyebrow" }, "Por tema ou gênero"), el("h1", { "class": "av-h1" }, "Coleções")),
+      el("button", { "class": "av-primary", onclick: openNewPl }, "+ Nova coleção")
+    ));
+    if (state.playlists.length === 0) {
+      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Nenhuma coleção ainda. Crie uma para agrupar filmes e livros por tema."), el("button", { "class": "av-primary", onclick: openNewPl }, "Criar coleção")));
+    } else {
+      var grid = el("div", { "class": "av-grid" });
+      state.playlists.forEach(function (pl) { grid.appendChild(PlaylistCard(pl)); });
+      sec.appendChild(grid);
+    }
+    return sec;
+  }
+
+  function PlaylistDetail() {
+    var pl = state.playlists.find(function (p) { return p.id === state.openPl; });
+    if (!pl) { state.screen = "playlists"; return Playlists(); }
+    var s = plStats(pl.id);
+    var sec = el("section");
+    sec.appendChild(el("button", { "class": "av-back", onclick: function () { state.screen = "playlists"; state.openPl = null; render(); } }, "← Coleções"));
+    var head = el("div", null, el("p", { "class": "av-eyebrow" }, "Coleção"), el("h1", { "class": "av-h1" }, pl.name));
+    if (pl.tag) head.appendChild(el("div", { "class": "av-detailtag" }, Chip(pl.tag)));
+    sec.appendChild(el("div", { "class": "av-screenhead" }, head));
+    if (pl.description) sec.appendChild(el("p", { "class": "av-detaildesc" }, pl.description));
+    sec.appendChild(el("div", { "class": "av-stats" },
+      el("span", null, s.count + " " + (s.count === 1 ? "item" : "itens")),
+      el("span", { "class": "av-dot" }, "·"),
+      el("span", { "class": "av-statavg" }, "média " + fmtAvg(s.avg)),
+      Lamps(s.avg ? Math.round(s.avg) : 0)
+    ));
+    if (s.list.length === 0) {
+      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Coleção vazia. Adicione itens pela Biblioteca, no botão “+ Coleção”.")));
+    } else {
+      var grid = el("div", { "class": "av-grid" });
+      s.list.forEach(function (it) { grid.appendChild(ItemCard(it, "playlist")); });
+      sec.appendChild(grid);
+    }
+    return sec;
+  }
+
+  function statCard(num, label, sub) {
+    var c = el("div", { "class": "av-stat" }, el("span", { "class": "av-statnum" }, num), el("span", { "class": "av-statlbl" }, label));
+    if (sub) c.appendChild(el("span", { "class": "av-statsub" }, sub));
+    return c;
+  }
+  function barRow(headNode, ratio, valNode) {
+    var track = el("span", { "class": "av-bartrack" }, el("span", { "class": "av-barfill", style: { width: (ratio * 100) + "%" } }));
+    return el("div", { "class": "av-barrow" }, headNode, track, typeof valNode === "string" ? el("span", { "class": "av-barval" }, valNode) : valNode);
+  }
+  function Stats() {
+    var d = panorama();
+    var sec = el("section");
+    sec.appendChild(el("div", { "class": "av-screenhead" }, el("div", null, el("p", { "class": "av-eyebrow" }, "Seu acervo em números"), el("h1", { "class": "av-h1" }, "Panorama"))));
+    if (d.total === 0 && d.wish === 0) {
+      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Ainda não há nada para medir. Adicione filmes e livros para ver o panorama do seu acervo."), el("button", { "class": "av-primary", onclick: openNewItem }, "Adicionar o primeiro")));
+      return sec;
+    }
+    var sg = el("div", { "class": "av-statgrid" });
+    sg.appendChild(statCard(String(d.total), "vistos & lidos"));
+    sg.appendChild(statCard(String(d.movies), "filmes", "média " + fmtAvg(d.avgMovies)));
+    sg.appendChild(statCard(String(d.books), "livros", "média " + fmtAvg(d.avgBooks)));
+    sg.appendChild(el("div", { "class": "av-stat" }, el("span", { "class": "av-statnum" }, fmtAvg(d.avgAll)), el("span", { "class": "av-statlbl" }, "nota média"), el("span", { "class": "av-statsub" }, Lamps(d.avgAll ? Math.round(d.avgAll) : 0))));
+    sec.appendChild(sg);
+    if (d.wish > 0) sec.appendChild(el("p", { "class": "av-wishline" }, "Lista de desejos: ", el("b", null, String(d.wish)), " — " + d.wishMovies + " " + (d.wishMovies === 1 ? "filme" : "filmes") + ", " + d.wishBooks + " " + (d.wishBooks === 1 ? "livro" : "livros")));
+    if (d.total > 0) {
+      sec.appendChild(el("h2", { "class": "av-h2" }, "Distribuição das notas"));
+      var maxD = Math.max.apply(null, [1].concat(d.dist.map(function (x) { return x.c; })));
+      var bars = el("div", { "class": "av-bars" });
+      d.dist.forEach(function (row) { bars.appendChild(barRow(el("span", { "class": "av-barhead" }, Lamps(row.n)), row.c / maxD, String(row.c))); });
+      sec.appendChild(bars);
+    }
+    if (d.top.length > 0) {
+      sec.appendChild(el("h2", { "class": "av-h2" }, "Mais bem avaliados"));
+      var tl = el("div", { "class": "av-toplist" });
+      d.top.forEach(function (it) {
+        var name = el("span", { "class": "av-topname" }, it.title);
+        if (it.subtitle) name.appendChild(el("em", null, " — " + it.subtitle));
+        tl.appendChild(el("div", { "class": "av-toprow" }, Cover(it, "av-topcover"), name, Lamps(it.rating)));
+      });
+      sec.appendChild(tl);
+    }
+    if (d.byCol.length > 0) {
+      sec.appendChild(el("h2", { "class": "av-h2" }, "Por coleção"));
+      var maxC = Math.max.apply(null, [1].concat(d.byCol.map(function (x) { return x.count; })));
+      var bars2 = el("div", { "class": "av-bars" });
+      d.byCol.forEach(function (c) {
+        var head = el("span", { "class": "av-barhead av-colname" }, c.name);
+        if (c.tag) head.appendChild(el("span", { "class": "av-coltag" }, " · " + c.tag));
+        var val = el("span", { "class": "av-barval" }, String(c.count));
+        if (c.avg != null) val.appendChild(el("span", { "class": "av-colavg" }, " · " + fmtAvg(c.avg)));
+        bars2.appendChild(barRow(head, c.count / maxC, val));
+      });
+      sec.appendChild(bars2);
+    }
+    return sec;
+  }
+
+  function navBtn(label, on, onclick) { return el("button", { "class": "av-navitem" + (on ? " active" : ""), onclick: onclick }, label); }
+  function Sidebar() {
+    var nav = el("nav", { "class": "av-nav" },
+      navBtn("Biblioteca", state.screen === "library", function () { go("library"); }),
+      navBtn("Coleções", state.screen === "playlists" || state.screen === "playlist", function () { go("playlists"); }),
+      navBtn("Panorama", state.screen === "stats", function () { go("stats"); })
+    );
+    var foot = el("div", { "class": "av-sidefoot" },
+      el("span", null, state.items.length + " registros · " + state.playlists.length + " coleções"),
+      el("div", { "class": "av-themeseg", role: "group", "aria-label": "Tema" },
+        el("button", { "class": state.theme === "light" ? "on" : "", onclick: function () { setTheme("light"); } }, "Claro"),
+        el("button", { "class": state.theme === "dark" ? "on" : "", onclick: function () { setTheme("dark"); } }, "Escuro")
+      )
+    );
+    return el("aside", { "class": "av-side" },
+      el("div", { "class": "av-brand" }, el("span", { "class": "av-logo" }, "Acervo"), el("span", { "class": "av-tag" }, "o que você viu e leu")),
+      nav, foot
     );
   }
-  const maxDist = Math.max(1, ...d.dist.map((x) => x.c));
-  const maxCol = Math.max(1, ...d.byCol.map((x) => x.count));
-  return (
-    <section>
-      <div className="av-screenhead"><div><p className="av-eyebrow">Seu acervo em números</p><h1 className="av-h1">Panorama</h1></div></div>
-      <div className="av-statgrid">
-        <div className="av-stat"><span className="av-statnum">{d.total}</span><span className="av-statlbl">vistos & lidos</span></div>
-        <div className="av-stat"><span className="av-statnum">{d.movies}</span><span className="av-statlbl">filmes</span><span className="av-statsub">média {fmtAvg(d.avgMovies)}</span></div>
-        <div className="av-stat"><span className="av-statnum">{d.books}</span><span className="av-statlbl">livros</span><span className="av-statsub">média {fmtAvg(d.avgBooks)}</span></div>
-        <div className="av-stat"><span className="av-statnum">{fmtAvg(d.avgAll)}</span><span className="av-statlbl">nota média</span><span className="av-statsub"><Lamps value={d.avgAll ? Math.round(d.avgAll) : 0} /></span></div>
-      </div>
-      {d.wish > 0 && (<p className="av-wishline">Lista de desejos: <b>{d.wish}</b> — {d.wishMovies} {d.wishMovies === 1 ? "filme" : "filmes"}, {d.wishBooks} {d.wishBooks === 1 ? "livro" : "livros"}</p>)}
-      {d.total > 0 && (<>
-        <h2 className="av-h2">Distribuição das notas</h2>
-        <div className="av-bars">{d.dist.map((row) => (<div className="av-barrow" key={row.n}><span className="av-barhead"><Lamps value={row.n} /></span><span className="av-bartrack"><span className="av-barfill" style={{ width: (row.c / maxDist) * 100 + "%" }} /></span><span className="av-barval">{row.c}</span></div>))}</div>
-      </>)}
-      {d.top.length > 0 && (<>
-        <h2 className="av-h2">Mais bem avaliados</h2>
-        <div className="av-toplist">{d.top.map((it) => (<div className="av-toprow" key={it.id}><Cover key={it.cover || "ph"} item={it} cls="av-topcover" /><span className="av-topname">{it.title}{it.subtitle && <em> — {it.subtitle}</em>}</span><Lamps value={it.rating} /></div>))}</div>
-      </>)}
-      {d.byCol.length > 0 && (<>
-        <h2 className="av-h2">Por coleção</h2>
-        <div className="av-bars">{d.byCol.map((c) => (<div className="av-barrow" key={c.id}><span className="av-barhead av-colname">{c.name}{c.tag && <span className="av-coltag"> · {c.tag}</span>}</span><span className="av-bartrack"><span className="av-barfill" style={{ width: (c.count / maxCol) * 100 + "%" }} /></span><span className="av-barval">{c.count}{c.avg != null && <span className="av-colavg"> · {fmtAvg(c.avg)}</span>}</span></div>))}</div>
-      </>)}
-    </section>
-  );
-}
+  function Bottom() {
+    return el("nav", { "class": "av-bottom" },
+      el("button", { "class": state.screen === "library" ? "on" : "", onclick: function () { go("library"); } }, "Biblioteca"),
+      el("button", { "class": (state.screen === "playlists" || state.screen === "playlist") ? "on" : "", onclick: function () { go("playlists"); } }, "Coleções"),
+      el("button", { "class": state.screen === "stats" ? "on" : "", onclick: function () { go("stats"); } }, "Panorama"),
+      el("button", { "class": "av-themebtn", "aria-label": "Alternar tema", onclick: function () { setTheme(state.theme === "dark" ? "light" : "dark"); } }, state.theme === "dark" ? "☀" : "☾")
+    );
+  }
+  function Main() {
+    var main = el("main", { "class": "av-main" });
+    if (state.screen === "library") main.appendChild(Library());
+    else if (state.screen === "playlists") main.appendChild(Playlists());
+    else if (state.screen === "playlist") main.appendChild(PlaylistDetail());
+    else if (state.screen === "stats") main.appendChild(Stats());
+    return main;
+  }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  // ===== Render =====
+  function render() {
+    var a = document.activeElement, cap = null;
+    if (a && a.getAttribute && a.getAttribute("data-focus-id")) {
+      cap = { id: a.getAttribute("data-focus-id"), s: a.selectionStart, e: a.selectionEnd };
+    }
+    var root = document.getElementById("root");
+    while (root.firstChild) root.removeChild(root.firstChild);
+    root.className = "av-root theme-" + state.theme;
+    document.body.style.background = PAGE_BG[state.theme];
+    var meta = document.querySelector("meta[name=theme-color]"); if (meta) meta.setAttribute("content", PAGE_BG[state.theme]);
+    root.appendChild(Sidebar());
+    root.appendChild(Main());
+    root.appendChild(Bottom());
+    var modal = Modals(); if (modal) root.appendChild(modal);
+    if (state._mo && modal) { var first = modal.querySelector("input, textarea"); if (first) first.focus(); state._mo = false; }
+    else if (cap) { var n = root.querySelector('[data-focus-id="' + cap.id + '"]'); if (n) { n.focus(); try { n.setSelectionRange(cap.s, cap.e); } catch (e2) {} } }
+  }
+
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      if (state.itemModal) { state.itemModal = null; render(); }
+      else if (state.plModal) { state.plModal = null; render(); }
+      else if (state.addTo) { state.addTo = null; render(); }
+    }
+  });
+
+  render();
+})();
 </script>
 </body>
 </html>
