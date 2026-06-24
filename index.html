@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F2EEE3" />
+<title>Acervo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" />
+<style>
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{margin:0;background:#F2EEE3}
+
+.theme-dark{
+  --ink:#13172A; --raised:#1B2140; --line:#2A3157; --line2:#363f6b;
+  --parch:#ECE5D6; --muted:#8E93AD; --lamp:#E7B264; --lamp-hi:#ffe9c0; --lampglow:rgba(231,178,100,.55);
+  --film:#E7B264; --book:#9FB0C9; --rose:#C77B6F;
+  --accent-soft:rgba(231,178,100,.08); --accent-line:rgba(231,178,100,.38); --focus:rgba(231,178,100,.14);
+  --book-soft:rgba(159,176,201,.08); --book-line:rgba(159,176,201,.35); --rose-line:rgba(199,123,111,.5);
+  --glow:rgba(231,178,100,.07);
+  --shadow-card:0 10px 28px -16px rgba(0,0,0,.7);
+  --shadow-modal:0 30px 80px -20px rgba(0,0,0,.8);
+  --backdrop-bg:rgba(8,10,18,.66);
+  --tab-dark:#1a1406;
+}
+.theme-light{
+  --ink:#F2EEE3; --raised:#FBF8F1; --line:#E6DECC; --line2:#D8CDB6;
+  --parch:#2D3142; --muted:#867E6B; --lamp:#C5882F; --lamp-hi:#EFC36F; --lampglow:rgba(197,138,54,.26);
+  --film:#D49A45; --book:#6E8198; --rose:#B25A4D;
+  --accent-soft:rgba(197,138,54,.12); --accent-line:rgba(197,138,54,.42); --focus:rgba(197,138,54,.22);
+  --book-soft:rgba(110,129,152,.12); --book-line:rgba(110,129,152,.40); --rose-line:rgba(178,90,77,.45);
+  --glow:rgba(212,154,69,.10);
+  --shadow-card:0 12px 30px -18px rgba(60,50,30,.20);
+  --shadow-modal:0 28px 70px -24px rgba(60,50,30,.26);
+  --backdrop-bg:rgba(45,40,30,.34);
+  --tab-dark:#241a05;
+}
+
+.av-root{min-height:100vh; display:grid; grid-template-columns:240px 1fr;
+  background:radial-gradient(1100px 480px at 50% -220px, var(--glow), transparent 62%), var(--ink);
+  color:var(--parch); font-family:'Hanken Grotesk',system-ui,sans-serif; font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; transition:background .3s,color .3s}
+.av-side{border-right:1px solid var(--line); padding:30px 22px; display:flex; flex-direction:column; gap:30px; position:sticky; top:0; height:100vh}
+.av-brand{display:flex;flex-direction:column;gap:4px}
+.av-logo{font-family:'Fraunces',serif;font-weight:600;font-size:27px;letter-spacing:.01em;color:var(--parch)}
+.av-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.av-nav{display:flex;flex-direction:column;gap:2px}
+.av-navitem{text-align:left;background:none;border:none;cursor:pointer;color:var(--muted);font:inherit;font-weight:600;font-size:15px;padding:9px 12px;border-radius:7px;border-left:2px solid transparent;transition:color .15s,background .15s}
+.av-navitem:hover{color:var(--parch)}
+.av-navitem.active{color:var(--parch);background:var(--accent-soft);border-left-color:var(--lamp)}
+.av-sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:12px;font-size:12px;color:var(--muted);letter-spacing:.02em}
+.av-themeseg{display:inline-flex;align-self:flex-start;background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:3px;gap:3px}
+.av-themeseg button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
+.av-themeseg button.on{color:var(--tab-dark);background:var(--lamp)}
+
+.av-main{padding:44px 52px 80px;max-width:1040px;width:100%}
+.av-screenhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.av-eyebrow{margin:0 0 6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lamp)}
+.av-h1{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.02;letter-spacing:-.01em}
+
+.av-statusview{display:inline-flex;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px;margin-bottom:18px}
+.av-statusview button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:13.5px;padding:7px 15px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
+.av-statusview button.on{color:var(--tab-dark);background:var(--lamp)}
+
+.av-tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.av-tab{background:none;border:none;cursor:pointer;color:var(--muted);font:inherit;font-weight:600;padding:0 0 12px;margin-bottom:-1px;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;transition:color .15s}
+.av-tab:hover{color:var(--parch)}
+.av-tab.on{color:var(--parch);border-bottom-color:var(--lamp)}
+.av-count{font-size:12px;color:var(--muted);background:var(--raised);border:1px solid var(--line);border-radius:20px;padding:1px 8px}
+.av-tab.on .av-count{color:var(--lamp)}
+
+.av-filters{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.av-search{flex:1;min-width:200px;background:var(--ink);border:1px solid var(--line);color:var(--parch);font:inherit;padding:10px 13px;border-radius:8px}
+.av-search::placeholder{color:var(--muted)}
+.av-search:focus{outline:none;border-color:var(--lamp);box-shadow:0 0 0 3px var(--focus)}
+.av-minrate{display:flex;align-items:center;gap:10px}
+.av-minlabel{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.av-clear,.av-back{background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.av-clear:hover,.av-back:hover{color:var(--parch)}
+.av-back{margin-bottom:14px;padding:0}
+
+.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.av-card{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:row;gap:14px;align-items:flex-start;transition:border-color .15s,transform .15s,box-shadow .15s}
+.av-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow-card)}
+.av-cardbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.av-cardtop{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.av-typetab{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:4px}
+.av-typetab.film{color:var(--tab-dark);background:var(--film)}
+.av-typetab.book{color:#10131f;background:var(--book)}
+.av-title{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:19px;line-height:1.15;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.av-sub{margin:-2px 0 0;font-family:'Fraunces',serif;font-style:italic;font-size:13.5px;color:var(--muted)}
+.av-cardrate{margin-top:2px}
+.av-notes{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.av-cardfoot{display:flex;gap:6px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+
+.av-cover{position:relative;width:78px;flex:none;aspect-ratio:2/3;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--raised)}
+.av-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.av-coverph{display:grid;place-items:center;background:var(--tint,#23314d)}
+.av-coverinit{font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:rgba(236,229,214,.85)}
+
+.av-wishchip{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--book);border:1px solid var(--book-line);background:var(--book-soft);padding:3px 8px;border-radius:20px;white-space:nowrap}
+.av-markbtn{background:var(--accent-soft);color:var(--lamp);border:1px solid var(--accent-line);cursor:pointer;font:inherit;font-weight:600;font-size:12.5px;padding:5px 10px;border-radius:8px;transition:background .15s,color .15s}
+.av-markbtn:hover{background:var(--lamp);color:var(--tab-dark)}
+
+.av-pl{cursor:pointer}
+.av-plhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.av-plmeta{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--muted)}
+.av-plmeta .av-dot{opacity:.6}
+.av-pldel{margin-left:auto}
+
+.av-detailtag{margin-top:8px}
+.av-detaildesc{margin:0 0 16px;color:var(--muted);max-width:60ch;font-size:15px}
+.av-stats{display:flex;align-items:center;gap:10px;margin-bottom:24px;color:var(--muted);font-size:14px}
+.av-statavg{color:var(--parch)}
+.av-dot{opacity:.6}
+
+.av-lamps{display:inline-flex;align-items:center;gap:6px}
+.av-lamp{width:var(--d,14px);height:var(--d,14px);border-radius:50%;border:1.5px solid var(--line2);background:transparent;display:inline-block;transition:background .12s,box-shadow .12s,border-color .12s}
+.av-lamp.on{border-color:transparent;background:radial-gradient(circle at 35% 30%,var(--lamp-hi),var(--lamp));box-shadow:0 0 9px var(--lampglow)}
+.av-lampbtn{padding:0;cursor:pointer}
+.av-lampbtn:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+.av-lampword{margin-left:8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:62px}
+
+.av-chip{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--lamp);border:1px solid var(--accent-line);background:var(--accent-soft);padding:3px 8px;border-radius:20px;white-space:nowrap}
+
+.av-primary{background:var(--lamp);color:var(--tab-dark);border:none;cursor:pointer;font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;transition:filter .15s,transform .05s}
+.av-primary:hover{filter:brightness(1.06)}
+.av-primary:active{transform:translateY(1px)}
+.av-primary:disabled{opacity:.45;cursor:not-allowed}
+.av-ghost{background:transparent;color:var(--muted);border:1px solid var(--line);cursor:pointer;font:inherit;font-weight:600;padding:8px 14px;border-radius:8px;transition:color .15s,border-color .15s}
+.av-ghost:hover{color:var(--parch);border-color:var(--line2)}
+.av-ghost.sm{padding:5px 10px;font-size:12.5px}
+.av-ghost.danger:hover{color:var(--rose);border-color:var(--rose-line)}
+.av-primary:focus-visible,.av-ghost:focus-visible,.av-markbtn:focus-visible,.av-statusview button:focus-visible,.av-themeseg button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+
+.av-empty{border:1px dashed var(--line);border-radius:10px;padding:40px 24px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:14px}
+.av-empty.sm{padding:24px 16px}
+.av-empty p{margin:0;max-width:46ch}
+
+.av-backdrop{position:fixed;inset:0;background:var(--backdrop-bg);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
+.av-modal{background:var(--ink);border:1px solid var(--line2);border-radius:14px;width:100%;max-width:460px;max-height:90vh;overflow:auto;box-shadow:var(--shadow-modal)}
+.av-modalhead{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px}
+.av-modalhead h3{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:21px}
+.av-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:4px}
+.av-x:hover{color:var(--parch)}
+.av-modalbody{padding:4px 20px 18px;display:flex;flex-direction:column}
+.av-modalsub{margin:0 0 12px;font-family:'Fraunces',serif;font-style:italic;color:var(--muted)}
+.av-modalfoot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
+.av-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 7px}
+.av-opt{text-transform:none;letter-spacing:0;font-size:11px;opacity:.7;margin-left:4px}
+.av-input{background:var(--raised);border:1px solid var(--line);color:var(--parch);font:inherit;padding:10px 12px;border-radius:8px;width:100%}
+.av-input::placeholder{color:var(--muted)}
+.av-input:focus{outline:none;border-color:var(--lamp);box-shadow:0 0 0 3px var(--focus)}
+.av-area{resize:vertical;line-height:1.5;font-family:'Hanken Grotesk',sans-serif}
+.av-cvrow{display:flex;gap:10px;align-items:stretch}
+.av-cvprev{width:46px;flex:none;aspect-ratio:2/3;border-radius:5px;overflow:hidden;border:1px solid var(--line);background:var(--raised);position:relative}
+.av-cvprev img{width:100%;height:100%;object-fit:cover;display:block}
+
+.av-seg{display:flex;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.av-segbtn{flex:1;background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-weight:600;padding:7px;border-radius:6px;transition:color .15s,background .15s}
+.av-segbtn.on{color:var(--tab-dark);background:var(--lamp)}
+
+.av-pllist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.av-pltoggle{width:100%;display:flex;align-items:center;gap:10px;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:11px 12px;cursor:pointer;color:var(--parch);font:inherit;transition:border-color .15s}
+.av-pltoggle:hover{border-color:var(--line2)}
+.av-pltoggle.on{border-color:var(--lamp);background:var(--accent-soft)}
+.av-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;font-size:12px;color:var(--tab-dark);flex:none}
+.av-pltoggle.on .av-check{background:var(--lamp);border-color:var(--lamp)}
+.av-pltname{font-weight:600;margin-right:auto}
+
+.av-h2{font-family:'Fraunces',serif;font-weight:600;font-size:23px;margin:36px 0 16px;letter-spacing:-.01em}
+.av-statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.av-stat{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.av-statnum{font-family:'Fraunces',serif;font-weight:600;font-size:36px;line-height:1;color:var(--parch)}
+.av-statlbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.av-statsub{font-size:12.5px;color:var(--muted);margin-top:7px;display:flex;align-items:center;min-height:16px}
+.av-wishline{margin:14px 0 0;font-size:13.5px;color:var(--muted)}
+.av-wishline b{color:var(--parch);font-weight:600}
+.av-bars{display:flex;flex-direction:column;gap:10px}
+.av-barrow{display:grid;grid-template-columns:minmax(108px,168px) 1fr auto;align-items:center;gap:14px}
+.av-barhead{display:flex;align-items:center}
+.av-colname{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-coltag{color:var(--muted);font-weight:400;text-transform:uppercase;font-size:10.5px;letter-spacing:.1em}
+.av-bartrack{height:9px;background:var(--ink);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.av-barfill{display:block;height:100%;background:radial-gradient(circle at 30% 30%,var(--lamp-hi),var(--lamp));border-radius:20px;min-width:2px;box-shadow:0 0 8px var(--lampglow)}
+.av-barval{font-size:13px;color:var(--muted);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.av-colavg{color:var(--lamp)}
+.av-toplist{display:flex;flex-direction:column;gap:8px}
+.av-toprow{display:flex;align-items:center;gap:12px;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:10px 14px}
+.av-topcover{width:34px;flex:none;aspect-ratio:2/3;border-radius:4px;overflow:hidden;border:1px solid var(--line);background:var(--raised);position:relative}
+.av-topcover img{width:100%;height:100%;object-fit:cover;display:block}
+.av-topcover .av-coverinit{font-size:15px}
+.av-topname{flex:1;font-family:'Fraunces',serif;font-size:16px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-topname em{color:var(--muted);font-style:italic;font-size:14px}
+
+.av-bottom{display:none}
+
+@media (max-width:760px){
+  .av-root{grid-template-columns:1fr}
+  .av-side{display:none}
+  .av-main{padding:30px 20px 96px}
+  .av-h1{font-size:32px}
+  .av-grid{grid-template-columns:1fr}
+  .av-bottom{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--ink);border-top:1px solid var(--line);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+  .av-bottom button{flex:1;background:none;border:none;color:var(--muted);font:inherit;font-weight:600;padding:14px;cursor:pointer}
+  .av-bottom button.on{color:var(--lamp)}
+  .av-bottom .av-themebtn{font-size:17px;flex:0 0 64px}
+  .av-screenhead{flex-direction:column;align-items:flex-start}
+  .av-statgrid{grid-template-columns:repeat(2,1fr)}
+  .av-statnum{font-size:30px}
+  .av-barrow{grid-template-columns:96px 1fr auto;gap:10px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+  .av-card:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ---------- armazenamento: localStorage (fica salvo neste navegador) ----------
+const KEYS = { items: "acervo:items", playlists: "acervo:playlists", links: "acervo:links", theme: "acervo:theme" };
+const PAGE_BG = { dark: "#13172A", light: "#F2EEE3" };
+function loadKey(key){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : []; } catch { return []; } }
+function saveKey(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+function loadStr(key){ try{ return localStorage.getItem(key); } catch { return null; } }
+function saveStr(key, val){ try{ localStorage.setItem(key, val); } catch {} }
+
+// ---------- helpers ----------
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const RATING_WORDS = ["sem nota", "ruim", "fraco", "bom", "ótimo", "favorito"];
+const fmtAvg = (n) => (n == null ? "—" : n.toFixed(1).replace(".", ","));
+const statusOf = (i) => i.status || "done";
+const verb = (type, status) =>
+  status === "wish" ? (type === "movie" ? "Quero ver" : "Quero ler") : (type === "movie" ? "Visto" : "Lido");
+const TINTS = ["#23314d", "#3a2b46", "#2b3d3a", "#43382a", "#3f2a2c", "#2c3550"];
+function tintFor(str){ let h=0; for(let i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))>>>0; return TINTS[h%TINTS.length]; }
+function initialsOf(title){ const m=(title||"").match(/[A-Za-zÀ-ÿ0-9]/g); return (m?m[0]:"?").toUpperCase(); }
+
+function Cover({ item, cls = "av-cover" }) {
+  const [bad, setBad] = useState(false);
+  if (item.cover && !bad) return (<div className={cls}><img src={item.cover} alt="" onError={() => setBad(true)} /></div>);
+  return (<div className={cls + " av-coverph"} style={{ "--tint": tintFor(item.title) }}><span className="av-coverinit">{initialsOf(item.title)}</span></div>);
+}
+
+function Lamps({ value = 0, onChange, size = 14, idleHint = false }) {
+  const [hover, setHover] = useState(0);
+  const interactive = typeof onChange === "function";
+  const shown = interactive && hover ? hover : value;
+  return (
+    <span className="av-lamps" role={interactive ? "group" : undefined}>
+      {[1, 2, 3, 4, 5].map((n) => {
+        const on = n <= shown; const style = { "--d": size + "px" };
+        if (!interactive) return <span key={n} className={"av-lamp" + (on ? " on" : "")} style={style} />;
+        return (<button key={n} type="button" className={"av-lamp av-lampbtn" + (on ? " on" : "")} style={style}
+          aria-label={"Nota " + n + " — " + RATING_WORDS[n]}
+          onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)} onFocus={() => setHover(n)} onBlur={() => setHover(0)}
+          onClick={() => onChange(n === value ? 0 : n)} />);
+      })}
+      {idleHint && interactive && <span className="av-lampword">{RATING_WORDS[shown]}</span>}
+    </span>
+  );
+}
+
+function Chip({ children }) { return children ? <span className="av-chip">{children}</span> : null; }
+function TypeTab({ type }) { return <span className={"av-typetab " + (type === "movie" ? "film" : "book")}>{type === "movie" ? "Filme" : "Livro"}</span>; }
+function ThemeToggle({ theme, onToggle }) {
+  return (
+    <div className="av-themeseg" role="group" aria-label="Tema">
+      <button className={theme === "light" ? "on" : ""} onClick={() => theme !== "light" && onToggle()}>Claro</button>
+      <button className={theme === "dark" ? "on" : ""} onClick={() => theme !== "dark" && onToggle()}>Escuro</button>
+    </div>
+  );
+}
+
+function Modal({ title, onClose, children, footer }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const f = ref.current && ref.current.querySelector("input, textarea, button");
+    if (f) f.focus();
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="av-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="av-modal" ref={ref} role="dialog" aria-modal="true" aria-label={title}>
+        <div className="av-modalhead"><h3>{title}</h3><button className="av-x" onClick={onClose} aria-label="Fechar">✕</button></div>
+        <div className="av-modalbody">{children}</div>
+        {footer && <div className="av-modalfoot">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+function ItemCard({ item, context, onAddTo, onEdit, onDelete, onRemoveFrom, onMarkDone }) {
+  const wish = statusOf(item) === "wish";
+  return (
+    <article className="av-card">
+      <Cover key={item.cover || "ph"} item={item} />
+      <div className="av-cardbody">
+        <div className="av-cardtop"><TypeTab type={item.type} />{wish && <span className="av-wishchip">{verb(item.type, "wish")}</span>}</div>
+        <h4 className="av-title">{item.title}</h4>
+        {item.subtitle && <p className="av-sub">{item.subtitle}</p>}
+        {!wish && <div className="av-cardrate"><Lamps value={item.rating} /></div>}
+        {item.notes && <p className="av-notes">{item.notes}</p>}
+        <footer className="av-cardfoot">
+          {wish && context === "library" && (
+            <button className="av-markbtn" onClick={() => onMarkDone(item)}>✓ {item.type === "movie" ? "Marcar como visto" : "Marcar como lido"}</button>
+          )}
+          {context === "library" && <button className="av-ghost sm" onClick={() => onAddTo(item)}>+ Coleção</button>}
+          <button className="av-ghost sm" onClick={() => onEdit(item)}>Editar</button>
+          {context === "library"
+            ? <button className="av-ghost sm danger" onClick={() => onDelete(item)}>Excluir</button>
+            : <button className="av-ghost sm danger" onClick={() => onRemoveFrom(item)}>Remover</button>}
+        </footer>
+      </div>
+    </article>
+  );
+}
+
+function PlaylistCard({ pl, count, avg, onOpen, onDelete }) {
+  return (
+    <article className="av-card av-pl" onClick={() => onOpen(pl.id)}>
+      <div className="av-cardbody">
+        <div className="av-plhead"><h4 className="av-title">{pl.name}</h4><Chip>{pl.tag}</Chip></div>
+        {pl.description && <p className="av-notes">{pl.description}</p>}
+        <div className="av-plmeta">
+          <span>{count} {count === 1 ? "item" : "itens"}</span><span className="av-dot">·</span><span>média {fmtAvg(avg)}</span>
+          <button className="av-ghost sm danger av-pldel" onClick={(e) => { e.stopPropagation(); onDelete(pl); }}>Excluir</button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function App() {
+  const [items, setItems] = useState(() => loadKey(KEYS.items));
+  const [playlists, setPlaylists] = useState(() => loadKey(KEYS.playlists));
+  const [links, setLinks] = useState(() => loadKey(KEYS.links));
+  const [theme, setTheme] = useState(() => { const t = loadStr(KEYS.theme); return (t === "dark" || t === "light") ? t : "light"; });
+
+  const [screen, setScreen] = useState("library");
+  const [tab, setTab] = useState("movie");
+  const [statusView, setStatusView] = useState("done");
+  const [openPl, setOpenPl] = useState(null);
+  const [minRating, setMinRating] = useState(0);
+  const [query, setQuery] = useState("");
+  const [itemModal, setItemModal] = useState(null);
+  const [plModal, setPlModal] = useState(null);
+  const [addTo, setAddTo] = useState(null);
+
+  useEffect(() => { document.title = "Acervo"; }, []);
+  useEffect(() => { document.body.style.background = PAGE_BG[theme]; const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute("content", PAGE_BG[theme]); }, [theme]);
+
+  const putItems = (next) => { setItems(next); saveKey(KEYS.items, next); };
+  const putPlaylists = (next) => { setPlaylists(next); saveKey(KEYS.playlists, next); };
+  const putLinks = (next) => { setLinks(next); saveKey(KEYS.links, next); };
+  const toggleTheme = () => { const t = theme === "dark" ? "light" : "dark"; setTheme(t); saveStr(KEYS.theme, t); };
+
+  const openNewItem = () => setItemModal({ mode: "new", draft: { type: tab, status: statusView, title: "", subtitle: "", cover: "", rating: 0, notes: "" } });
+  const openEditItem = (it) => setItemModal({ mode: "edit", draft: { ...it } });
+  const saveItem = () => {
+    const dr = itemModal.draft; if (!dr.title.trim()) return;
+    const clean = { ...dr, title: dr.title.trim(), cover: (dr.cover || "").trim(), rating: dr.status === "wish" ? 0 : dr.rating };
+    if (itemModal.mode === "new") putItems([{ id: uid(), createdAt: new Date().toISOString(), ...clean }, ...items]);
+    else putItems(items.map((x) => (x.id === dr.id ? { ...x, ...clean } : x)));
+    setItemModal(null);
+  };
+  const deleteItem = (it) => { putItems(items.filter((x) => x.id !== it.id)); putLinks(links.filter((l) => l.itemId !== it.id)); };
+  const markDone = (it) => { const updated = { ...it, status: "done" }; putItems(items.map((x) => (x.id === it.id ? updated : x))); setItemModal({ mode: "edit", draft: updated }); };
+
+  const openNewPl = () => setPlModal({ draft: { name: "", tag: "", description: "" } });
+  const savePl = () => {
+    const dr = plModal.draft; if (!dr.name.trim()) return;
+    putPlaylists([{ id: uid(), createdAt: new Date().toISOString(), name: dr.name.trim(), tag: dr.tag.trim(), description: dr.description.trim() }, ...playlists]);
+    setPlModal(null);
+  };
+  const deletePl = (pl) => { putPlaylists(playlists.filter((p) => p.id !== pl.id)); putLinks(links.filter((l) => l.playlistId !== pl.id)); if (openPl === pl.id) { setOpenPl(null); setScreen("playlists"); } };
+
+  const hasLink = (plId, itemId) => links.some((l) => l.playlistId === plId && l.itemId === itemId);
+  const toggleLink = (plId, item) => {
+    if (hasLink(plId, item.id)) putLinks(links.filter((l) => !(l.playlistId === plId && l.itemId === item.id)));
+    else putLinks([...links, { playlistId: plId, itemId: item.id, itemType: item.type }]);
+  };
+  const removeFromPl = (plId, item) => putLinks(links.filter((l) => !(l.playlistId === plId && l.itemId === item.id)));
+
+  const counts = useMemo(() => ({
+    movie: items.filter((i) => statusOf(i) === statusView && i.type === "movie").length,
+    book: items.filter((i) => statusOf(i) === statusView && i.type === "book").length,
+  }), [items, statusView]);
+
+  const libItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return items.filter((i) => statusOf(i) === statusView).filter((i) => i.type === tab)
+      .filter((i) => statusView === "wish" || i.rating >= minRating)
+      .filter((i) => !q || i.title.toLowerCase().includes(q) || (i.subtitle || "").toLowerCase().includes(q))
+      .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+  }, [items, tab, statusView, minRating, query]);
+
+  const panorama = useMemo(() => {
+    const done = items.filter((i) => statusOf(i) === "done");
+    const wishItems = items.filter((i) => statusOf(i) === "wish");
+    const avgOf = (arr) => { const r = arr.filter((i) => i.rating > 0); return r.length ? r.reduce((s, i) => s + i.rating, 0) / r.length : null; };
+    const dist = [5, 4, 3, 2, 1].map((n) => ({ n, c: done.filter((i) => i.rating === n).length }));
+    const top = done.filter((i) => i.rating > 0).sort((a, b) => b.rating - a.rating || (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 6);
+    const byCol = playlists.map((p) => {
+      const list = links.filter((l) => l.playlistId === p.id).map((l) => items.find((i) => i.id === l.itemId)).filter(Boolean);
+      const r = list.filter((i) => i.rating > 0);
+      return { id: p.id, name: p.name, tag: p.tag, count: list.length, avg: r.length ? r.reduce((s, i) => s + i.rating, 0) / r.length : null };
+    }).sort((a, b) => b.count - a.count);
+    return {
+      total: done.length, movies: done.filter((i) => i.type === "movie").length, books: done.filter((i) => i.type === "book").length,
+      avgAll: avgOf(done), avgMovies: avgOf(done.filter((i) => i.type === "movie")), avgBooks: avgOf(done.filter((i) => i.type === "book")),
+      wish: wishItems.length, wishMovies: wishItems.filter((i) => i.type === "movie").length, wishBooks: wishItems.filter((i) => i.type === "book").length,
+      dist, top, byCol,
+    };
+  }, [items, playlists, links]);
+
+  const plStats = (plId) => {
+    const list = links.filter((l) => l.playlistId === plId).map((l) => items.find((i) => i.id === l.itemId)).filter(Boolean);
+    const rated = list.filter((i) => i.rating > 0);
+    const avg = rated.length ? rated.reduce((s, i) => s + i.rating, 0) / rated.length : null;
+    return { list, count: list.length, avg };
+  };
+
+  const activePl = playlists.find((p) => p.id === openPl);
+  const detail = activePl ? plStats(activePl.id) : null;
+  const d = itemModal && itemModal.draft;
+
+  return (
+    <div className={"av-root theme-" + theme}>
+      <aside className="av-side">
+        <div className="av-brand"><span className="av-logo">Acervo</span><span className="av-tag">o que você viu e leu</span></div>
+        <nav className="av-nav">
+          <button className={"av-navitem" + (screen === "library" ? " active" : "")} onClick={() => setScreen("library")}>Biblioteca</button>
+          <button className={"av-navitem" + ((screen === "playlists" || screen === "playlist") ? " active" : "")} onClick={() => { setScreen("playlists"); setOpenPl(null); }}>Coleções</button>
+          <button className={"av-navitem" + (screen === "stats" ? " active" : "")} onClick={() => { setScreen("stats"); setOpenPl(null); }}>Panorama</button>
+        </nav>
+        <div className="av-sidefoot">
+          <span>{items.length} registros · {playlists.length} coleções</span>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        </div>
+      </aside>
+
+      <main className="av-main">
+        {screen === "library" && (
+          <Library tab={tab} setTab={setTab} counts={counts} statusView={statusView} setStatusView={setStatusView}
+            items={libItems} query={query} setQuery={setQuery} minRating={minRating} setMinRating={setMinRating}
+            onNew={openNewItem} onAddTo={setAddTo} onEdit={openEditItem} onDelete={deleteItem} onMarkDone={markDone} />
+        )}
+        {screen === "playlists" && (
+          <Playlists playlists={playlists} stats={plStats} onNew={openNewPl} onOpen={(id) => { setOpenPl(id); setScreen("playlist"); }} onDelete={deletePl} />
+        )}
+        {screen === "playlist" && activePl && (
+          <PlaylistDetail pl={activePl} detail={detail} onBack={() => { setScreen("playlists"); setOpenPl(null); }} onEdit={openEditItem} onRemove={(it) => removeFromPl(activePl.id, it)} />
+        )}
+        {screen === "stats" && <Stats d={panorama} onAdd={openNewItem} />}
+      </main>
+
+      <nav className="av-bottom">
+        <button className={screen === "library" ? "on" : ""} onClick={() => setScreen("library")}>Biblioteca</button>
+        <button className={(screen === "playlists" || screen === "playlist") ? "on" : ""} onClick={() => { setScreen("playlists"); setOpenPl(null); }}>Coleções</button>
+        <button className={screen === "stats" ? "on" : ""} onClick={() => { setScreen("stats"); setOpenPl(null); }}>Panorama</button>
+        <button className="av-themebtn" onClick={toggleTheme} aria-label="Alternar tema">{theme === "dark" ? "☀" : "☾"}</button>
+      </nav>
+
+      {itemModal && (
+        <Modal title={itemModal.mode === "new" ? "Adicionar ao acervo" : "Editar registro"} onClose={() => setItemModal(null)}
+          footer={<>
+            <button className="av-ghost" onClick={() => setItemModal(null)}>Cancelar</button>
+            <button className="av-primary" disabled={!d.title.trim()} onClick={saveItem}>{itemModal.mode === "new" ? "Adicionar" : "Salvar"}</button>
+          </>}>
+          <label className="av-label">Tipo</label>
+          <div className="av-seg">
+            {["movie", "book"].map((t) => (<button key={t} className={"av-segbtn" + (d.type === t ? " on" : "")} onClick={() => setItemModal((m) => ({ ...m, draft: { ...m.draft, type: t } }))}>{t === "movie" ? "Filme" : "Livro"}</button>))}
+          </div>
+          <label className="av-label">Situação</label>
+          <div className="av-seg">
+            {[["done", "Concluídos"], ["wish", "Desejados"]].map(([k, lbl]) => (<button key={k} className={"av-segbtn" + (d.status === k ? " on" : "")} onClick={() => setItemModal((m) => ({ ...m, draft: { ...m.draft, status: k } }))}>{lbl}</button>))}
+          </div>
+          <label className="av-label">Título</label>
+          <input className="av-input" value={d.title} placeholder={d.type === "movie" ? "ex: Cinema Paradiso" : "ex: Noites Brancas"} onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, title: e.target.value } }))} />
+          <label className="av-label">{d.type === "movie" ? "Direção ou ano" : "Autor"} <span className="av-opt">opcional</span></label>
+          <input className="av-input" value={d.subtitle} placeholder={d.type === "movie" ? "ex: Tornatore, 1988" : "ex: Dostoiévski"} onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, subtitle: e.target.value } }))} />
+          <label className="av-label">Capa <span className="av-opt">URL da imagem, opcional</span></label>
+          <div className="av-cvrow">
+            <input className="av-input" value={d.cover} placeholder="cole o link de uma imagem da capa" onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, cover: e.target.value } }))} />
+            <Cover key={d.cover || "ph"} item={d} cls="av-cvprev" />
+          </div>
+          {d.status === "done" && (<>
+            <label className="av-label">Nota</label>
+            <Lamps size={20} value={d.rating} idleHint onChange={(v) => setItemModal((m) => ({ ...m, draft: { ...m.draft, rating: v } }))} />
+          </>)}
+          <label className="av-label">Observação <span className="av-opt">opcional</span></label>
+          <textarea className="av-input av-area" rows={3} value={d.notes} placeholder={d.status === "wish" ? "por que quer ver/ler…" : "o que ficou de você…"} onChange={(e) => setItemModal((m) => ({ ...m, draft: { ...m.draft, notes: e.target.value } }))} />
+        </Modal>
+      )}
+
+      {plModal && (
+        <Modal title="Nova coleção" onClose={() => setPlModal(null)}
+          footer={<>
+            <button className="av-ghost" onClick={() => setPlModal(null)}>Cancelar</button>
+            <button className="av-primary" disabled={!plModal.draft.name.trim()} onClick={savePl}>Criar coleção</button>
+          </>}>
+          <label className="av-label">Nome</label>
+          <input className="av-input" value={plModal.draft.name} placeholder="ex: Literatura russa" onChange={(e) => setPlModal((m) => ({ ...m, draft: { ...m.draft, name: e.target.value } }))} />
+          <label className="av-label">Tema ou gênero <span className="av-opt">opcional</span></label>
+          <input className="av-input" value={plModal.draft.tag} placeholder="ex: Drama · Noir · Ensaio" onChange={(e) => setPlModal((m) => ({ ...m, draft: { ...m.draft, tag: e.target.value } }))} />
+          <label className="av-label">Descrição <span className="av-opt">opcional</span></label>
+          <textarea className="av-input av-area" rows={2} value={plModal.draft.description} placeholder="uma linha sobre o que reúne esta coleção" onChange={(e) => setPlModal((m) => ({ ...m, draft: { ...m.draft, description: e.target.value } }))} />
+        </Modal>
+      )}
+
+      {addTo && (
+        <Modal title="Adicionar à coleção" onClose={() => setAddTo(null)} footer={<button className="av-primary" onClick={() => setAddTo(null)}>Concluído</button>}>
+          <p className="av-modalsub">“{addTo.title}”</p>
+          {playlists.length === 0 ? (
+            <div className="av-empty sm"><p>Nenhuma coleção ainda.</p><button className="av-primary" onClick={() => { setAddTo(null); openNewPl(); }}>Criar a primeira</button></div>
+          ) : (
+            <ul className="av-pllist">
+              {playlists.map((p) => {
+                const on = hasLink(p.id, addTo.id);
+                return (<li key={p.id}>
+                  <button className={"av-pltoggle" + (on ? " on" : "")} onClick={() => toggleLink(p.id, addTo)}>
+                    <span className="av-check">{on ? "✓" : ""}</span><span className="av-pltname">{p.name}</span>{p.tag && <Chip>{p.tag}</Chip>}
+                  </button>
+                </li>);
+              })}
+            </ul>
+          )}
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function Library({ tab, setTab, counts, statusView, setStatusView, items, query, setQuery, minRating, setMinRating, onNew, onAddTo, onEdit, onDelete, onMarkDone }) {
+  const wishView = statusView === "wish";
+  return (
+    <section>
+      <div className="av-screenhead"><div><p className="av-eyebrow">Seu acervo</p><h1 className="av-h1">Biblioteca</h1></div><button className="av-primary" onClick={onNew}>+ Adicionar</button></div>
+      <div className="av-statusview">
+        <button className={statusView === "done" ? "on" : ""} onClick={() => setStatusView("done")}>Concluídos</button>
+        <button className={statusView === "wish" ? "on" : ""} onClick={() => setStatusView("wish")}>Desejados</button>
+      </div>
+      <div className="av-tabs">
+        <button className={"av-tab" + (tab === "movie" ? " on" : "")} onClick={() => setTab("movie")}>Filmes <span className="av-count">{counts.movie}</span></button>
+        <button className={"av-tab" + (tab === "book" ? " on" : "")} onClick={() => setTab("book")}>Livros <span className="av-count">{counts.book}</span></button>
+      </div>
+      <div className="av-filters">
+        <input className="av-search" placeholder="Buscar por título ou autor…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        {!wishView && (
+          <div className="av-minrate"><span className="av-minlabel">nota mínima</span><Lamps value={minRating} onChange={setMinRating} />{minRating > 0 && <button className="av-clear" onClick={() => setMinRating(0)}>limpar</button>}</div>
+        )}
+      </div>
+      {items.length === 0 ? (
+        <div className="av-empty">
+          <p>{wishView ? (tab === "movie" ? "Nada na lista de filmes que você quer ver." : "Nada na lista de livros que você quer ler.") : (tab === "movie" ? "Nenhum filme por aqui ainda." : "Nenhum livro por aqui ainda.")}</p>
+          <button className="av-primary" onClick={onNew}>Adicionar o primeiro</button>
+        </div>
+      ) : (
+        <div className="av-grid">{items.map((it) => (<ItemCard key={it.id} item={it} context="library" onAddTo={onAddTo} onEdit={onEdit} onDelete={onDelete} onMarkDone={onMarkDone} />))}</div>
+      )}
+    </section>
+  );
+}
+
+function Playlists({ playlists, stats, onNew, onOpen, onDelete }) {
+  return (
+    <section>
+      <div className="av-screenhead"><div><p className="av-eyebrow">Por tema ou gênero</p><h1 className="av-h1">Coleções</h1></div><button className="av-primary" onClick={onNew}>+ Nova coleção</button></div>
+      {playlists.length === 0 ? (
+        <div className="av-empty"><p>Nenhuma coleção ainda. Crie uma para agrupar filmes e livros por tema.</p><button className="av-primary" onClick={onNew}>Criar coleção</button></div>
+      ) : (
+        <div className="av-grid">{playlists.map((pl) => { const s = stats(pl.id); return <PlaylistCard key={pl.id} pl={pl} count={s.count} avg={s.avg} onOpen={onOpen} onDelete={onDelete} />; })}</div>
+      )}
+    </section>
+  );
+}
+
+function PlaylistDetail({ pl, detail, onBack, onEdit, onRemove }) {
+  return (
+    <section>
+      <button className="av-back" onClick={onBack}>← Coleções</button>
+      <div className="av-screenhead"><div><p className="av-eyebrow">Coleção</p><h1 className="av-h1">{pl.name}</h1>{pl.tag && <div className="av-detailtag"><Chip>{pl.tag}</Chip></div>}</div></div>
+      {pl.description && <p className="av-detaildesc">{pl.description}</p>}
+      <div className="av-stats"><span>{detail.count} {detail.count === 1 ? "item" : "itens"}</span><span className="av-dot">·</span><span className="av-statavg">média {fmtAvg(detail.avg)}</span><Lamps value={detail.avg ? Math.round(detail.avg) : 0} /></div>
+      {detail.list.length === 0 ? (
+        <div className="av-empty"><p>Coleção vazia. Adicione itens pela Biblioteca, no botão “+ Coleção”.</p></div>
+      ) : (
+        <div className="av-grid">{detail.list.map((it) => (<ItemCard key={it.id} item={it} context="playlist" onEdit={onEdit} onRemoveFrom={onRemove} />))}</div>
+      )}
+    </section>
+  );
+}
+
+function Stats({ d, onAdd }) {
+  if (d.total === 0 && d.wish === 0) {
+    return (
+      <section>
+        <div className="av-screenhead"><div><p className="av-eyebrow">Seu acervo em números</p><h1 className="av-h1">Panorama</h1></div></div>
+        <div className="av-empty"><p>Ainda não há nada para medir. Adicione filmes e livros para ver o panorama do seu acervo.</p><button className="av-primary" onClick={onAdd}>Adicionar o primeiro</button></div>
+      </section>
+    );
+  }
+  const maxDist = Math.max(1, ...d.dist.map((x) => x.c));
+  const maxCol = Math.max(1, ...d.byCol.map((x) => x.count));
+  return (
+    <section>
+      <div className="av-screenhead"><div><p className="av-eyebrow">Seu acervo em números</p><h1 className="av-h1">Panorama</h1></div></div>
+      <div className="av-statgrid">
+        <div className="av-stat"><span className="av-statnum">{d.total}</span><span className="av-statlbl">vistos & lidos</span></div>
+        <div className="av-stat"><span className="av-statnum">{d.movies}</span><span className="av-statlbl">filmes</span><span className="av-statsub">média {fmtAvg(d.avgMovies)}</span></div>
+        <div className="av-stat"><span className="av-statnum">{d.books}</span><span className="av-statlbl">livros</span><span className="av-statsub">média {fmtAvg(d.avgBooks)}</span></div>
+        <div className="av-stat"><span className="av-statnum">{fmtAvg(d.avgAll)}</span><span className="av-statlbl">nota média</span><span className="av-statsub"><Lamps value={d.avgAll ? Math.round(d.avgAll) : 0} /></span></div>
+      </div>
+      {d.wish > 0 && (<p className="av-wishline">Lista de desejos: <b>{d.wish}</b> — {d.wishMovies} {d.wishMovies === 1 ? "filme" : "filmes"}, {d.wishBooks} {d.wishBooks === 1 ? "livro" : "livros"}</p>)}
+      {d.total > 0 && (<>
+        <h2 className="av-h2">Distribuição das notas</h2>
+        <div className="av-bars">{d.dist.map((row) => (<div className="av-barrow" key={row.n}><span className="av-barhead"><Lamps value={row.n} /></span><span className="av-bartrack"><span className="av-barfill" style={{ width: (row.c / maxDist) * 100 + "%" }} /></span><span className="av-barval">{row.c}</span></div>))}</div>
+      </>)}
+      {d.top.length > 0 && (<>
+        <h2 className="av-h2">Mais bem avaliados</h2>
+        <div className="av-toplist">{d.top.map((it) => (<div className="av-toprow" key={it.id}><Cover key={it.cover || "ph"} item={it} cls="av-topcover" /><span className="av-topname">{it.title}{it.subtitle && <em> — {it.subtitle}</em>}</span><Lamps value={it.rating} /></div>))}</div>
+      </>)}
+      {d.byCol.length > 0 && (<>
+        <h2 className="av-h2">Por coleção</h2>
+        <div className="av-bars">{d.byCol.map((c) => (<div className="av-barrow" key={c.id}><span className="av-barhead av-colname">{c.name}{c.tag && <span className="av-coltag"> · {c.tag}</span>}</span><span className="av-bartrack"><span className="av-barfill" style={{ width: (c.count / maxCol) * 100 + "%" }} /></span><span className="av-barval">{c.count}{c.avg != null && <span className="av-colavg"> · {fmtAvg(c.avg)}</span>}</span></div>))}</div>
+      </>)}
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
