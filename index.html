@@ -60,7 +60,7 @@ body{margin:0;background:#F2EEE3}
 .av-eyebrow{margin:0 0 6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lamp)}
 .av-h1{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.02;letter-spacing:-.01em}
 
-.av-statusview{display:inline-flex;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px;margin-bottom:18px}
+.av-statusview{display:inline-flex;flex-wrap:wrap;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px;margin-bottom:18px}
 .av-statusview button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:13.5px;padding:7px 15px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
 .av-statusview button.on{color:var(--tab-dark);background:var(--lamp)}
 
@@ -101,6 +101,7 @@ body{margin:0;background:#F2EEE3}
 .av-coverinit{font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:rgba(236,229,214,.85)}
 
 .av-wishchip{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--book);border:1px solid var(--book-line);background:var(--book-soft);padding:3px 8px;border-radius:20px;white-space:nowrap}
+.av-wishchip.doing{color:var(--lamp);border-color:var(--accent-line);background:var(--accent-soft)}
 .av-markbtn{background:var(--accent-soft);color:var(--lamp);border:1px solid var(--accent-line);cursor:pointer;font:inherit;font-weight:600;font-size:12.5px;padding:5px 10px;border-radius:8px;transition:background .15s,color .15s}
 .av-markbtn:hover{background:var(--lamp);color:var(--tab-dark)}
 
@@ -161,6 +162,7 @@ body{margin:0;background:#F2EEE3}
 .av-seg{display:flex;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
 .av-segbtn{flex:1;background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-weight:600;padding:7px;border-radius:6px;transition:color .15s,background .15s}
 .av-segbtn.on{color:var(--tab-dark);background:var(--lamp)}
+.av-seg3 .av-segbtn{font-size:12px;padding:7px 6px}
 
 .av-pllist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .av-pltoggle{width:100%;display:flex;align-items:center;gap:10px;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:11px 12px;cursor:pointer;color:var(--parch);font:inherit;transition:border-color .15s}
@@ -254,7 +256,11 @@ body{margin:0;background:#F2EEE3}
   var RATING_WORDS = ["sem nota", "ruim", "fraco", "bom", "ótimo", "favorito"];
   function fmtAvg(n) { return n == null ? "—" : n.toFixed(1).replace(".", ","); }
   function statusOf(i) { return i.status || "done"; }
-  function verb(type, status) { return status === "wish" ? (type === "movie" ? "Quero ver" : "Quero ler") : (type === "movie" ? "Visto" : "Lido"); }
+  function verb(type, status) {
+    if (status === "wish") return type === "movie" ? "Quero ver" : "Quero ler";
+    if (status === "doing") return type === "movie" ? "Assistindo" : "Lendo";
+    return type === "movie" ? "Visto" : "Lido";
+  }
   var TINTS = ["#23314d", "#3a2b46", "#2b3d3a", "#43382a", "#3f2a2c", "#2c3550"];
   function tintFor(str) { var h = 0; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return TINTS[h % TINTS.length]; }
   function initialsOf(title) { var m = (title || "").match(/[A-Za-zÀ-ÿ0-9]/g); return (m ? m[0] : "?").toUpperCase(); }
@@ -295,7 +301,7 @@ body{margin:0;background:#F2EEE3}
     return state.items
       .filter(function (i) { return statusOf(i) === state.statusView; })
       .filter(function (i) { return i.type === state.tab; })
-      .filter(function (i) { return state.statusView === "wish" || i.rating >= state.minRating; })
+      .filter(function (i) { return state.statusView !== "done" || i.rating >= state.minRating; })
       .filter(function (i) { return !q || i.title.toLowerCase().indexOf(q) >= 0 || (i.subtitle || "").toLowerCase().indexOf(q) >= 0; })
       .sort(function (a, b) { return (b.createdAt || "").localeCompare(a.createdAt || ""); });
   }
@@ -310,6 +316,7 @@ body{margin:0;background:#F2EEE3}
   function panorama() {
     var done = state.items.filter(function (i) { return statusOf(i) === "done"; });
     var wishItems = state.items.filter(function (i) { return statusOf(i) === "wish"; });
+    var doingItems = state.items.filter(function (i) { return statusOf(i) === "doing"; });
     var avgOf = function (arr) { var r = arr.filter(function (i) { return i.rating > 0; }); return r.length ? r.reduce(function (s, i) { return s + i.rating; }, 0) / r.length : null; };
     var dist = [5, 4, 3, 2, 1].map(function (n) { return { n: n, c: done.filter(function (i) { return i.rating === n; }).length }; });
     var top = done.filter(function (i) { return i.rating > 0; })
@@ -330,6 +337,9 @@ body{margin:0;background:#F2EEE3}
       wish: wishItems.length,
       wishMovies: wishItems.filter(function (i) { return i.type === "movie"; }).length,
       wishBooks: wishItems.filter(function (i) { return i.type === "book"; }).length,
+      doing: doingItems.length,
+      doingMovies: doingItems.filter(function (i) { return i.type === "movie"; }).length,
+      doingBooks: doingItems.filter(function (i) { return i.type === "book"; }).length,
       dist: dist, top: top, byCol: byCol
     };
   }
@@ -345,7 +355,7 @@ body{margin:0;background:#F2EEE3}
   function saveItem() {
     var dr = state.itemModal.draft;
     if (!dr.title.trim()) return;
-    var clean = Object.assign({}, dr, { title: dr.title.trim(), cover: (dr.cover || "").trim(), rating: dr.status === "wish" ? 0 : dr.rating });
+    var clean = Object.assign({}, dr, { title: dr.title.trim(), cover: (dr.cover || "").trim(), rating: dr.status === "done" ? dr.rating : 0 });
     if (state.itemModal.mode === "new") state.items.unshift(Object.assign({ id: uid(), createdAt: new Date().toISOString() }, clean));
     else state.items = state.items.map(function (x) { return x.id === dr.id ? Object.assign({}, x, clean) : x; });
     persist.items(); state.itemModal = null; render();
@@ -355,10 +365,12 @@ body{margin:0;background:#F2EEE3}
     state.links = state.links.filter(function (l) { return l.itemId !== it.id; });
     persist.items(); persist.links(); render();
   }
-  function markDone(it) {
-    var up = Object.assign({}, it, { status: "done" });
+  function moveStatus(it, status, openModal) {
+    var up = Object.assign({}, it, { status: status });
     state.items = state.items.map(function (x) { return x.id === it.id ? up : x; });
-    persist.items(); state.itemModal = { mode: "edit", draft: up }; state._mo = true; render();
+    persist.items();
+    if (openModal) { state.itemModal = { mode: "edit", draft: up }; state._mo = true; }
+    render();
   }
 
   function openNewPl() { state.plModal = { draft: { name: "", tag: "", description: "" } }; state._mo = true; render(); }
@@ -434,16 +446,23 @@ body{margin:0;background:#F2EEE3}
   }
 
   function ItemCard(item, context) {
-    var wish = statusOf(item) === "wish";
+    var st = statusOf(item);
     var body = el("div", { "class": "av-cardbody" });
-    body.appendChild(el("div", { "class": "av-cardtop" }, TypeTab(item.type), wish ? el("span", { "class": "av-wishchip" }, verb(item.type, "wish")) : null));
+    body.appendChild(el("div", { "class": "av-cardtop" }, TypeTab(item.type), st !== "done" ? el("span", { "class": "av-wishchip" + (st === "doing" ? " doing" : "") }, verb(item.type, st)) : null));
     body.appendChild(el("h4", { "class": "av-title" }, item.title));
     if (item.subtitle) body.appendChild(el("p", { "class": "av-sub" }, item.subtitle));
-    if (!wish) body.appendChild(el("div", { "class": "av-cardrate" }, Lamps(item.rating)));
+    if (st === "done") body.appendChild(el("div", { "class": "av-cardrate" }, Lamps(item.rating)));
     if (item.notes) body.appendChild(el("p", { "class": "av-notes" }, item.notes));
     var foot = el("div", { "class": "av-cardfoot" });
-    if (wish && context === "library") foot.appendChild(el("button", { "class": "av-markbtn", onclick: function () { markDone(item); } }, "✓ " + (item.type === "movie" ? "Marcar como visto" : "Marcar como lido")));
-    if (context === "library") foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { state.addTo = item; render(); } }, "+ Coleção"));
+    if (context === "library") {
+      if (st === "wish") {
+        foot.appendChild(el("button", { "class": "av-markbtn", onclick: function () { moveStatus(item, "doing", false); } }, "▶ Começar"));
+        foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { moveStatus(item, "done", true); } }, "✓ Concluir"));
+      } else if (st === "doing") {
+        foot.appendChild(el("button", { "class": "av-markbtn", onclick: function () { moveStatus(item, "done", true); } }, "✓ Concluir"));
+      }
+      foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { state.addTo = item; render(); } }, "+ Coleção"));
+    }
     foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { openEditItem(item); } }, "Editar"));
     if (context === "library") foot.appendChild(el("button", { "class": "av-ghost sm danger", onclick: function () { deleteItem(item); } }, "Excluir"));
     else foot.appendChild(el("button", { "class": "av-ghost sm danger", onclick: function () { removeFromPl(state.openPl, item); } }, "Remover"));
@@ -490,9 +509,10 @@ body{margin:0;background:#F2EEE3}
       seg("Livro", dr.type === "book", function () { updateDraft("type", "book"); })
     ));
     body.appendChild(el("label", { "class": "av-label" }, "Situação"));
-    body.appendChild(el("div", { "class": "av-seg" },
+    body.appendChild(el("div", { "class": "av-seg av-seg3" },
       seg("Concluídos", dr.status === "done", function () { updateDraft("status", "done"); }),
-      seg("Desejados", dr.status === "wish", function () { updateDraft("status", "wish"); })
+      seg("Desejados", dr.status === "wish", function () { updateDraft("status", "wish"); }),
+      seg("Em andamento", dr.status === "doing", function () { updateDraft("status", "doing"); })
     ));
     body.appendChild(el("label", { "class": "av-label" }, "Título"));
     body.appendChild(inputField("f-title", dr.title, dr.type === "movie" ? "ex: Cinema Paradiso" : "ex: Noites Brancas", function (v) { updateDraft("title", v); }));
@@ -508,7 +528,8 @@ body{margin:0;background:#F2EEE3}
       body.appendChild(Lamps(dr.rating, function (v) { updateDraft("rating", v); }, 20, true));
     }
     body.appendChild(labelOpt("Observação"));
-    var ta = el("textarea", { "class": "av-input av-area", rows: 3, "data-focus-id": "f-notes", placeholder: dr.status === "wish" ? "por que quer ver/ler…" : "o que ficou de você…", oninput: function (e) { updateDraft("notes", e.target.value); } });
+    var notesPh = dr.status === "wish" ? "por que quer ver/ler…" : (dr.status === "doing" ? "o que está achando até agora…" : "o que ficou de você…");
+    var ta = el("textarea", { "class": "av-input av-area", rows: 3, "data-focus-id": "f-notes", placeholder: notesPh, oninput: function (e) { updateDraft("notes", e.target.value); } });
     ta.value = dr.notes || "";
     body.appendChild(ta);
     var foot = el("div", { "class": "av-modalfoot" },
@@ -577,7 +598,8 @@ body{margin:0;background:#F2EEE3}
     ));
     sec.appendChild(el("div", { "class": "av-statusview" },
       el("button", { "class": state.statusView === "done" ? "on" : "", onclick: function () { state.statusView = "done"; render(); } }, "Concluídos"),
-      el("button", { "class": state.statusView === "wish" ? "on" : "", onclick: function () { state.statusView = "wish"; render(); } }, "Desejados")
+      el("button", { "class": state.statusView === "wish" ? "on" : "", onclick: function () { state.statusView = "wish"; render(); } }, "Desejados"),
+      el("button", { "class": state.statusView === "doing" ? "on" : "", onclick: function () { state.statusView = "doing"; render(); } }, "Em andamento")
     ));
     var c = counts();
     sec.appendChild(el("div", { "class": "av-tabs" },
@@ -588,7 +610,7 @@ body{margin:0;background:#F2EEE3}
     var search = el("input", { "class": "av-search", placeholder: "Buscar por título ou autor…", "data-focus-id": "search", oninput: function (e) { state.query = e.target.value; render(); } });
     search.value = state.query;
     filters.appendChild(search);
-    if (state.statusView !== "wish") {
+    if (state.statusView === "done") {
       var mr = el("div", { "class": "av-minrate" }, el("span", { "class": "av-minlabel" }, "nota mínima"), Lamps(state.minRating, function (v) { state.minRating = v; render(); }));
       if (state.minRating > 0) mr.appendChild(el("button", { "class": "av-clear", onclick: function () { state.minRating = 0; render(); } }, "limpar"));
       filters.appendChild(mr);
@@ -596,9 +618,10 @@ body{margin:0;background:#F2EEE3}
     sec.appendChild(filters);
     var list = libItems();
     if (list.length === 0) {
-      var msg = state.statusView === "wish"
-        ? (state.tab === "movie" ? "Nada na lista de filmes que você quer ver." : "Nada na lista de livros que você quer ler.")
-        : (state.tab === "movie" ? "Nenhum filme por aqui ainda." : "Nenhum livro por aqui ainda.");
+      var msg;
+      if (state.statusView === "wish") msg = state.tab === "movie" ? "Nada na lista de filmes que você quer ver." : "Nada na lista de livros que você quer ler.";
+      else if (state.statusView === "doing") msg = state.tab === "movie" ? "Nenhum filme em andamento." : "Nenhum livro em andamento.";
+      else msg = state.tab === "movie" ? "Nenhum filme por aqui ainda." : "Nenhum livro por aqui ainda.";
       sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, msg), el("button", { "class": "av-primary", onclick: openNewItem }, "Adicionar o primeiro")));
     } else {
       var grid = el("div", { "class": "av-grid" });
@@ -663,7 +686,7 @@ body{margin:0;background:#F2EEE3}
     var d = panorama();
     var sec = el("section");
     sec.appendChild(el("div", { "class": "av-screenhead" }, el("div", null, el("p", { "class": "av-eyebrow" }, "Seu acervo em números"), el("h1", { "class": "av-h1" }, "Panorama"))));
-    if (d.total === 0 && d.wish === 0) {
+    if (d.total === 0 && d.wish === 0 && d.doing === 0) {
       sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Ainda não há nada para medir. Adicione filmes e livros para ver o panorama do seu acervo."), el("button", { "class": "av-primary", onclick: openNewItem }, "Adicionar o primeiro")));
       return sec;
     }
@@ -673,6 +696,7 @@ body{margin:0;background:#F2EEE3}
     sg.appendChild(statCard(String(d.books), "livros", "média " + fmtAvg(d.avgBooks)));
     sg.appendChild(el("div", { "class": "av-stat" }, el("span", { "class": "av-statnum" }, fmtAvg(d.avgAll)), el("span", { "class": "av-statlbl" }, "nota média"), el("span", { "class": "av-statsub" }, Lamps(d.avgAll ? Math.round(d.avgAll) : 0))));
     sec.appendChild(sg);
+    if (d.doing > 0) sec.appendChild(el("p", { "class": "av-wishline" }, "Em andamento: ", el("b", null, String(d.doing)), " — " + d.doingMovies + " " + (d.doingMovies === 1 ? "filme" : "filmes") + ", " + d.doingBooks + " " + (d.doingBooks === 1 ? "livro" : "livros")));
     if (d.wish > 0) sec.appendChild(el("p", { "class": "av-wishline" }, "Lista de desejos: ", el("b", null, String(d.wish)), " — " + d.wishMovies + " " + (d.wishMovies === 1 ? "filme" : "filmes") + ", " + d.wishBooks + " " + (d.wishBooks === 1 ? "livro" : "livros")));
     if (d.total > 0) {
       sec.appendChild(el("h2", { "class": "av-h2" }, "Distribuição das notas"));
