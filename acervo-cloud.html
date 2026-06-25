@@ -45,6 +45,11 @@ body{margin:0;background:#F2EEE3}
 .av-sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--muted);letter-spacing:.02em}
 .av-sidesub{font-size:11px;color:var(--muted)}
 .av-sideuser{font-weight:600;color:var(--parch)}
+.av-acctblock{display:flex;flex-direction:column;gap:2px}
+.av-sidehandle{font-size:12px;color:var(--muted)}
+.av-editlink{align-self:flex-start;background:none;border:none;padding:2px 0 0;margin:0;color:var(--lamp);cursor:pointer;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.av-editlink:hover{filter:brightness(1.1)}
+.av-fieldhint{margin:7px 0 0;font-size:12px;color:var(--muted)}
 .av-themeseg{display:inline-flex;align-self:flex-start;background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:3px;gap:3px}
 .av-themeseg button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
 .av-themeseg button.on{color:var(--tab-dark);background:var(--lamp)}
@@ -270,7 +275,7 @@ var state = {
   items: [], playlists: [], links: [], theme: loadTheme(),
   screen: "library", tab: "movie", statusView: "done",
   openPl: null, minRating: 0, query: "",
-  itemModal: null, plModal: null, addTo: null, _mo: false,
+  itemModal: null, plModal: null, addTo: null, profileModal: null, _mo: false,
   user: null, profile: null, authResolved: false,
   authMode: "login", authForm: { email:"", password:"", username:"", display:"" },
   authError: "", authBusy: false, loadingData: false
@@ -385,6 +390,29 @@ function removeFromPl(plId,item){
   state.links=state.links.filter(function(l){return !(l.playlistId===plId&&l.itemId===item.id);});
   cw(supabase.from("collection_items").delete().eq("collection_id",plId).eq("item_id",item.id));
   render();
+}
+
+/* ===== Perfil ===== */
+function openProfile(){
+  var p=state.profile||{};
+  state.profileModal={ draft:{ display_name:p.display_name||"", username:p.username||"" }, error:"", busy:false };
+  state._mo=true; render();
+}
+function updateProfileDraft(f,v){ state.profileModal.draft[f]=v; if(state.profileModal.error){ state.profileModal.error=""; } render(); }
+async function saveProfile(){
+  var pm=state.profileModal; if(!pm) return;
+  var display=(pm.draft.display_name||"").trim();
+  var username=(pm.draft.username||"").trim().toLowerCase().replace(/[^a-z0-9_]/g,"");
+  if(!username){ pm.error="O nome de usuário não pode ficar vazio."; render(); return; }
+  pm.busy=true; pm.error=""; render();
+  var res=await supabase.from("profiles").update({ display_name:display, username:username }).eq("id", state.user.id).select().single();
+  if(res.error){
+    var taken=(res.error.code==="23505")||((res.error.message||"").toLowerCase().indexOf("duplicate")>=0);
+    pm.busy=false;
+    pm.error= taken ? "Esse nome de usuário já está em uso. Tente outro." : (res.error.message||"Não foi possível salvar.");
+    render(); return;
+  }
+  state.profile=res.data; state.profileModal=null; render();
 }
 
 /* ===== Auth ===== */
@@ -566,7 +594,24 @@ function AddToModal(){
   var foot=el("div",{ "class":"av-modalfoot" }, el("button",{ "class":"av-primary", onclick:close }, "Concluído"));
   return ModalShell("Adicionar à coleção", close, body, foot);
 }
-function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); return null; }
+function ProfileModal(){
+  var pm=state.profileModal; var dr=pm.draft;
+  var close=function(){ state.profileModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("label",{ "class":"av-label" },"Nome de exibição"));
+  body.appendChild(inputField("pf-name",dr.display_name,"ex: João Ferretti",function(v){updateProfileDraft("display_name",v);}));
+  body.appendChild(el("label",{ "class":"av-label" },"Nome de usuário"));
+  var u=inputField("pf-user",dr.username,"ex: joaoferretti",function(v){updateProfileDraft("username",v);});
+  body.appendChild(u);
+  body.appendChild(el("p",{ "class":"av-fieldhint" },"aparece como @"+( (dr.username||"").trim().toLowerCase().replace(/[^a-z0-9_]/g,"") || "usuario" )+" — só letras, números e _"));
+  if(pm.error) body.appendChild(el("p",{ "class":"av-autherr", style:{ textAlign:"left", marginTop:"12px" } }, pm.error));
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:close }, "Cancelar"),
+    el("button",{ "class":"av-primary", disabled:pm.busy, onclick:saveProfile }, pm.busy?"Salvando…":"Salvar")
+  );
+  return ModalShell("Editar perfil", close, body, foot);
+}
+function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); return null; }
 
 function counts(){ return { movie: state.items.filter(function(i){return statusOf(i)===state.statusView&&i.type==="movie";}).length, book: state.items.filter(function(i){return statusOf(i)===state.statusView&&i.type==="book";}).length }; }
 function libItems(){
@@ -719,8 +764,13 @@ function Sidebar(){
     navBtn("Coleções", state.screen==="playlists"||state.screen==="playlist", function(){ go("playlists"); }),
     navBtn("Panorama", state.screen==="stats", function(){ go("stats"); })
   );
+  var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
   var foot=el("div",{ "class":"av-sidefoot" },
-    el("span",{ "class":"av-sideuser" }, "@"+(state.profile?state.profile.username:"…")),
+    el("div",{ "class":"av-acctblock" },
+      el("span",{ "class":"av-sideuser" }, pname),
+      state.profile && state.profile.display_name ? el("span",{ "class":"av-sidehandle" }, "@"+state.profile.username) : null,
+      el("button",{ "class":"av-editlink", onclick:openProfile }, "editar perfil")
+    ),
     el("span",{ "class":"av-sidesub" }, state.items.length+" registros · "+state.playlists.length+" coleções"),
     el("div",{ "class":"av-themeseg", role:"group", "aria-label":"Tema" },
       el("button",{ "class":state.theme==="light"?"on":"", onclick:function(){ setTheme("light"); } }, "Claro"),
@@ -738,7 +788,13 @@ function Bottom(){
     el("button",{ "class":"av-themebtn", "aria-label":"Alternar tema", onclick:function(){ setTheme(state.theme==="dark"?"light":"dark"); } }, state.theme==="dark"?"☀":"☾")
   );
 }
-function MobileAccount(){ return el("div",{ "class":"av-mobacct" }, el("span",null,"@"+(state.profile?state.profile.username:"…")), el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")); }
+function MobileAccount(){
+  var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
+  return el("div",{ "class":"av-mobacct" },
+    el("button",{ "class":"av-editlink", onclick:openProfile }, pname+" · editar"),
+    el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")
+  );
+}
 function Main(){
   var main=el("main",{ "class":"av-main" });
   main.appendChild(MobileAccount());
