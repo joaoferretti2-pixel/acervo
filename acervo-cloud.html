@@ -50,6 +50,39 @@ body{margin:0;background:#F2EEE3}
 .av-editlink{align-self:flex-start;background:none;border:none;padding:2px 0 0;margin:0;color:var(--lamp);cursor:pointer;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:3px}
 .av-editlink:hover{filter:brightness(1.1)}
 .av-fieldhint{margin:7px 0 0;font-size:12px;color:var(--muted)}
+.av-people{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.av-person{display:flex;align-items:center;gap:12px;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.av-person.clickable{cursor:pointer;transition:border-color .15s}
+.av-person.clickable:hover{border-color:var(--line2)}
+.av-avatar{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--tab-dark);background:radial-gradient(circle at 35% 30%,var(--lamp-hi),var(--lamp))}
+.av-avatar.lg{width:64px;height:64px;font-size:28px}
+.av-personmeta{flex:1;min-width:0;display:flex;flex-direction:column}
+.av-personname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-personhandle{font-size:12.5px;color:var(--muted)}
+.av-followbtn{flex:none}
+.av-feedsearch{margin-bottom:22px}
+.av-activity{display:flex;flex-direction:column;gap:8px}
+.av-actrow{display:flex;align-items:center;gap:12px;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.av-actcover{width:30px;flex:none;aspect-ratio:2/3;border-radius:4px;overflow:hidden;border:1px solid var(--line);position:relative}
+.av-acttext{flex:1;min-width:0;font-size:14px;line-height:1.4;display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.av-acttitle{font-family:'Fraunces',serif;font-style:italic}
+.av-profhead{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+.av-profcounts{display:flex;gap:18px;margin:8px 0 0;font-size:13px;color:var(--muted)}
+.av-profcounts b{color:var(--parch);font-weight:600}
+.av-secsub{font-family:'Fraunces',serif;font-style:italic;color:var(--muted);margin:0 0 14px}
+.av-countlink{background:none;border:none;padding:0;font:inherit;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:transparent;transition:text-decoration-color .15s,color .15s}
+.av-countlink:hover{color:var(--parch);text-decoration-color:var(--line2)}
+.av-countlink b{color:var(--parch);font-weight:600}
+.av-selfname{background:none;border:none;padding:0;font:inherit;font-weight:600;color:var(--parch);cursor:pointer;text-align:left}
+.av-selfname:hover{color:var(--lamp)}
+.av-commentbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.av-commentseg{flex:none}
+.av-commentlist{display:flex;flex-direction:column;gap:10px}
+.av-commentcard{position:relative;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.av-commenthead{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.av-commenttitle{font-family:'Fraunces',serif;font-weight:600;font-size:17px}
+.av-commentbody{margin:0;color:var(--parch);line-height:1.5;font-size:14.5px;white-space:pre-wrap}
+.av-commentdel{position:absolute;top:12px;right:12px}
 .av-themeseg{display:inline-flex;align-self:flex-start;background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:3px;gap:3px}
 .av-themeseg button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
 .av-themeseg button.on{color:var(--tab-dark);background:var(--lamp)}
@@ -275,10 +308,13 @@ var state = {
   items: [], playlists: [], links: [], theme: loadTheme(),
   screen: "library", tab: "movie", statusView: "done",
   openPl: null, minRating: 0, query: "",
-  itemModal: null, plModal: null, addTo: null, profileModal: null, _mo: false,
+  itemModal: null, plModal: null, addTo: null, profileModal: null, commentModal: null, peopleModal: null, _mo: false,
   user: null, profile: null, authResolved: false,
   authMode: "login", authForm: { email:"", password:"", username:"", display:"" },
-  authError: "", authBusy: false, loadingData: false
+  authError: "", authBusy: false, loadingData: false,
+  following: [], feed: { loading:false, activity:[], peopleById:{} },
+  discover: { q:"", results:[], searched:false },
+  viewUser: null
 };
 var pendingUsername = null, pendingDisplay = null;
 
@@ -287,6 +323,7 @@ function cw(promise){ Promise.resolve(promise).then(function(res){ if(res && res
 function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, createdAt:r.created_at }; }
 function rowToColl(r){ return { id:r.id, name:r.name, tag:r.tag, description:r.description, isPublic:r.is_public, createdAt:r.created_at }; }
 function rowToLink(r){ return { id:r.id, playlistId:r.collection_id, itemId:r.item_id, itemType:r.item_type }; }
+function rowToComment(r){ return { id:r.id, user_id:r.user_id, item_type:r.item_type, title:r.title, body:r.body, createdAt:r.created_at }; }
 
 async function cloudFetchAll(){
   var uid = state.user.id;
@@ -392,6 +429,114 @@ function removeFromPl(plId,item){
   render();
 }
 
+/* ===== Social (seguir / feed / perfis) ===== */
+async function loadFollowing(){
+  var res = await supabase.from("follows").select("following_id").eq("follower_id", state.user.id);
+  state.following = (res.data||[]).map(function(r){ return r.following_id; });
+}
+function isFollowing(id){ return state.following.indexOf(id) >= 0; }
+async function follow(id){
+  if(isFollowing(id)) return;
+  state.following.push(id);
+  if(state.viewUser && state.viewUser.profile && state.viewUser.profile.id===id) state.viewUser.followers++;
+  render();
+  cw(supabase.from("follows").insert({ follower_id: state.user.id, following_id: id }));
+}
+async function unfollow(id){
+  state.following = state.following.filter(function(x){ return x!==id; });
+  if(state.viewUser && state.viewUser.profile && state.viewUser.profile.id===id) state.viewUser.followers = Math.max(0, state.viewUser.followers-1);
+  render();
+  cw(supabase.from("follows").delete().eq("follower_id", state.user.id).eq("following_id", id));
+}
+async function searchPeople(q){
+  state.discover.q = q;
+  if(!q.trim()){ state.discover.results=[]; state.discover.searched=false; render(); return; }
+  var res = await supabase.from("profiles").select("id,username,display_name").ilike("username", "%"+q.trim().toLowerCase()+"%").neq("id", state.user.id).limit(20);
+  state.discover.results = res.data||[];
+  state.discover.searched = true;
+  render();
+}
+async function openFeed(){
+  state.screen="feed"; state.viewUser=null; render();
+  await loadFeed();
+}
+async function loadFeed(){
+  state.feed.loading=true; render();
+  if(state.following.length===0){ state.feed.activity=[]; state.feed.peopleById={}; state.feed.loading=false; render(); return; }
+  var itemsRes = await supabase.from("items").select("*").in("user_id", state.following).order("created_at",{ascending:false}).limit(40);
+  var profRes = await supabase.from("profiles").select("id,username,display_name").in("id", state.following);
+  var byId={}; (profRes.data||[]).forEach(function(p){ byId[p.id]=p; });
+  state.feed.peopleById = byId;
+  state.feed.activity = (itemsRes.data||[]).map(rowToItem).map(function(it, i){ var raw=(itemsRes.data||[])[i]; it.user_id = raw.user_id; return it; });
+  state.feed.loading=false; render();
+}
+async function openUser(username){
+  state.screen="user";
+  state.viewUser={ loading:true, profile:null, items:[], playlists:[], links:[], followers:0, followingCount:0 };
+  render();
+  var pr = await supabase.from("profiles").select("*").eq("username", username).maybeSingle();
+  if(!pr.data){ state.viewUser.loading=false; state.viewUser.notFound=true; render(); return; }
+  var prof = pr.data;
+  var res = await Promise.all([
+    supabase.from("items").select("*").eq("user_id", prof.id),
+    supabase.from("collections").select("*").eq("user_id", prof.id),
+    supabase.from("collection_items").select("*").eq("user_id", prof.id),
+    supabase.from("follows").select("follower_id", {count:"exact"}).eq("following_id", prof.id),
+    supabase.from("follows").select("following_id", {count:"exact"}).eq("follower_id", prof.id),
+    supabase.from("comments").select("*").eq("user_id", prof.id).order("created_at",{ascending:false})
+  ]);
+  state.viewUser = {
+    loading:false, profile:prof, tab:"acervo", commentType:"movie",
+    items:(res[0].data||[]).map(rowToItem),
+    playlists:(res[1].data||[]).map(rowToColl),
+    links:(res[2].data||[]).map(rowToLink),
+    followers: (res[3].count!=null?res[3].count:(res[3].data||[]).length),
+    followingCount: (res[4].count!=null?res[4].count:(res[4].data||[]).length),
+    comments:(res[5].data||[]).map(rowToComment)
+  };
+  render();
+}
+
+/* ===== Comentários ===== */
+function isOwnProfile(){ return state.viewUser && state.viewUser.profile && state.viewUser.profile.id===state.user.id; }
+function openCommentModal(){
+  state.commentModal={ draft:{ item_type: (state.viewUser?state.viewUser.commentType:"movie"), title:"", body:"" }, busy:false, error:"" };
+  state._mo=true; render();
+}
+function updateCommentDraft(f,v){ state.commentModal.draft[f]=v; render(); }
+async function saveComment(){
+  var cm=state.commentModal; var dr=cm.draft;
+  if(!dr.title.trim() || !dr.body.trim()){ cm.error="Preencha o título e o comentário."; render(); return; }
+  cm.busy=true; cm.error=""; render();
+  var id=newId();
+  var res=await supabase.from("comments").insert({ id:id, user_id:state.user.id, item_type:dr.item_type, title:dr.title.trim(), body:dr.body.trim() }).select().single();
+  if(res.error){ cm.busy=false; cm.error=res.error.message||"Não foi possível salvar."; render(); return; }
+  if(state.viewUser && isOwnProfile()){
+    state.viewUser.comments.unshift(rowToComment(res.data));
+    state.viewUser.commentType=dr.item_type; state.viewUser.tab="comentarios";
+  }
+  state.commentModal=null; render();
+}
+function deleteComment(c){
+  if(state.viewUser) state.viewUser.comments=state.viewUser.comments.filter(function(x){return x.id!==c.id;});
+  cw(supabase.from("comments").delete().eq("id",c.id));
+  render();
+}
+
+/* ===== Listas de seguidores / seguindo ===== */
+async function openPeopleList(profileId, mode){
+  state.peopleModal={ loading:true, mode:mode, people:[] };
+  state._mo=true; render();
+  var col = mode==="followers" ? "follower_id" : "following_id";
+  var matchCol = mode==="followers" ? "following_id" : "follower_id";
+  var rel = await supabase.from("follows").select(col).eq(matchCol, profileId);
+  var ids = (rel.data||[]).map(function(r){ return r[col]; });
+  if(ids.length===0){ state.peopleModal.loading=false; state.peopleModal.people=[]; render(); return; }
+  var pr = await supabase.from("profiles").select("id,username,display_name").in("id", ids);
+  state.peopleModal.loading=false; state.peopleModal.people=pr.data||[];
+  render();
+}
+
 /* ===== Perfil ===== */
 function openProfile(){
   var p=state.profile||{};
@@ -488,6 +633,9 @@ function ItemCard(item,context){
   if(st==="done") body.appendChild(el("div",{ "class":"av-cardrate" }, Lamps(item.rating)));
   if(item.notes) body.appendChild(el("p",{ "class":"av-notes" }, item.notes));
   var foot=el("div",{ "class":"av-cardfoot" });
+  if(context==="view"){
+    return el("article",{ "class":"av-card" }, Cover(item), body);
+  }
   if(context==="library"){
     if(st==="wish"){
       foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ moveStatus(item,"doing",false); } }, "▶ Começar"));
@@ -611,7 +759,44 @@ function ProfileModal(){
   );
   return ModalShell("Editar perfil", close, body, foot);
 }
-function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); return null; }
+function CommentModal(){
+  var cm=state.commentModal; var dr=cm.draft;
+  var close=function(){ state.commentModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("label",{ "class":"av-label" },"Tipo"));
+  body.appendChild(el("div",{ "class":"av-seg" }, seg("Filme",dr.item_type==="movie",function(){updateCommentDraft("item_type","movie");}), seg("Livro",dr.item_type==="book",function(){updateCommentDraft("item_type","book");})));
+  body.appendChild(el("label",{ "class":"av-label" },"Título"));
+  body.appendChild(inputField("cm-title",dr.title, dr.item_type==="movie"?"ex: Stalker":"ex: Noites Brancas", function(v){updateCommentDraft("title",v);}));
+  body.appendChild(el("label",{ "class":"av-label" },"Comentário"));
+  var ta=el("textarea",{ "class":"av-input av-area", rows:4, "data-focus-id":"cm-body", placeholder:"o que você achou…", oninput:function(e){updateCommentDraft("body",e.target.value);} });
+  ta.value=dr.body||""; body.appendChild(ta);
+  if(cm.error) body.appendChild(el("p",{ "class":"av-autherr", style:{ textAlign:"left", marginTop:"10px" } }, cm.error));
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:close }, "Cancelar"),
+    el("button",{ "class":"av-primary", disabled:cm.busy, onclick:saveComment }, cm.busy?"Publicando…":"Publicar")
+  );
+  return ModalShell("Novo comentário", close, body, foot);
+}
+function PeopleModal(){
+  var pm=state.peopleModal;
+  var close=function(){ state.peopleModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  if(pm.loading){ body.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); }
+  else if(pm.people.length===0){ body.appendChild(el("div",{ "class":"av-empty sm" }, el("p",null, pm.mode==="followers"?"Ninguém segue este perfil ainda.":"Este perfil ainda não segue ninguém."))); }
+  else {
+    var people=el("div",{ "class":"av-people" });
+    pm.people.forEach(function(p){
+      people.appendChild(el("div",{ "class":"av-person clickable", onclick:function(){ state.peopleModal=null; openUser(p.username); } },
+        Avatar(p),
+        el("div",{ "class":"av-personmeta" }, el("span",{ "class":"av-personname" }, p.display_name||p.username), el("span",{ "class":"av-personhandle" }, "@"+p.username)),
+        FollowButton(p.id)
+      ));
+    });
+    body.appendChild(people);
+  }
+  return ModalShell(pm.mode==="followers"?"Seguidores":"Seguindo", close, body, null);
+}
+function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); if(state.commentModal) return CommentModal(); if(state.peopleModal) return PeopleModal(); return null; }
 
 function counts(){ return { movie: state.items.filter(function(i){return statusOf(i)===state.statusView&&i.type==="movie";}).length, book: state.items.filter(function(i){return statusOf(i)===state.statusView&&i.type==="book";}).length }; }
 function libItems(){
@@ -757,17 +942,158 @@ function Stats(){
   }
   return sec;
 }
+function Avatar(profile,lg){
+  var name=profile? (profile.display_name||profile.username||"?") : "?";
+  return el("div",{ "class":"av-avatar"+(lg?" lg":"") }, initialsOf(name));
+}
+function FollowButton(id){
+  if(id===state.user.id) return null;
+  var on=isFollowing(id);
+  return el("button",{ "class":(on?"av-ghost sm":"av-primary")+" av-followbtn", onclick:function(e){ e.stopPropagation(); if(on) unfollow(id); else follow(id); } }, on?"Seguindo":"Seguir");
+}
+function PersonRow(p){
+  return el("div",{ "class":"av-person clickable", onclick:function(){ openUser(p.username); } },
+    Avatar(p),
+    el("div",{ "class":"av-personmeta" },
+      el("span",{ "class":"av-personname" }, p.display_name||p.username),
+      el("span",{ "class":"av-personhandle" }, "@"+p.username)
+    ),
+    FollowButton(p.id)
+  );
+}
+function ActivityRow(it){
+  var p=state.feed.peopleById[it.user_id];
+  var st=statusOf(it);
+  var actverb = st==="done" ? "avaliou" : (st==="doing" ? (it.type==="movie"?"está assistindo":"está lendo") : (it.type==="movie"?"quer ver":"quer ler"));
+  var text=el("div",{ "class":"av-acttext" },
+    el("b",null, p?(p.display_name||p.username):"alguém"), " ",
+    el("span",{ "class":"av-actverb" }, actverb+" "), 
+    el("span",{ "class":"av-acttitle" }, it.title),
+    st==="done" ? el("span",null, "  ") : null,
+    st==="done" ? Lamps(it.rating,null,11) : null
+  );
+  var row=el("div",{ "class":"av-actrow" }, Cover(it,"av-actcover"), text);
+  if(p) row.addEventListener("click", function(){ openUser(p.username); });
+  if(p) row.style.cursor="pointer";
+  return row;
+}
+function Feed(){
+  var sec=el("section");
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, el("div",null, el("p",{ "class":"av-eyebrow" },"Rede"), el("h1",{ "class":"av-h1" },"Comunidade"))));
+  var search=el("input",{ "class":"av-search av-feedsearch", placeholder:"Buscar pessoas por @usuário…", "data-focus-id":"discover", oninput:function(e){ searchPeople(e.target.value); } });
+  search.value=state.discover.q;
+  sec.appendChild(search);
+  if(state.discover.searched){
+    if(state.discover.results.length===0){
+      sec.appendChild(el("p",{ "class":"av-secsub" }, "Ninguém encontrado com esse nome."));
+    } else {
+      var people=el("div",{ "class":"av-people" });
+      state.discover.results.forEach(function(p){ people.appendChild(PersonRow(p)); });
+      sec.appendChild(people);
+    }
+  }
+  sec.appendChild(el("h2",{ "class":"av-h2" }, "Atividade de quem você segue"));
+  if(state.feed.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
+  if(state.following.length===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Você ainda não segue ninguém. Busque pelo @usuário de alguém acima para começar.")));
+  } else if(state.feed.activity.length===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Quem você segue ainda não registrou nada.")));
+  } else {
+    var act=el("div",{ "class":"av-activity" });
+    state.feed.activity.forEach(function(it){ act.appendChild(ActivityRow(it)); });
+    sec.appendChild(act);
+  }
+  return sec;
+}
+function CommentCard(c, own){
+  var card=el("article",{ "class":"av-commentcard" });
+  card.appendChild(el("div",{ "class":"av-commenthead" }, el("span",{ "class":"av-typetab "+(c.item_type==="movie"?"film":"book") }, c.item_type==="movie"?"Filme":"Livro"), el("span",{ "class":"av-commenttitle" }, c.title)));
+  if(c.body) card.appendChild(el("p",{ "class":"av-commentbody" }, c.body));
+  if(own) card.appendChild(el("button",{ "class":"av-ghost sm danger av-commentdel", onclick:function(){ deleteComment(c); } }, "Excluir"));
+  return card;
+}
+function UserProfile(){
+  var vu=state.viewUser;
+  var sec=el("section");
+  sec.appendChild(el("button",{ "class":"av-back", onclick:openFeed }, "← Comunidade"));
+  if(vu.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
+  if(vu.notFound){ sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Perfil não encontrado."))); return sec; }
+  var p=vu.profile;
+  var own=isOwnProfile();
+  var doneCount=vu.items.filter(function(i){return statusOf(i)==="done";}).length;
+  sec.appendChild(el("div",{ "class":"av-profhead" },
+    Avatar(p,true),
+    el("div",null,
+      el("h1",{ "class":"av-h1", style:{ fontSize:"30px" } }, p.display_name||p.username),
+      el("p",{ "class":"av-personhandle" }, "@"+p.username),
+      el("div",{ "class":"av-profcounts" },
+        el("button",{ "class":"av-countlink", onclick:function(){ openPeopleList(p.id,"followers"); } }, el("b",null,String(vu.followers)), " seguidores"),
+        el("button",{ "class":"av-countlink", onclick:function(){ openPeopleList(p.id,"following"); } }, el("b",null,String(vu.followingCount)), " seguindo"),
+        el("span",null, el("b",null,String(doneCount)), " no acervo")
+      )
+    ),
+    FollowButton(p.id)
+  ));
+  // abas
+  sec.appendChild(el("div",{ "class":"av-statusview" },
+    el("button",{ "class":vu.tab==="acervo"?"on":"", onclick:function(){ vu.tab="acervo"; render(); } }, "Acervo"),
+    el("button",{ "class":vu.tab==="comentarios"?"on":"", onclick:function(){ vu.tab="comentarios"; render(); } }, "Comentários")
+  ));
+
+  if(vu.tab==="acervo"){
+    var done=vu.items.filter(function(i){ return statusOf(i)==="done"; }).sort(function(a,b){ return (b.createdAt||"").localeCompare(a.createdAt||""); });
+    if(done.length===0){
+      sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Nada no acervo ainda.")));
+    } else {
+      var grid=el("div",{ "class":"av-grid" });
+      done.forEach(function(it){ grid.appendChild(ItemCard(it,"view")); });
+      sec.appendChild(grid);
+    }
+    if(vu.playlists.length>0){
+      sec.appendChild(el("h2",{ "class":"av-h2" }, "Coleções"));
+      var cg=el("div",{ "class":"av-grid" });
+      vu.playlists.forEach(function(pl){
+        var list=vu.links.filter(function(l){return l.playlistId===pl.id;}).map(function(l){return vu.items.find(function(i){return i.id===l.itemId;});}).filter(Boolean);
+        var body=el("div",{ "class":"av-cardbody" });
+        body.appendChild(el("div",{ "class":"av-plhead" }, el("h4",{ "class":"av-title" }, pl.name), Chip(pl.tag)));
+        if(pl.description) body.appendChild(el("p",{ "class":"av-notes" }, pl.description));
+        body.appendChild(el("div",{ "class":"av-plmeta" }, el("span",null, list.length+" "+(list.length===1?"item":"itens"))));
+        cg.appendChild(el("article",{ "class":"av-card" }, body));
+      });
+      sec.appendChild(cg);
+    }
+  } else {
+    // comentários, separados por filme/livro
+    var bar=el("div",{ "class":"av-commentbar" });
+    bar.appendChild(el("div",{ "class":"av-seg av-commentseg" },
+      seg("Filmes", vu.commentType==="movie", function(){ vu.commentType="movie"; render(); }),
+      seg("Livros", vu.commentType==="book", function(){ vu.commentType="book"; render(); })
+    ));
+    if(own) bar.appendChild(el("button",{ "class":"av-primary", onclick:openCommentModal }, "+ Comentar"));
+    sec.appendChild(bar);
+    var list=vu.comments.filter(function(c){ return c.item_type===vu.commentType; });
+    if(list.length===0){
+      sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null, own ? "Você ainda não comentou nenhum "+(vu.commentType==="movie"?"filme":"livro")+"." : "Nenhum comentário de "+(vu.commentType==="movie"?"filmes":"livros")+" ainda.")));
+    } else {
+      var clist=el("div",{ "class":"av-commentlist" });
+      list.forEach(function(c){ clist.appendChild(CommentCard(c, own)); });
+      sec.appendChild(clist);
+    }
+  }
+  return sec;
+}
 function navBtn(label,on,onclick){ return el("button",{ "class":"av-navitem"+(on?" active":""), onclick:onclick }, label); }
 function Sidebar(){
   var nav=el("nav",{ "class":"av-nav" },
     navBtn("Biblioteca", state.screen==="library", function(){ go("library"); }),
     navBtn("Coleções", state.screen==="playlists"||state.screen==="playlist", function(){ go("playlists"); }),
+    navBtn("Comunidade", state.screen==="feed"||state.screen==="user", function(){ openFeed(); }),
     navBtn("Panorama", state.screen==="stats", function(){ go("stats"); })
   );
   var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
   var foot=el("div",{ "class":"av-sidefoot" },
     el("div",{ "class":"av-acctblock" },
-      el("span",{ "class":"av-sideuser" }, pname),
+      el("button",{ "class":"av-sideuser av-selfname", onclick:function(){ if(state.profile) openUser(state.profile.username); } }, pname),
       state.profile && state.profile.display_name ? el("span",{ "class":"av-sidehandle" }, "@"+state.profile.username) : null,
       el("button",{ "class":"av-editlink", onclick:openProfile }, "editar perfil")
     ),
@@ -784,6 +1110,7 @@ function Bottom(){
   return el("nav",{ "class":"av-bottom" },
     el("button",{ "class":state.screen==="library"?"on":"", onclick:function(){ go("library"); } }, "Biblioteca"),
     el("button",{ "class":(state.screen==="playlists"||state.screen==="playlist")?"on":"", onclick:function(){ go("playlists"); } }, "Coleções"),
+    el("button",{ "class":(state.screen==="feed"||state.screen==="user")?"on":"", onclick:function(){ openFeed(); } }, "Rede"),
     el("button",{ "class":state.screen==="stats"?"on":"", onclick:function(){ go("stats"); } }, "Panorama"),
     el("button",{ "class":"av-themebtn", "aria-label":"Alternar tema", onclick:function(){ setTheme(state.theme==="dark"?"light":"dark"); } }, state.theme==="dark"?"☀":"☾")
   );
@@ -802,6 +1129,8 @@ function Main(){
   else if(state.screen==="playlists") main.appendChild(Playlists());
   else if(state.screen==="playlist") main.appendChild(PlaylistDetail());
   else if(state.screen==="stats") main.appendChild(Stats());
+  else if(state.screen==="feed") main.appendChild(Feed());
+  else if(state.screen==="user") main.appendChild(UserProfile());
   return main;
 }
 
@@ -877,6 +1206,9 @@ window.addEventListener("keydown", function(e){
     if(state.itemModal){ state.itemModal=null; render(); }
     else if(state.plModal){ state.plModal=null; render(); }
     else if(state.addTo){ state.addTo=null; render(); }
+    else if(state.profileModal){ state.profileModal=null; render(); }
+    else if(state.commentModal){ state.commentModal=null; render(); }
+    else if(state.peopleModal){ state.peopleModal=null; render(); }
   }
 });
 
@@ -884,6 +1216,7 @@ async function onSignedIn(){
   try{ await ensureProfile(); }catch(e){ console.error("perfil:", e); }
   state.loadingData=true; render();
   try{ await cloudFetchAll(); }catch(e){ console.error("dados:", e && e.message); }
+  try{ await loadFollowing(); }catch(e){ console.error("follows:", e && e.message); }
   state.loadingData=false; render();
 }
 
