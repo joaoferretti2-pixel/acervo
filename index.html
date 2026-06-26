@@ -12,18 +12,14 @@
 *{box-sizing:border-box}
 html,body,#root{height:100%}
 body{margin:0;background:#F2EEE3}
-
 .theme-dark{
   --ink:#13172A; --raised:#1B2140; --line:#2A3157; --line2:#363f6b;
   --parch:#ECE5D6; --muted:#8E93AD; --lamp:#E7B264; --lamp-hi:#ffe9c0; --lampglow:rgba(231,178,100,.55);
   --film:#E7B264; --book:#9FB0C9; --rose:#C77B6F;
   --accent-soft:rgba(231,178,100,.08); --accent-line:rgba(231,178,100,.38); --focus:rgba(231,178,100,.14);
   --book-soft:rgba(159,176,201,.08); --book-line:rgba(159,176,201,.35); --rose-line:rgba(199,123,111,.5);
-  --glow:rgba(231,178,100,.07);
-  --shadow-card:0 10px 28px -16px rgba(0,0,0,.7);
-  --shadow-modal:0 30px 80px -20px rgba(0,0,0,.8);
-  --backdrop-bg:rgba(8,10,18,.66);
-  --tab-dark:#1a1406;
+  --glow:rgba(231,178,100,.07); --shadow-card:0 10px 28px -16px rgba(0,0,0,.7);
+  --shadow-modal:0 30px 80px -20px rgba(0,0,0,.8); --backdrop-bg:rgba(8,10,18,.66); --tab-dark:#1a1406;
 }
 .theme-light{
   --ink:#F2EEE3; --raised:#FBF8F1; --line:#E6DECC; --line2:#D8CDB6;
@@ -31,17 +27,13 @@ body{margin:0;background:#F2EEE3}
   --film:#D49A45; --book:#6E8198; --rose:#B25A4D;
   --accent-soft:rgba(197,138,54,.12); --accent-line:rgba(197,138,54,.42); --focus:rgba(197,138,54,.22);
   --book-soft:rgba(110,129,152,.12); --book-line:rgba(110,129,152,.40); --rose-line:rgba(178,90,77,.45);
-  --glow:rgba(212,154,69,.10);
-  --shadow-card:0 12px 30px -18px rgba(60,50,30,.20);
-  --shadow-modal:0 28px 70px -24px rgba(60,50,30,.26);
-  --backdrop-bg:rgba(45,40,30,.34);
-  --tab-dark:#241a05;
+  --glow:rgba(212,154,69,.10); --shadow-card:0 12px 30px -18px rgba(60,50,30,.20);
+  --shadow-modal:0 28px 70px -24px rgba(60,50,30,.26); --backdrop-bg:rgba(45,40,30,.34); --tab-dark:#241a05;
 }
-
+.av-shell{min-height:100vh;background:radial-gradient(1100px 480px at 50% -220px, var(--glow), transparent 62%), var(--ink);color:var(--parch);font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
 .av-root{min-height:100vh; display:grid; grid-template-columns:240px 1fr;
   background:radial-gradient(1100px 480px at 50% -220px, var(--glow), transparent 62%), var(--ink);
-  color:var(--parch); font-family:'Hanken Grotesk',system-ui,sans-serif; font-size:15px; line-height:1.5;
-  -webkit-font-smoothing:antialiased; transition:background .3s,color .3s}
+  color:var(--parch); font-family:'Hanken Grotesk',system-ui,sans-serif; font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; transition:background .3s,color .3s}
 .av-side{border-right:1px solid var(--line); padding:30px 22px; display:flex; flex-direction:column; gap:30px; position:sticky; top:0; height:100vh}
 .av-brand{display:flex;flex-direction:column;gap:4px}
 .av-logo{font-family:'Fraunces',serif;font-weight:600;font-size:27px;letter-spacing:.01em;color:var(--parch)}
@@ -50,27 +42,84 @@ body{margin:0;background:#F2EEE3}
 .av-navitem{text-align:left;background:none;border:none;cursor:pointer;color:var(--muted);font:inherit;font-weight:600;font-size:15px;padding:9px 12px;border-radius:7px;border-left:2px solid transparent;transition:color .15s,background .15s}
 .av-navitem:hover{color:var(--parch)}
 .av-navitem.active{color:var(--parch);background:var(--accent-soft);border-left-color:var(--lamp)}
-.av-sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:12px;font-size:12px;color:var(--muted);letter-spacing:.02em}
+.av-sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--muted);letter-spacing:.02em}
+.av-sidesub{font-size:11px;color:var(--muted)}
+.av-sideuser{font-weight:600;color:var(--parch)}
+.av-acctblock{display:flex;flex-direction:column;gap:2px}
+.av-sidehandle{font-size:12px;color:var(--muted)}
+.av-editlink{align-self:flex-start;background:none;border:none;padding:2px 0 0;margin:0;color:var(--lamp);cursor:pointer;font:inherit;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.av-editlink:hover{filter:brightness(1.1)}
+.av-fieldhint{margin:7px 0 0;font-size:12px;color:var(--muted)}
+.av-people{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.av-person{display:flex;align-items:center;gap:12px;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.av-person.clickable{cursor:pointer;transition:border-color .15s}
+.av-person.clickable:hover{border-color:var(--line2)}
+.av-avatar{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--tab-dark);background:radial-gradient(circle at 35% 30%,var(--lamp-hi),var(--lamp))}
+.av-avatar.lg{width:64px;height:64px;font-size:28px}
+.av-avimg{background:var(--raised);overflow:hidden}
+.av-avimgel{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.av-aveditor{display:flex;align-items:center;gap:14px;margin-bottom:2px}
+.av-avbtns{display:flex;flex-wrap:wrap;gap:8px}
+.av-acctrow{display:flex;align-items:center;gap:11px}
+.av-personmeta{flex:1;min-width:0;display:flex;flex-direction:column}
+.av-personname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-personhandle{font-size:12.5px;color:var(--muted)}
+.av-followbtn{flex:none}
+.av-feedsearch{margin-bottom:22px}
+.av-activity{display:flex;flex-direction:column;gap:8px}
+.av-actrow{display:flex;align-items:center;gap:12px;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.av-actcover{width:30px;flex:none;aspect-ratio:2/3;border-radius:4px;overflow:hidden;border:1px solid var(--line);position:relative}
+.av-acttext{flex:1;min-width:0;font-size:14px;line-height:1.4;display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.av-acttitle{font-family:'Fraunces',serif;font-style:italic}
+.av-profhead{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+.av-profcounts{display:flex;gap:18px;margin:8px 0 0;font-size:13px;color:var(--muted)}
+.av-profcounts b{color:var(--parch);font-weight:600}
+.av-secsub{font-family:'Fraunces',serif;font-style:italic;color:var(--muted);margin:0 0 14px}
+.av-countlink{background:none;border:none;padding:0;font:inherit;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-color:transparent;transition:text-decoration-color .15s,color .15s}
+.av-countlink:hover{color:var(--parch);text-decoration-color:var(--line2)}
+.av-countlink b{color:var(--parch);font-weight:600}
+.av-selfname{background:none;border:none;padding:0;font:inherit;font-weight:600;color:var(--parch);cursor:pointer;text-align:left}
+.av-selfname:hover{color:var(--lamp)}
+.av-commentbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.av-commentseg{flex:none}
+.av-commentlist{display:flex;flex-direction:column;gap:10px}
+.av-commentcard{position:relative;background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.av-commenthead{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.av-commenttitle{font-family:'Fraunces',serif;font-weight:600;font-size:17px}
+.av-commentbody{margin:0;color:var(--parch);line-height:1.5;font-size:14.5px;white-space:pre-wrap}
+.av-commentdel{position:absolute;top:12px;right:12px}
+.av-profactions{display:flex;flex-direction:column;gap:8px;align-items:flex-end;margin-left:auto}
+.av-sharepage{min-height:100vh;display:flex;justify-content:center;padding:34px 22px 90px}
+.av-sharewrap{width:100%;max-width:1040px}
+.av-sharetop{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.av-metabtn{margin-top:9px;width:100%;background:var(--accent-soft);color:var(--lamp);border:1px solid var(--accent-line);cursor:pointer;font:inherit;font-weight:600;font-size:13.5px;padding:9px;border-radius:8px;transition:background .15s,color .15s}
+.av-metabtn:hover:not(:disabled){background:var(--lamp);color:var(--tab-dark)}
+.av-metabtn:disabled{opacity:.5;cursor:not-allowed}
+.av-metaerr{margin:9px 0 0;font-size:13px;color:var(--muted)}
+.av-metalist{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:260px;overflow:auto}
+.av-metarow{display:flex;align-items:center;gap:11px;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;text-align:left;font:inherit;color:var(--parch);transition:border-color .15s}
+.av-metarow:hover{border-color:var(--lamp)}
+.av-metathumb{width:34px;flex:none;aspect-ratio:2/3;border-radius:4px;object-fit:cover;border:1px solid var(--line);background:var(--ink)}
+.av-metaph{background:var(--line)}
+.av-metainfo{display:flex;flex-direction:column;min-width:0}
+.av-metatitle{font-family:'Fraunces',serif;font-weight:600;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-metasub{font-size:12.5px;color:var(--muted)}
 .av-themeseg{display:inline-flex;align-self:flex-start;background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:3px;gap:3px}
 .av-themeseg button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
 .av-themeseg button.on{color:var(--tab-dark);background:var(--lamp)}
-
 .av-main{padding:44px 52px 80px;max-width:1040px;width:100%}
 .av-screenhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
 .av-eyebrow{margin:0 0 6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lamp)}
 .av-h1{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.02;letter-spacing:-.01em}
-
 .av-statusview{display:inline-flex;flex-wrap:wrap;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px;margin-bottom:18px}
 .av-statusview button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:13.5px;padding:7px 15px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
 .av-statusview button.on{color:var(--tab-dark);background:var(--lamp)}
-
 .av-tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin-bottom:20px}
 .av-tab{background:none;border:none;cursor:pointer;color:var(--muted);font:inherit;font-weight:600;padding:0 0 12px;margin-bottom:-1px;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;transition:color .15s}
 .av-tab:hover{color:var(--parch)}
 .av-tab.on{color:var(--parch);border-bottom-color:var(--lamp)}
 .av-count{font-size:12px;color:var(--muted);background:var(--raised);border:1px solid var(--line);border-radius:20px;padding:1px 8px}
 .av-tab.on .av-count{color:var(--lamp)}
-
 .av-filters{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
 .av-search{flex:1;min-width:200px;background:var(--ink);border:1px solid var(--line);color:var(--parch);font:inherit;padding:10px 13px;border-radius:8px}
 .av-search::placeholder{color:var(--muted)}
@@ -80,7 +129,6 @@ body{margin:0;background:#F2EEE3}
 .av-clear,.av-back{background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-size:13px;text-decoration:underline;text-underline-offset:3px}
 .av-clear:hover,.av-back:hover{color:var(--parch)}
 .av-back{margin-bottom:14px;padding:0}
-
 .av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
 .av-card{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:row;gap:14px;align-items:flex-start;transition:border-color .15s,transform .15s,box-shadow .15s}
 .av-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow-card)}
@@ -93,39 +141,34 @@ body{margin:0;background:#F2EEE3}
 .av-sub{margin:-2px 0 0;font-family:'Fraunces',serif;font-style:italic;font-size:13.5px;color:var(--muted)}
 .av-cardrate{margin-top:2px}
 .av-notes{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.av-synopsis{margin:0;font-family:'Fraunces',serif;font-style:italic;font-size:13.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.av-notelabel{font-family:'Hanken Grotesk',sans-serif;font-style:normal;font-weight:600;color:var(--parch)}
 .av-cardfoot{display:flex;gap:6px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
-
 .av-cover{position:relative;width:78px;flex:none;aspect-ratio:2/3;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--raised)}
 .av-cover img{width:100%;height:100%;object-fit:cover;display:block}
 .av-coverph{display:grid;place-items:center;background:var(--tint,#23314d)}
 .av-coverinit{font-family:'Fraunces',serif;font-weight:600;font-size:30px;color:rgba(236,229,214,.85)}
-
 .av-wishchip{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--book);border:1px solid var(--book-line);background:var(--book-soft);padding:3px 8px;border-radius:20px;white-space:nowrap}
 .av-wishchip.doing{color:var(--lamp);border-color:var(--accent-line);background:var(--accent-soft)}
 .av-markbtn{background:var(--accent-soft);color:var(--lamp);border:1px solid var(--accent-line);cursor:pointer;font:inherit;font-weight:600;font-size:12.5px;padding:5px 10px;border-radius:8px;transition:background .15s,color .15s}
 .av-markbtn:hover{background:var(--lamp);color:var(--tab-dark)}
-
 .av-pl{cursor:pointer}
 .av-plhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .av-plmeta{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--muted)}
 .av-plmeta .av-dot{opacity:.6}
 .av-pldel{margin-left:auto}
-
 .av-detailtag{margin-top:8px}
 .av-detaildesc{margin:0 0 16px;color:var(--muted);max-width:60ch;font-size:15px}
 .av-stats{display:flex;align-items:center;gap:10px;margin-bottom:24px;color:var(--muted);font-size:14px}
 .av-statavg{color:var(--parch)}
 .av-dot{opacity:.6}
-
 .av-lamps{display:inline-flex;align-items:center;gap:6px}
 .av-lamp{width:var(--d,14px);height:var(--d,14px);border-radius:50%;border:1.5px solid var(--line2);background:transparent;display:inline-block;transition:background .12s,box-shadow .12s,border-color .12s}
 .av-lamp.on{border-color:transparent;background:radial-gradient(circle at 35% 30%,var(--lamp-hi),var(--lamp));box-shadow:0 0 9px var(--lampglow)}
 .av-lampbtn{padding:0;cursor:pointer}
 .av-lampbtn:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
 .av-lampword{margin-left:8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);min-width:62px}
-
 .av-chip{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--lamp);border:1px solid var(--accent-line);background:var(--accent-soft);padding:3px 8px;border-radius:20px;white-space:nowrap}
-
 .av-primary{background:var(--lamp);color:var(--tab-dark);border:none;cursor:pointer;font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;transition:filter .15s,transform .05s}
 .av-primary:hover{filter:brightness(1.06)}
 .av-primary:active{transform:translateY(1px)}
@@ -135,11 +178,9 @@ body{margin:0;background:#F2EEE3}
 .av-ghost.sm{padding:5px 10px;font-size:12.5px}
 .av-ghost.danger:hover{color:var(--rose);border-color:var(--rose-line)}
 .av-primary:focus-visible,.av-ghost:focus-visible,.av-markbtn:focus-visible,.av-statusview button:focus-visible,.av-themeseg button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
-
 .av-empty{border:1px dashed var(--line);border-radius:10px;padding:40px 24px;text-align:center;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:14px}
 .av-empty.sm{padding:24px 16px}
 .av-empty p{margin:0;max-width:46ch}
-
 .av-backdrop{position:fixed;inset:0;background:var(--backdrop-bg);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
 .av-modal{background:var(--ink);border:1px solid var(--line2);border-radius:14px;width:100%;max-width:460px;max-height:90vh;overflow:auto;box-shadow:var(--shadow-modal)}
 .av-modalhead{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px}
@@ -158,12 +199,10 @@ body{margin:0;background:#F2EEE3}
 .av-cvrow{display:flex;gap:10px;align-items:stretch}
 .av-cvprev{width:46px;flex:none;aspect-ratio:2/3;border-radius:5px;overflow:hidden;border:1px solid var(--line);background:var(--raised);position:relative}
 .av-cvprev img{width:100%;height:100%;object-fit:cover;display:block}
-
 .av-seg{display:flex;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
 .av-segbtn{flex:1;background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-weight:600;padding:7px;border-radius:6px;transition:color .15s,background .15s}
 .av-segbtn.on{color:var(--tab-dark);background:var(--lamp)}
 .av-seg3 .av-segbtn{font-size:12px;padding:7px 6px}
-
 .av-pllist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .av-pltoggle{width:100%;display:flex;align-items:center;gap:10px;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:11px 12px;cursor:pointer;color:var(--parch);font:inherit;transition:border-color .15s}
 .av-pltoggle:hover{border-color:var(--line2)}
@@ -171,7 +210,6 @@ body{margin:0;background:#F2EEE3}
 .av-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;font-size:12px;color:var(--tab-dark);flex:none}
 .av-pltoggle.on .av-check{background:var(--lamp);border-color:var(--lamp)}
 .av-pltname{font-weight:600;margin-right:auto}
-
 .av-h2{font-family:'Fraunces',serif;font-weight:600;font-size:23px;margin:36px 0 16px;letter-spacing:-.01em}
 .av-statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .av-stat{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
@@ -196,15 +234,30 @@ body{margin:0;background:#F2EEE3}
 .av-topcover .av-coverinit{font-size:15px}
 .av-topname{flex:1;font-family:'Fraunces',serif;font-size:16px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .av-topname em{color:var(--muted);font-style:italic;font-size:14px}
-
 .av-bottom{display:none}
-
+.av-authwrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.av-authcard{width:100%;max-width:380px;background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:28px 26px;display:flex;flex-direction:column;box-shadow:var(--shadow-card)}
+.av-authtitle{font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin:16px 0 2px;text-align:center}
+.av-authbtn{width:100%;margin-top:18px;padding:11px}
+.av-authtoggle{background:none;border:none;color:var(--muted);cursor:pointer;font:inherit;font-size:13px;margin-top:14px;text-decoration:underline;text-underline-offset:3px}
+.av-authtoggle:hover{color:var(--parch)}
+.av-autherr{color:var(--rose);font-size:13px;margin:12px 0 0;text-align:center}
+.av-loadwrap{min-height:100vh;display:grid;place-items:center}
+.av-loading{font-family:'Fraunces',serif;font-style:italic;color:var(--muted);letter-spacing:.02em}
+.av-confwrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.av-confcard{max-width:540px;background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:26px 28px;line-height:1.65;color:var(--muted)}
+.av-confcard h2{font-family:'Fraunces',serif;margin:0 0 12px;color:var(--parch)}
+.av-confcard code{background:var(--ink);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px;color:var(--parch)}
+.av-confcard ol{margin:8px 0 0;padding-left:20px}
+.av-confcard li{margin:6px 0}
+.av-mobacct{display:none}
 @media (max-width:760px){
   .av-root{grid-template-columns:1fr}
   .av-side{display:none}
-  .av-main{padding:30px 20px 96px}
+  .av-main{padding:24px 20px 96px}
   .av-h1{font-size:32px}
   .av-grid{grid-template-columns:1fr}
+  .av-mobacct{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;font-size:13px;color:var(--muted)}
   .av-bottom{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--ink);border-top:1px solid var(--line);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
   .av-bottom button{flex:1;background:none;border:none;color:var(--muted);font:inherit;font-weight:600;padding:14px;cursor:pointer}
   .av-bottom button.on{color:var(--lamp)}
@@ -214,588 +267,1269 @@ body{margin:0;background:#F2EEE3}
   .av-statnum{font-size:30px}
   .av-barrow{grid-template-columns:96px 1fr auto;gap:10px}
 }
-@media (prefers-reduced-motion: reduce){
-  *{transition:none!important;animation:none!important}
-  .av-card:hover{transform:none}
-}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} .av-card:hover{transform:none} }
 </style>
 </head>
 <body>
 <div id="root"></div>
 
-<script>
-"use strict";
-(function () {
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  // ===== Camada de dados (HOJE: localStorage no navegador) =====
-  // No futuro, para sincronizar entre aparelhos e ter login, basta trocar
-  // estas quatro funções por chamadas a um backend (ex.: Supabase).
-  var KEYS = { items: "acervo:items", playlists: "acervo:playlists", links: "acervo:links", theme: "acervo:theme" };
-  function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
-  function saveRaw(key, val) { try { localStorage.setItem(key, typeof val === "string" ? val : JSON.stringify(val)); } catch (e) {} }
+/* ====================================================================
+   CONFIGURAÇÃO — cole aqui as duas chaves do seu projeto Supabase.
+   (Supabase → Project Settings → API → "Project URL" e "anon public")
+   ==================================================================== */
+const SUPABASE_URL = "https://ervbyniwqikjyivmtnvd.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_iVyfGPpwSsNewZumZynhUQ_q654koTV";
 
-  // ===== Estado =====
-  var state = {
-    items: load(KEYS.items, []),
-    playlists: load(KEYS.playlists, []),
-    links: load(KEYS.links, []),
-    theme: (load(KEYS.theme, "light") === "dark" ? "dark" : "light"),
-    screen: "library", tab: "movie", statusView: "done",
-    openPl: null, minRating: 0, query: "",
-    itemModal: null, plModal: null, addTo: null, _mo: false
-  };
-  var persist = {
-    items: function () { saveRaw(KEYS.items, state.items); },
-    playlists: function () { saveRaw(KEYS.playlists, state.playlists); },
-    links: function () { saveRaw(KEYS.links, state.links); },
-    theme: function () { saveRaw(KEYS.theme, state.theme); }
-  };
+/* Chave do TMDB para preencher dados de filmes automaticamente (opcional).
+   Pegue grátis em themoviedb.org → Settings → API → "API Key (v3 auth)".
+   Livros funcionam sem isto. */
+const TMDB_KEY = "ee0e196c08dd46bd0eb92a780dfde46d";
 
-  // ===== Helpers =====
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-  var RATING_WORDS = ["sem nota", "ruim", "fraco", "bom", "ótimo", "favorito"];
-  function fmtAvg(n) { return n == null ? "—" : n.toFixed(1).replace(".", ","); }
-  function statusOf(i) { return i.status || "done"; }
-  function verb(type, status) {
-    if (status === "wish") return type === "movie" ? "Quero ver" : "Quero ler";
-    if (status === "doing") return type === "movie" ? "Assistindo" : "Lendo";
-    return type === "movie" ? "Visto" : "Lido";
-  }
-  var TINTS = ["#23314d", "#3a2b46", "#2b3d3a", "#43382a", "#3f2a2c", "#2c3550"];
-  function tintFor(str) { var h = 0; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return TINTS[h % TINTS.length]; }
-  function initialsOf(title) { var m = (title || "").match(/[A-Za-zÀ-ÿ0-9]/g); return (m ? m[0] : "?").toUpperCase(); }
-  var PAGE_BG = { dark: "#13172A", light: "#F2EEE3" };
+const configured = SUPABASE_URL.indexOf("supabase.co") >= 0 && SUPABASE_ANON_KEY.length > 30;
+const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-  // hyperscript: el(tag, props, ...children)
-  function el(tag, props) {
-    var node = document.createElement(tag);
-    if (props) {
-      for (var k in props) {
-        var v = props[k];
-        if (v == null || v === false) continue;
-        if (k === "class") node.className = v;
-        else if (k === "style" && typeof v === "object") { for (var sk in v) node.style[sk] = v[sk]; }
-        else if (k.slice(0, 2) === "on" && typeof v === "function") node.addEventListener(k.slice(2).toLowerCase(), v);
-        else if (k in node) { try { node[k] = v; } catch (e) { node.setAttribute(k, v); } }
-        else node.setAttribute(k, v);
-      }
+/* ===== Helpers ===== */
+function uuidv4(){ return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){ var r=Math.random()*16|0, v=c==="x"?r:(r&0x3|0x8); return v.toString(16); }); }
+function newId(){ return (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : uuidv4(); }
+var RATING_WORDS = ["sem nota","ruim","fraco","bom","ótimo","favorito"];
+function fmtAvg(n){ return n==null?"—":n.toFixed(1).replace(".",","); }
+function statusOf(i){ return i.status || "done"; }
+function verb(type,status){
+  if(status==="wish") return type==="movie"?"Quero ver":"Quero ler";
+  if(status==="doing") return type==="movie"?"Assistindo":"Lendo";
+  return type==="movie"?"Visto":"Lido";
+}
+var TINTS=["#23314d","#3a2b46","#2b3d3a","#43382a","#3f2a2c","#2c3550"];
+function tintFor(str){ var h=0; for(var i=0;i<str.length;i++) h=(h*31+str.charCodeAt(i))>>>0; return TINTS[h%TINTS.length]; }
+function initialsOf(title){ var m=(title||"").match(/[A-Za-zÀ-ÿ0-9]/g); return (m?m[0]:"?").toUpperCase(); }
+var PAGE_BG={dark:"#13172A",light:"#F2EEE3"};
+function loadTheme(){ try{ var t=localStorage.getItem("acervo:theme"); return (t==="dark"||t==="light")?t:"light"; }catch(e){ return "light"; } }
+function saveTheme(t){ try{ localStorage.setItem("acervo:theme",t); }catch(e){} }
+
+function el(tag, props){
+  var node=document.createElement(tag);
+  if(props){
+    for(var k in props){
+      var v=props[k];
+      if(v==null||v===false) continue;
+      if(k==="class") node.className=v;
+      else if(k==="style" && typeof v==="object"){ for(var sk in v) node.style[sk]=v[sk]; }
+      else if(k.slice(0,2)==="on" && typeof v==="function") node.addEventListener(k.slice(2).toLowerCase(), v);
+      else if(k in node){ try{ node[k]=v; }catch(e){ node.setAttribute(k,v); } }
+      else node.setAttribute(k,v);
     }
-    for (var a = 2; a < arguments.length; a++) {
-      var kid = arguments[a];
-      if (kid == null || kid === false) continue;
-      if (Array.isArray(kid)) { for (var j = 0; j < kid.length; j++) { var c = kid[j]; if (c == null || c === false) continue; node.appendChild(typeof c === "object" ? c : document.createTextNode(String(c))); } }
-      else node.appendChild(typeof kid === "object" ? kid : document.createTextNode(String(kid)));
-    }
-    return node;
   }
+  for(var a=2;a<arguments.length;a++){
+    var kid=arguments[a];
+    if(kid==null||kid===false) continue;
+    if(Array.isArray(kid)){ for(var j=0;j<kid.length;j++){ var c=kid[j]; if(c==null||c===false) continue; node.appendChild(typeof c==="object"?c:document.createTextNode(String(c))); } }
+    else node.appendChild(typeof kid==="object"?kid:document.createTextNode(String(kid)));
+  }
+  return node;
+}
 
-  // ===== Dados derivados =====
-  function counts() {
-    return {
-      movie: state.items.filter(function (i) { return statusOf(i) === state.statusView && i.type === "movie"; }).length,
-      book: state.items.filter(function (i) { return statusOf(i) === state.statusView && i.type === "book"; }).length
-    };
-  }
-  function libItems() {
-    var q = state.query.trim().toLowerCase();
-    return state.items
-      .filter(function (i) { return statusOf(i) === state.statusView; })
-      .filter(function (i) { return i.type === state.tab; })
-      .filter(function (i) { return state.statusView !== "done" || i.rating >= state.minRating; })
-      .filter(function (i) { return !q || i.title.toLowerCase().indexOf(q) >= 0 || (i.subtitle || "").toLowerCase().indexOf(q) >= 0; })
-      .sort(function (a, b) { return (b.createdAt || "").localeCompare(a.createdAt || ""); });
-  }
-  function plStats(plId) {
-    var list = state.links.filter(function (l) { return l.playlistId === plId; })
-      .map(function (l) { return state.items.find(function (i) { return i.id === l.itemId; }); })
-      .filter(Boolean);
-    var rated = list.filter(function (i) { return i.rating > 0; });
-    var avg = rated.length ? rated.reduce(function (s, i) { return s + i.rating; }, 0) / rated.length : null;
-    return { list: list, count: list.length, avg: avg };
-  }
-  function panorama() {
-    var done = state.items.filter(function (i) { return statusOf(i) === "done"; });
-    var wishItems = state.items.filter(function (i) { return statusOf(i) === "wish"; });
-    var doingItems = state.items.filter(function (i) { return statusOf(i) === "doing"; });
-    var avgOf = function (arr) { var r = arr.filter(function (i) { return i.rating > 0; }); return r.length ? r.reduce(function (s, i) { return s + i.rating; }, 0) / r.length : null; };
-    var dist = [5, 4, 3, 2, 1].map(function (n) { return { n: n, c: done.filter(function (i) { return i.rating === n; }).length }; });
-    var top = done.filter(function (i) { return i.rating > 0; })
-      .sort(function (a, b) { return b.rating - a.rating || (b.createdAt || "").localeCompare(a.createdAt || ""); }).slice(0, 6);
-    var byCol = state.playlists.map(function (p) {
-      var list = state.links.filter(function (l) { return l.playlistId === p.id; })
-        .map(function (l) { return state.items.find(function (i) { return i.id === l.itemId; }); }).filter(Boolean);
-      var r = list.filter(function (i) { return i.rating > 0; });
-      return { id: p.id, name: p.name, tag: p.tag, count: list.length, avg: r.length ? r.reduce(function (s, i) { return s + i.rating; }, 0) / r.length : null };
-    }).sort(function (a, b) { return b.count - a.count; });
-    return {
-      total: done.length,
-      movies: done.filter(function (i) { return i.type === "movie"; }).length,
-      books: done.filter(function (i) { return i.type === "book"; }).length,
-      avgAll: avgOf(done),
-      avgMovies: avgOf(done.filter(function (i) { return i.type === "movie"; })),
-      avgBooks: avgOf(done.filter(function (i) { return i.type === "book"; })),
-      wish: wishItems.length,
-      wishMovies: wishItems.filter(function (i) { return i.type === "movie"; }).length,
-      wishBooks: wishItems.filter(function (i) { return i.type === "book"; }).length,
-      doing: doingItems.length,
-      doingMovies: doingItems.filter(function (i) { return i.type === "movie"; }).length,
-      doingBooks: doingItems.filter(function (i) { return i.type === "book"; }).length,
-      dist: dist, top: top, byCol: byCol
-    };
-  }
+/* ===== Estado ===== */
+var state = {
+  items: [], playlists: [], links: [], theme: loadTheme(),
+  screen: "library", tab: "movie", statusView: "done",
+  openPl: null, minRating: 0, query: "",
+  itemModal: null, plModal: null, addTo: null, profileModal: null, commentModal: null, peopleModal: null, _mo: false,
+  user: null, profile: null, authResolved: false,
+  authMode: "login", authForm: { email:"", password:"", username:"", display:"" },
+  authError: "", authBusy: false, loadingData: false,
+  following: [], feed: { loading:false, activity:[], peopleById:{} },
+  discover: { q:"", results:[], searched:false },
+  viewUser: null, share: null, shareModal: null
+};
+var pendingUsername = null, pendingDisplay = null;
 
-  // ===== Ações =====
-  function go(screen) { state.screen = screen; if (screen !== "playlist") state.openPl = null; render(); }
-  function setTheme(t) { state.theme = t; persist.theme(); render(); }
+/* ===== Camada de dados (Supabase) ===== */
+function cw(promise){ Promise.resolve(promise).then(function(res){ if(res && res.error) console.error("Supabase:", res.error.message); }).catch(function(e){ console.error("Supabase:", e); }); }
+function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, synopsis:r.synopsis, createdAt:r.created_at }; }
+function rowToColl(r){ return { id:r.id, name:r.name, tag:r.tag, description:r.description, isPublic:r.is_public, createdAt:r.created_at }; }
+function rowToLink(r){ return { id:r.id, playlistId:r.collection_id, itemId:r.item_id, itemType:r.item_type }; }
+function rowToComment(r){ return { id:r.id, user_id:r.user_id, item_type:r.item_type, title:r.title, body:r.body, createdAt:r.created_at }; }
 
-  function openNewItem() { state.itemModal = { mode: "new", draft: { type: state.tab, status: state.statusView, title: "", subtitle: "", cover: "", rating: 0, notes: "" } }; state._mo = true; render(); }
-  function openEditItem(it) { state.itemModal = { mode: "edit", draft: Object.assign({}, it) }; state._mo = true; render(); }
-  function closeItem() { state.itemModal = null; render(); }
-  function updateDraft(f, v) { state.itemModal.draft[f] = v; render(); }
-  function saveItem() {
-    var dr = state.itemModal.draft;
-    if (!dr.title.trim()) return;
-    var clean = Object.assign({}, dr, { title: dr.title.trim(), cover: (dr.cover || "").trim(), rating: dr.status === "done" ? dr.rating : 0 });
-    if (state.itemModal.mode === "new") state.items.unshift(Object.assign({ id: uid(), createdAt: new Date().toISOString() }, clean));
-    else state.items = state.items.map(function (x) { return x.id === dr.id ? Object.assign({}, x, clean) : x; });
-    persist.items(); state.itemModal = null; render();
-  }
-  function deleteItem(it) {
-    state.items = state.items.filter(function (x) { return x.id !== it.id; });
-    state.links = state.links.filter(function (l) { return l.itemId !== it.id; });
-    persist.items(); persist.links(); render();
-  }
-  function moveStatus(it, status, openModal) {
-    var up = Object.assign({}, it, { status: status });
-    state.items = state.items.map(function (x) { return x.id === it.id ? up : x; });
-    persist.items();
-    if (openModal) { state.itemModal = { mode: "edit", draft: up }; state._mo = true; }
-    render();
-  }
+async function cloudFetchAll(){
+  var uid = state.user.id;
+  var res = await Promise.all([
+    supabase.from("items").select("*").eq("user_id", uid),
+    supabase.from("collections").select("*").eq("user_id", uid),
+    supabase.from("collection_items").select("*").eq("user_id", uid)
+  ]);
+  for(var i=0;i<res.length;i++){ if(res[i].error) throw res[i].error; }
+  state.items = (res[0].data||[]).map(rowToItem);
+  state.playlists = (res[1].data||[]).map(rowToColl);
+  state.links = (res[2].data||[]).map(rowToLink);
+}
 
-  function openNewPl() { state.plModal = { draft: { name: "", tag: "", description: "" } }; state._mo = true; render(); }
-  function updatePlDraft(f, v) { state.plModal.draft[f] = v; render(); }
-  function savePl() {
-    var dr = state.plModal.draft;
-    if (!dr.name.trim()) return;
-    state.playlists.unshift({ id: uid(), createdAt: new Date().toISOString(), name: dr.name.trim(), tag: dr.tag.trim(), description: dr.description.trim() });
-    persist.playlists(); state.plModal = null; render();
-  }
-  function deletePl(pl) {
-    state.playlists = state.playlists.filter(function (p) { return p.id !== pl.id; });
-    state.links = state.links.filter(function (l) { return l.playlistId !== pl.id; });
-    persist.playlists(); persist.links();
-    if (state.openPl === pl.id) { state.openPl = null; state.screen = "playlists"; }
-    render();
-  }
-
-  function hasLink(plId, itemId) { return state.links.some(function (l) { return l.playlistId === plId && l.itemId === itemId; }); }
-  function toggleLink(plId, item) {
-    if (hasLink(plId, item.id)) state.links = state.links.filter(function (l) { return !(l.playlistId === plId && l.itemId === item.id); });
-    else state.links.push({ playlistId: plId, itemId: item.id, itemType: item.type });
-    persist.links();
-  }
-  function removeFromPl(plId, item) {
-    state.links = state.links.filter(function (l) { return !(l.playlistId === plId && l.itemId === item.id); });
-    persist.links(); render();
-  }
-
-  // ===== Componentes =====
-  function TypeTab(type) { return el("span", { "class": "av-typetab " + (type === "movie" ? "film" : "book") }, type === "movie" ? "Filme" : "Livro"); }
-  function Chip(text) { return text ? el("span", { "class": "av-chip" }, text) : null; }
-
-  function Placeholder(item, cls) {
-    return el("div", { "class": cls + " av-coverph", style: { "--tint": tintFor(item.title) } }, el("span", { "class": "av-coverinit" }, initialsOf(item.title)));
-  }
-  function Cover(item, cls) {
-    cls = cls || "av-cover";
-    if (item.cover) {
-      var wrap = el("div", { "class": cls });
-      var img = el("img", { alt: "", src: item.cover });
-      img.addEventListener("error", function () { wrap.replaceWith(Placeholder(item, cls)); });
-      wrap.appendChild(img);
-      return wrap;
-    }
-    return Placeholder(item, cls);
-  }
-
-  function Lamps(value, onChange, size, idleHint) {
-    var wrap = el("span", { "class": "av-lamps" });
-    var dots = [];
-    var word = null;
-    function paint(n) { for (var i = 0; i < dots.length; i++) dots[i].classList.toggle("on", i < n); }
-    for (var i = 1; i <= 5; i++) {
-      (function (i) {
-        var style = { "--d": (size || 14) + "px" };
-        if (!onChange) {
-          var s = el("span", { "class": "av-lamp" + (i <= value ? " on" : ""), style: style });
-          dots.push(s); wrap.appendChild(s);
-        } else {
-          var b = el("button", {
-            type: "button", "class": "av-lamp av-lampbtn" + (i <= value ? " on" : ""), style: style, "aria-label": "Nota " + i,
-            onmouseenter: function () { paint(i); if (word) word.textContent = RATING_WORDS[i]; },
-            onmouseleave: function () { paint(value); if (word) word.textContent = RATING_WORDS[value]; },
-            onclick: function () { onChange(i === value ? 0 : i); }
-          });
-          dots.push(b); wrap.appendChild(b);
-        }
-      })(i);
-    }
-    if (idleHint && onChange) { word = el("span", { "class": "av-lampword" }, RATING_WORDS[value]); wrap.appendChild(word); }
-    return wrap;
-  }
-
-  function ItemCard(item, context) {
-    var st = statusOf(item);
-    var body = el("div", { "class": "av-cardbody" });
-    body.appendChild(el("div", { "class": "av-cardtop" }, TypeTab(item.type), st !== "done" ? el("span", { "class": "av-wishchip" + (st === "doing" ? " doing" : "") }, verb(item.type, st)) : null));
-    body.appendChild(el("h4", { "class": "av-title" }, item.title));
-    if (item.subtitle) body.appendChild(el("p", { "class": "av-sub" }, item.subtitle));
-    if (st === "done") body.appendChild(el("div", { "class": "av-cardrate" }, Lamps(item.rating)));
-    if (item.notes) body.appendChild(el("p", { "class": "av-notes" }, item.notes));
-    var foot = el("div", { "class": "av-cardfoot" });
-    if (context === "library") {
-      if (st === "wish") {
-        foot.appendChild(el("button", { "class": "av-markbtn", onclick: function () { moveStatus(item, "doing", false); } }, "▶ Começar"));
-        foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { moveStatus(item, "done", true); } }, "✓ Concluir"));
-      } else if (st === "doing") {
-        foot.appendChild(el("button", { "class": "av-markbtn", onclick: function () { moveStatus(item, "done", true); } }, "✓ Concluir"));
-      }
-      foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { state.addTo = item; render(); } }, "+ Coleção"));
-    }
-    foot.appendChild(el("button", { "class": "av-ghost sm", onclick: function () { openEditItem(item); } }, "Editar"));
-    if (context === "library") foot.appendChild(el("button", { "class": "av-ghost sm danger", onclick: function () { deleteItem(item); } }, "Excluir"));
-    else foot.appendChild(el("button", { "class": "av-ghost sm danger", onclick: function () { removeFromPl(state.openPl, item); } }, "Remover"));
-    body.appendChild(foot);
-    return el("article", { "class": "av-card" }, Cover(item), body);
-  }
-
-  function PlaylistCard(pl) {
-    var s = plStats(pl.id);
-    var body = el("div", { "class": "av-cardbody" });
-    body.appendChild(el("div", { "class": "av-plhead" }, el("h4", { "class": "av-title" }, pl.name), Chip(pl.tag)));
-    if (pl.description) body.appendChild(el("p", { "class": "av-notes" }, pl.description));
-    body.appendChild(el("div", { "class": "av-plmeta" },
-      el("span", null, s.count + " " + (s.count === 1 ? "item" : "itens")),
-      el("span", { "class": "av-dot" }, "·"),
-      el("span", null, "média " + fmtAvg(s.avg)),
-      el("button", { "class": "av-ghost sm danger av-pldel", onclick: function (e) { e.stopPropagation(); deletePl(pl); } }, "Excluir")
-    ));
-    return el("article", { "class": "av-card av-pl", onclick: function () { state.openPl = pl.id; state.screen = "playlist"; render(); } }, body);
-  }
-
-  // pequenos auxiliares de formulário
-  function seg(label, on, onclick) { return el("button", { "class": "av-segbtn" + (on ? " on" : ""), onclick: onclick }, label); }
-  function inputField(focusId, value, placeholder, oninput) {
-    var i = el("input", { "class": "av-input", placeholder: placeholder, "data-focus-id": focusId, oninput: function (e) { oninput(e.target.value); } });
-    i.value = value || "";
-    return i;
-  }
-  function labelOpt(text, opt) { return el("label", { "class": "av-label" }, text, " ", el("span", { "class": "av-opt" }, opt || "opcional")); }
-  function ModalShell(title, onClose, bodyNode, footNode) {
-    var head = el("div", { "class": "av-modalhead" }, el("h3", null, title), el("button", { "class": "av-x", "aria-label": "Fechar", onclick: onClose }, "✕"));
-    var modal = el("div", { "class": "av-modal", role: "dialog", "aria-modal": "true", "aria-label": title }, head, bodyNode, footNode || null);
-    var back = el("div", { "class": "av-backdrop" }, modal);
-    back.addEventListener("mousedown", function (e) { if (e.target === back) onClose(); });
-    return back;
-  }
-
-  function ItemModal() {
-    var dr = state.itemModal.draft;
-    var body = el("div", { "class": "av-modalbody" });
-    body.appendChild(el("label", { "class": "av-label" }, "Tipo"));
-    body.appendChild(el("div", { "class": "av-seg" },
-      seg("Filme", dr.type === "movie", function () { updateDraft("type", "movie"); }),
-      seg("Livro", dr.type === "book", function () { updateDraft("type", "book"); })
-    ));
-    body.appendChild(el("label", { "class": "av-label" }, "Situação"));
-    body.appendChild(el("div", { "class": "av-seg av-seg3" },
-      seg("Concluídos", dr.status === "done", function () { updateDraft("status", "done"); }),
-      seg("Desejados", dr.status === "wish", function () { updateDraft("status", "wish"); }),
-      seg("Em andamento", dr.status === "doing", function () { updateDraft("status", "doing"); })
-    ));
-    body.appendChild(el("label", { "class": "av-label" }, "Título"));
-    body.appendChild(inputField("f-title", dr.title, dr.type === "movie" ? "ex: Cinema Paradiso" : "ex: Noites Brancas", function (v) { updateDraft("title", v); }));
-    body.appendChild(labelOpt(dr.type === "movie" ? "Direção ou ano" : "Autor"));
-    body.appendChild(inputField("f-sub", dr.subtitle, dr.type === "movie" ? "ex: Tornatore, 1988" : "ex: Dostoiévski", function (v) { updateDraft("subtitle", v); }));
-    body.appendChild(labelOpt("Capa", "URL da imagem, opcional"));
-    body.appendChild(el("div", { "class": "av-cvrow" },
-      inputField("f-cover", dr.cover, "cole o link de uma imagem da capa", function (v) { updateDraft("cover", v); }),
-      Cover(dr, "av-cvprev")
-    ));
-    if (dr.status === "done") {
-      body.appendChild(el("label", { "class": "av-label" }, "Nota"));
-      body.appendChild(Lamps(dr.rating, function (v) { updateDraft("rating", v); }, 20, true));
-    }
-    body.appendChild(labelOpt("Observação"));
-    var notesPh = dr.status === "wish" ? "por que quer ver/ler…" : (dr.status === "doing" ? "o que está achando até agora…" : "o que ficou de você…");
-    var ta = el("textarea", { "class": "av-input av-area", rows: 3, "data-focus-id": "f-notes", placeholder: notesPh, oninput: function (e) { updateDraft("notes", e.target.value); } });
-    ta.value = dr.notes || "";
-    body.appendChild(ta);
-    var foot = el("div", { "class": "av-modalfoot" },
-      el("button", { "class": "av-ghost", onclick: closeItem }, "Cancelar"),
-      el("button", { "class": "av-primary", disabled: !dr.title.trim(), onclick: saveItem }, state.itemModal.mode === "new" ? "Adicionar" : "Salvar")
-    );
-    return ModalShell(state.itemModal.mode === "new" ? "Adicionar ao acervo" : "Editar registro", closeItem, body, foot);
-  }
-
-  function PlModal() {
-    var dr = state.plModal.draft;
-    var body = el("div", { "class": "av-modalbody" });
-    body.appendChild(el("label", { "class": "av-label" }, "Nome"));
-    body.appendChild(inputField("p-name", dr.name, "ex: Literatura russa", function (v) { updatePlDraft("name", v); }));
-    body.appendChild(labelOpt("Tema ou gênero"));
-    body.appendChild(inputField("p-tag", dr.tag, "ex: Drama · Noir · Ensaio", function (v) { updatePlDraft("tag", v); }));
-    body.appendChild(labelOpt("Descrição"));
-    var ta = el("textarea", { "class": "av-input av-area", rows: 2, "data-focus-id": "p-desc", placeholder: "uma linha sobre o que reúne esta coleção", oninput: function (e) { updatePlDraft("description", e.target.value); } });
-    ta.value = dr.description || "";
-    body.appendChild(ta);
-    var close = function () { state.plModal = null; render(); };
-    var foot = el("div", { "class": "av-modalfoot" },
-      el("button", { "class": "av-ghost", onclick: close }, "Cancelar"),
-      el("button", { "class": "av-primary", disabled: !dr.name.trim(), onclick: savePl }, "Criar coleção")
-    );
-    return ModalShell("Nova coleção", close, body, foot);
-  }
-
-  function AddToModal() {
-    var it = state.addTo;
-    var close = function () { state.addTo = null; render(); };
-    var body = el("div", { "class": "av-modalbody" });
-    body.appendChild(el("p", { "class": "av-modalsub" }, "“" + it.title + "”"));
-    if (state.playlists.length === 0) {
-      body.appendChild(el("div", { "class": "av-empty sm" },
-        el("p", null, "Nenhuma coleção ainda."),
-        el("button", { "class": "av-primary", onclick: function () { state.addTo = null; openNewPl(); } }, "Criar a primeira")
-      ));
+async function ensureProfile(){
+  var uid = state.user.id;
+  var got = await supabase.from("profiles").select("*").eq("id", uid).maybeSingle();
+  if(got.data){ state.profile = got.data; return; }
+  var base = (pendingUsername || (state.user.email||"").split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,20);
+  if(!base) base = "user" + Math.floor(Math.random()*9999);
+  var display = pendingDisplay || base;
+  var ins = await supabase.from("profiles").insert({ id: uid, username: base, display_name: display }).select().single();
+  if(ins.error){
+    var taken = (ins.error.code==="23505") || ((ins.error.message||"").toLowerCase().indexOf("duplicate")>=0);
+    if(taken){
+      base = base + Math.floor(Math.random()*9999);
+      var retry = await supabase.from("profiles").insert({ id: uid, username: base, display_name: display }).select().single();
+      state.profile = retry.data || { id:uid, username:base, display_name:display };
     } else {
-      var ul = el("ul", { "class": "av-pllist" });
-      state.playlists.forEach(function (p) {
-        var on = hasLink(p.id, it.id);
-        var btn = el("button", { "class": "av-pltoggle" + (on ? " on" : ""), onclick: function () { toggleLink(p.id, it); render(); } },
-          el("span", { "class": "av-check" }, on ? "✓" : ""), el("span", { "class": "av-pltname" }, p.name), Chip(p.tag));
-        ul.appendChild(el("li", null, btn));
-      });
-      body.appendChild(ul);
+      state.profile = { id:uid, username:base, display_name:display };
     }
-    var foot = el("div", { "class": "av-modalfoot" }, el("button", { "class": "av-primary", onclick: close }, "Concluído"));
-    return ModalShell("Adicionar à coleção", close, body, foot);
+  } else {
+    state.profile = ins.data;
   }
+  pendingUsername = null; pendingDisplay = null;
+}
 
-  function Modals() {
-    if (state.itemModal) return ItemModal();
-    if (state.plModal) return PlModal();
-    if (state.addTo) return AddToModal();
-    return null;
-  }
+/* ===== Ações ===== */
+function go(screen){ state.screen=screen; if(screen!=="playlist") state.openPl=null; render(); }
+function setTheme(t){ state.theme=t; saveTheme(t); render(); }
 
-  // ===== Telas =====
-  function Library() {
-    var sec = el("section");
-    sec.appendChild(el("div", { "class": "av-screenhead" },
-      el("div", null, el("p", { "class": "av-eyebrow" }, "Seu acervo"), el("h1", { "class": "av-h1" }, "Biblioteca")),
-      el("button", { "class": "av-primary", onclick: openNewItem }, "+ Adicionar")
-    ));
-    sec.appendChild(el("div", { "class": "av-statusview" },
-      el("button", { "class": state.statusView === "done" ? "on" : "", onclick: function () { state.statusView = "done"; render(); } }, "Concluídos"),
-      el("button", { "class": state.statusView === "wish" ? "on" : "", onclick: function () { state.statusView = "wish"; render(); } }, "Desejados"),
-      el("button", { "class": state.statusView === "doing" ? "on" : "", onclick: function () { state.statusView = "doing"; render(); } }, "Em andamento")
-    ));
-    var c = counts();
-    sec.appendChild(el("div", { "class": "av-tabs" },
-      el("button", { "class": "av-tab" + (state.tab === "movie" ? " on" : ""), onclick: function () { state.tab = "movie"; render(); } }, "Filmes ", el("span", { "class": "av-count" }, String(c.movie))),
-      el("button", { "class": "av-tab" + (state.tab === "book" ? " on" : ""), onclick: function () { state.tab = "book"; render(); } }, "Livros ", el("span", { "class": "av-count" }, String(c.book)))
-    ));
-    var filters = el("div", { "class": "av-filters" });
-    var search = el("input", { "class": "av-search", placeholder: "Buscar por título ou autor…", "data-focus-id": "search", oninput: function (e) { state.query = e.target.value; render(); } });
-    search.value = state.query;
-    filters.appendChild(search);
-    if (state.statusView === "done") {
-      var mr = el("div", { "class": "av-minrate" }, el("span", { "class": "av-minlabel" }, "nota mínima"), Lamps(state.minRating, function (v) { state.minRating = v; render(); }));
-      if (state.minRating > 0) mr.appendChild(el("button", { "class": "av-clear", onclick: function () { state.minRating = 0; render(); } }, "limpar"));
-      filters.appendChild(mr);
-    }
-    sec.appendChild(filters);
-    var list = libItems();
-    if (list.length === 0) {
-      var msg;
-      if (state.statusView === "wish") msg = state.tab === "movie" ? "Nada na lista de filmes que você quer ver." : "Nada na lista de livros que você quer ler.";
-      else if (state.statusView === "doing") msg = state.tab === "movie" ? "Nenhum filme em andamento." : "Nenhum livro em andamento.";
-      else msg = state.tab === "movie" ? "Nenhum filme por aqui ainda." : "Nenhum livro por aqui ainda.";
-      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, msg), el("button", { "class": "av-primary", onclick: openNewItem }, "Adicionar o primeiro")));
-    } else {
-      var grid = el("div", { "class": "av-grid" });
-      list.forEach(function (it) { grid.appendChild(ItemCard(it, "library")); });
-      sec.appendChild(grid);
-    }
-    return sec;
+function openNewItem(){ state.itemModal={mode:"new", draft:{type:state.tab, status:state.statusView, title:"", subtitle:"", cover:"", rating:0, notes:"", synopsis:""}}; state._mo=true; render(); }
+function openEditItem(it){ state.itemModal={mode:"edit", draft:Object.assign({},it)}; state._mo=true; render(); }
+function closeItem(){ state.itemModal=null; render(); }
+function updateDraft(f,v){ state.itemModal.draft[f]=v; render(); }
+function saveItem(){
+  var dr=state.itemModal.draft; if(!dr.title.trim()) return;
+  var clean={ title:dr.title.trim(), subtitle:dr.subtitle||"", cover:(dr.cover||"").trim(), type:dr.type, status:dr.status, rating: dr.status==="done"?dr.rating:0, notes:dr.notes||"", synopsis:dr.synopsis||"" };
+  if(state.itemModal.mode==="new"){
+    var id=newId();
+    state.items.unshift(Object.assign({id:id, createdAt:new Date().toISOString()}, clean));
+    cw(supabase.from("items").insert({ id:id, user_id:state.user.id, type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }));
+  } else {
+    var pid=dr.id;
+    state.items=state.items.map(function(x){ return x.id===pid?Object.assign({},x,clean):x; });
+    cw(supabase.from("items").update({ type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }).eq("id",pid));
   }
-
-  function Playlists() {
-    var sec = el("section");
-    sec.appendChild(el("div", { "class": "av-screenhead" },
-      el("div", null, el("p", { "class": "av-eyebrow" }, "Por tema ou gênero"), el("h1", { "class": "av-h1" }, "Coleções")),
-      el("button", { "class": "av-primary", onclick: openNewPl }, "+ Nova coleção")
-    ));
-    if (state.playlists.length === 0) {
-      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Nenhuma coleção ainda. Crie uma para agrupar filmes e livros por tema."), el("button", { "class": "av-primary", onclick: openNewPl }, "Criar coleção")));
-    } else {
-      var grid = el("div", { "class": "av-grid" });
-      state.playlists.forEach(function (pl) { grid.appendChild(PlaylistCard(pl)); });
-      sec.appendChild(grid);
-    }
-    return sec;
-  }
-
-  function PlaylistDetail() {
-    var pl = state.playlists.find(function (p) { return p.id === state.openPl; });
-    if (!pl) { state.screen = "playlists"; return Playlists(); }
-    var s = plStats(pl.id);
-    var sec = el("section");
-    sec.appendChild(el("button", { "class": "av-back", onclick: function () { state.screen = "playlists"; state.openPl = null; render(); } }, "← Coleções"));
-    var head = el("div", null, el("p", { "class": "av-eyebrow" }, "Coleção"), el("h1", { "class": "av-h1" }, pl.name));
-    if (pl.tag) head.appendChild(el("div", { "class": "av-detailtag" }, Chip(pl.tag)));
-    sec.appendChild(el("div", { "class": "av-screenhead" }, head));
-    if (pl.description) sec.appendChild(el("p", { "class": "av-detaildesc" }, pl.description));
-    sec.appendChild(el("div", { "class": "av-stats" },
-      el("span", null, s.count + " " + (s.count === 1 ? "item" : "itens")),
-      el("span", { "class": "av-dot" }, "·"),
-      el("span", { "class": "av-statavg" }, "média " + fmtAvg(s.avg)),
-      Lamps(s.avg ? Math.round(s.avg) : 0)
-    ));
-    if (s.list.length === 0) {
-      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Coleção vazia. Adicione itens pela Biblioteca, no botão “+ Coleção”.")));
-    } else {
-      var grid = el("div", { "class": "av-grid" });
-      s.list.forEach(function (it) { grid.appendChild(ItemCard(it, "playlist")); });
-      sec.appendChild(grid);
-    }
-    return sec;
-  }
-
-  function statCard(num, label, sub) {
-    var c = el("div", { "class": "av-stat" }, el("span", { "class": "av-statnum" }, num), el("span", { "class": "av-statlbl" }, label));
-    if (sub) c.appendChild(el("span", { "class": "av-statsub" }, sub));
-    return c;
-  }
-  function barRow(headNode, ratio, valNode) {
-    var track = el("span", { "class": "av-bartrack" }, el("span", { "class": "av-barfill", style: { width: (ratio * 100) + "%" } }));
-    return el("div", { "class": "av-barrow" }, headNode, track, typeof valNode === "string" ? el("span", { "class": "av-barval" }, valNode) : valNode);
-  }
-  function Stats() {
-    var d = panorama();
-    var sec = el("section");
-    sec.appendChild(el("div", { "class": "av-screenhead" }, el("div", null, el("p", { "class": "av-eyebrow" }, "Seu acervo em números"), el("h1", { "class": "av-h1" }, "Panorama"))));
-    if (d.total === 0 && d.wish === 0 && d.doing === 0) {
-      sec.appendChild(el("div", { "class": "av-empty" }, el("p", null, "Ainda não há nada para medir. Adicione filmes e livros para ver o panorama do seu acervo."), el("button", { "class": "av-primary", onclick: openNewItem }, "Adicionar o primeiro")));
-      return sec;
-    }
-    var sg = el("div", { "class": "av-statgrid" });
-    sg.appendChild(statCard(String(d.total), "vistos & lidos"));
-    sg.appendChild(statCard(String(d.movies), "filmes", "média " + fmtAvg(d.avgMovies)));
-    sg.appendChild(statCard(String(d.books), "livros", "média " + fmtAvg(d.avgBooks)));
-    sg.appendChild(el("div", { "class": "av-stat" }, el("span", { "class": "av-statnum" }, fmtAvg(d.avgAll)), el("span", { "class": "av-statlbl" }, "nota média"), el("span", { "class": "av-statsub" }, Lamps(d.avgAll ? Math.round(d.avgAll) : 0))));
-    sec.appendChild(sg);
-    if (d.doing > 0) sec.appendChild(el("p", { "class": "av-wishline" }, "Em andamento: ", el("b", null, String(d.doing)), " — " + d.doingMovies + " " + (d.doingMovies === 1 ? "filme" : "filmes") + ", " + d.doingBooks + " " + (d.doingBooks === 1 ? "livro" : "livros")));
-    if (d.wish > 0) sec.appendChild(el("p", { "class": "av-wishline" }, "Lista de desejos: ", el("b", null, String(d.wish)), " — " + d.wishMovies + " " + (d.wishMovies === 1 ? "filme" : "filmes") + ", " + d.wishBooks + " " + (d.wishBooks === 1 ? "livro" : "livros")));
-    if (d.total > 0) {
-      sec.appendChild(el("h2", { "class": "av-h2" }, "Distribuição das notas"));
-      var maxD = Math.max.apply(null, [1].concat(d.dist.map(function (x) { return x.c; })));
-      var bars = el("div", { "class": "av-bars" });
-      d.dist.forEach(function (row) { bars.appendChild(barRow(el("span", { "class": "av-barhead" }, Lamps(row.n)), row.c / maxD, String(row.c))); });
-      sec.appendChild(bars);
-    }
-    if (d.top.length > 0) {
-      sec.appendChild(el("h2", { "class": "av-h2" }, "Mais bem avaliados"));
-      var tl = el("div", { "class": "av-toplist" });
-      d.top.forEach(function (it) {
-        var name = el("span", { "class": "av-topname" }, it.title);
-        if (it.subtitle) name.appendChild(el("em", null, " — " + it.subtitle));
-        tl.appendChild(el("div", { "class": "av-toprow" }, Cover(it, "av-topcover"), name, Lamps(it.rating)));
-      });
-      sec.appendChild(tl);
-    }
-    if (d.byCol.length > 0) {
-      sec.appendChild(el("h2", { "class": "av-h2" }, "Por coleção"));
-      var maxC = Math.max.apply(null, [1].concat(d.byCol.map(function (x) { return x.count; })));
-      var bars2 = el("div", { "class": "av-bars" });
-      d.byCol.forEach(function (c) {
-        var head = el("span", { "class": "av-barhead av-colname" }, c.name);
-        if (c.tag) head.appendChild(el("span", { "class": "av-coltag" }, " · " + c.tag));
-        var val = el("span", { "class": "av-barval" }, String(c.count));
-        if (c.avg != null) val.appendChild(el("span", { "class": "av-colavg" }, " · " + fmtAvg(c.avg)));
-        bars2.appendChild(barRow(head, c.count / maxC, val));
-      });
-      sec.appendChild(bars2);
-    }
-    return sec;
-  }
-
-  function navBtn(label, on, onclick) { return el("button", { "class": "av-navitem" + (on ? " active" : ""), onclick: onclick }, label); }
-  function Sidebar() {
-    var nav = el("nav", { "class": "av-nav" },
-      navBtn("Biblioteca", state.screen === "library", function () { go("library"); }),
-      navBtn("Coleções", state.screen === "playlists" || state.screen === "playlist", function () { go("playlists"); }),
-      navBtn("Panorama", state.screen === "stats", function () { go("stats"); })
-    );
-    var foot = el("div", { "class": "av-sidefoot" },
-      el("span", null, state.items.length + " registros · " + state.playlists.length + " coleções"),
-      el("div", { "class": "av-themeseg", role: "group", "aria-label": "Tema" },
-        el("button", { "class": state.theme === "light" ? "on" : "", onclick: function () { setTheme("light"); } }, "Claro"),
-        el("button", { "class": state.theme === "dark" ? "on" : "", onclick: function () { setTheme("dark"); } }, "Escuro")
-      )
-    );
-    return el("aside", { "class": "av-side" },
-      el("div", { "class": "av-brand" }, el("span", { "class": "av-logo" }, "Acervo"), el("span", { "class": "av-tag" }, "o que você viu e leu")),
-      nav, foot
-    );
-  }
-  function Bottom() {
-    return el("nav", { "class": "av-bottom" },
-      el("button", { "class": state.screen === "library" ? "on" : "", onclick: function () { go("library"); } }, "Biblioteca"),
-      el("button", { "class": (state.screen === "playlists" || state.screen === "playlist") ? "on" : "", onclick: function () { go("playlists"); } }, "Coleções"),
-      el("button", { "class": state.screen === "stats" ? "on" : "", onclick: function () { go("stats"); } }, "Panorama"),
-      el("button", { "class": "av-themebtn", "aria-label": "Alternar tema", onclick: function () { setTheme(state.theme === "dark" ? "light" : "dark"); } }, state.theme === "dark" ? "☀" : "☾")
-    );
-  }
-  function Main() {
-    var main = el("main", { "class": "av-main" });
-    if (state.screen === "library") main.appendChild(Library());
-    else if (state.screen === "playlists") main.appendChild(Playlists());
-    else if (state.screen === "playlist") main.appendChild(PlaylistDetail());
-    else if (state.screen === "stats") main.appendChild(Stats());
-    return main;
-  }
-
-  // ===== Render =====
-  function render() {
-    var a = document.activeElement, cap = null;
-    if (a && a.getAttribute && a.getAttribute("data-focus-id")) {
-      cap = { id: a.getAttribute("data-focus-id"), s: a.selectionStart, e: a.selectionEnd };
-    }
-    var root = document.getElementById("root");
-    while (root.firstChild) root.removeChild(root.firstChild);
-    root.className = "av-root theme-" + state.theme;
-    document.body.style.background = PAGE_BG[state.theme];
-    var meta = document.querySelector("meta[name=theme-color]"); if (meta) meta.setAttribute("content", PAGE_BG[state.theme]);
-    root.appendChild(Sidebar());
-    root.appendChild(Main());
-    root.appendChild(Bottom());
-    var modal = Modals(); if (modal) root.appendChild(modal);
-    if (state._mo && modal) { var first = modal.querySelector("input, textarea"); if (first) first.focus(); state._mo = false; }
-    else if (cap) { var n = root.querySelector('[data-focus-id="' + cap.id + '"]'); if (n) { n.focus(); try { n.setSelectionRange(cap.s, cap.e); } catch (e2) {} } }
-  }
-
-  window.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") {
-      if (state.itemModal) { state.itemModal = null; render(); }
-      else if (state.plModal) { state.plModal = null; render(); }
-      else if (state.addTo) { state.addTo = null; render(); }
-    }
-  });
-
+  state.itemModal=null; render();
+}
+function deleteItem(it){
+  state.items=state.items.filter(function(x){return x.id!==it.id;});
+  state.links=state.links.filter(function(l){return l.itemId!==it.id;});
+  cw(supabase.from("items").delete().eq("id",it.id));
   render();
-})();
+}
+function moveStatus(it,status,openModal){
+  var up=Object.assign({},it,{status:status});
+  state.items=state.items.map(function(x){return x.id===it.id?up:x;});
+  cw(supabase.from("items").update({status:status}).eq("id",it.id));
+  if(openModal){ state.itemModal={mode:"edit",draft:up}; state._mo=true; }
+  render();
+}
+function openNewPl(){ state.plModal={draft:{name:"",tag:"",description:""}}; state._mo=true; render(); }
+function updatePlDraft(f,v){ state.plModal.draft[f]=v; render(); }
+function savePl(){
+  var dr=state.plModal.draft; if(!dr.name.trim()) return;
+  var id=newId();
+  state.playlists.unshift({id:id, name:dr.name.trim(), tag:dr.tag.trim(), description:dr.description.trim(), isPublic:false, createdAt:new Date().toISOString()});
+  cw(supabase.from("collections").insert({ id:id, user_id:state.user.id, name:dr.name.trim(), tag:dr.tag.trim(), description:dr.description.trim(), is_public:false }));
+  state.plModal=null; render();
+}
+function deletePl(pl){
+  state.playlists=state.playlists.filter(function(p){return p.id!==pl.id;});
+  state.links=state.links.filter(function(l){return l.playlistId!==pl.id;});
+  cw(supabase.from("collections").delete().eq("id",pl.id));
+  if(state.openPl===pl.id){ state.openPl=null; state.screen="playlists"; }
+  render();
+}
+function hasLink(plId,itemId){ return state.links.some(function(l){return l.playlistId===plId&&l.itemId===itemId;}); }
+function toggleLink(plId,item){
+  if(hasLink(plId,item.id)){
+    state.links=state.links.filter(function(l){return !(l.playlistId===plId&&l.itemId===item.id);});
+    cw(supabase.from("collection_items").delete().eq("collection_id",plId).eq("item_id",item.id));
+  } else {
+    var id=newId();
+    state.links.push({id:id, playlistId:plId, itemId:item.id, itemType:item.type});
+    cw(supabase.from("collection_items").insert({ id:id, user_id:state.user.id, collection_id:plId, item_id:item.id, item_type:item.type }));
+  }
+}
+function removeFromPl(plId,item){
+  state.links=state.links.filter(function(l){return !(l.playlistId===plId&&l.itemId===item.id);});
+  cw(supabase.from("collection_items").delete().eq("collection_id",plId).eq("item_id",item.id));
+  render();
+}
+
+/* ===== Preenchimento automático (capa, autor/direção, ano) ===== */
+async function metaSearch(type, q){
+  q=(q||"").trim(); if(!q) return [];
+  if(type==="book"){
+    var url="https://openlibrary.org/search.json?title="+encodeURIComponent(q)+"&limit=6&fields=title,author_name,first_publish_year,cover_i,key";
+    var r=await fetch(url); var d=await r.json();
+    return (d.docs||[]).map(function(b){
+      return { title:b.title, name:(b.author_name&&b.author_name[0])||"", year:b.first_publish_year||"", cover: b.cover_i?("https://covers.openlibrary.org/b/id/"+b.cover_i+"-M.jpg"):"", workKey:b.key||"", synopsis:"" };
+    });
+  } else {
+    if(!TMDB_KEY) { var e=new Error("nokey"); e.nokey=true; throw e; }
+    var u="https://api.themoviedb.org/3/search/movie?api_key="+TMDB_KEY+"&language=pt-BR&include_adult=false&query="+encodeURIComponent(q);
+    var rr=await fetch(u); var dd=await rr.json();
+    return (dd.results||[]).slice(0,6).map(function(m){
+      return { id:m.id, title:m.title, name:"", year:(m.release_date||"").slice(0,4), cover: m.poster_path?("https://image.tmdb.org/t/p/w342"+m.poster_path):"", synopsis:(m.overview||"") };
+    });
+  }
+}
+async function fetchDirector(id){
+  if(!TMDB_KEY) return "";
+  try{
+    var r=await fetch("https://api.themoviedb.org/3/movie/"+id+"/credits?api_key="+TMDB_KEY);
+    var d=await r.json();
+    return (d.crew||[]).filter(function(c){ return c.job==="Director"; }).map(function(c){ return c.name; }).join(", ");
+  }catch(e){ return ""; }
+}
+async function runMetaSearch(){
+  var im=state.itemModal; if(!im) return;
+  var q=im.draft.title;
+  im.search={ busy:true, results:[], error:"" }; render();
+  try{
+    var res=await metaSearch(im.draft.type, q);
+    im.search={ busy:false, results:res, error: res.length?"":"Nada encontrado. Tente outro título." };
+  }catch(e){
+    im.search={ busy:false, results:[], error: e && e.nokey ? "Para filmes, configure a chave do TMDB no arquivo (livros já funcionam)." : "Não foi possível buscar agora." };
+  }
+  render();
+}
+async function pickMeta(res){
+  var im=state.itemModal; if(!im) return;
+  var sub=res.name||"";
+  if(im.draft.type==="movie"){
+    var dir = res.id ? await fetchDirector(res.id) : "";
+    sub = [dir, res.year].filter(Boolean).join(", ");
+    if(res.synopsis) im.draft.synopsis=res.synopsis;
+  } else {
+    sub = [res.name, res.year].filter(Boolean).join(", ");
+    if(res.workKey){
+      try{
+        var wr=await fetch("https://openlibrary.org"+res.workKey+".json");
+        var wd=await wr.json();
+        var desc=wd.description;
+        if(desc && typeof desc==="object") desc=desc.value;
+        if(desc) im.draft.synopsis=String(desc).replace(/\r/g,"").split("----------")[0].trim();
+      }catch(e){}
+    }
+  }
+  im.draft.title=res.title || im.draft.title;
+  im.draft.subtitle=sub;
+  if(res.cover) im.draft.cover=res.cover;
+  im.search=null;
+  render();
+}
+
+/* ===== Social (seguir / feed / perfis) ===== */
+async function loadFollowing(){
+  var res = await supabase.from("follows").select("following_id").eq("follower_id", state.user.id);
+  state.following = (res.data||[]).map(function(r){ return r.following_id; });
+}
+function isFollowing(id){ return state.following.indexOf(id) >= 0; }
+async function follow(id){
+  if(isFollowing(id)) return;
+  state.following.push(id);
+  if(state.viewUser && state.viewUser.profile && state.viewUser.profile.id===id) state.viewUser.followers++;
+  render();
+  cw(supabase.from("follows").insert({ follower_id: state.user.id, following_id: id }));
+}
+async function unfollow(id){
+  state.following = state.following.filter(function(x){ return x!==id; });
+  if(state.viewUser && state.viewUser.profile && state.viewUser.profile.id===id) state.viewUser.followers = Math.max(0, state.viewUser.followers-1);
+  render();
+  cw(supabase.from("follows").delete().eq("follower_id", state.user.id).eq("following_id", id));
+}
+async function searchPeople(q){
+  state.discover.q = q;
+  if(!q.trim()){ state.discover.results=[]; state.discover.searched=false; render(); return; }
+  var res = await supabase.from("profiles").select("id,username,display_name,avatar_url").ilike("username", "%"+q.trim().toLowerCase()+"%").neq("id", state.user.id).limit(20);
+  state.discover.results = res.data||[];
+  state.discover.searched = true;
+  render();
+}
+async function openFeed(){
+  state.screen="feed"; state.viewUser=null; render();
+  await loadFeed();
+}
+async function loadFeed(){
+  state.feed.loading=true; render();
+  if(state.following.length===0){ state.feed.activity=[]; state.feed.peopleById={}; state.feed.loading=false; render(); return; }
+  var itemsRes = await supabase.from("items").select("*").in("user_id", state.following).order("created_at",{ascending:false}).limit(40);
+  var profRes = await supabase.from("profiles").select("id,username,display_name,avatar_url").in("id", state.following);
+  var byId={}; (profRes.data||[]).forEach(function(p){ byId[p.id]=p; });
+  state.feed.peopleById = byId;
+  state.feed.activity = (itemsRes.data||[]).map(rowToItem).map(function(it, i){ var raw=(itemsRes.data||[])[i]; it.user_id = raw.user_id; return it; });
+  state.feed.loading=false; render();
+}
+async function openUser(username){
+  state.screen="user";
+  state.viewUser={ loading:true, profile:null, items:[], playlists:[], links:[], followers:0, followingCount:0 };
+  render();
+  var pr = await supabase.from("profiles").select("*").eq("username", username).maybeSingle();
+  if(!pr.data){ state.viewUser.loading=false; state.viewUser.notFound=true; render(); return; }
+  var prof = pr.data;
+  var res = await Promise.all([
+    supabase.from("items").select("*").eq("user_id", prof.id),
+    supabase.from("collections").select("*").eq("user_id", prof.id),
+    supabase.from("collection_items").select("*").eq("user_id", prof.id),
+    supabase.from("follows").select("follower_id", {count:"exact"}).eq("following_id", prof.id),
+    supabase.from("follows").select("following_id", {count:"exact"}).eq("follower_id", prof.id),
+    supabase.from("comments").select("*").eq("user_id", prof.id).order("created_at",{ascending:false})
+  ]);
+  state.viewUser = {
+    loading:false, profile:prof, tab:"acervo", commentType:"movie",
+    items:(res[0].data||[]).map(rowToItem),
+    playlists:(res[1].data||[]).map(rowToColl),
+    links:(res[2].data||[]).map(rowToLink),
+    followers: (res[3].count!=null?res[3].count:(res[3].data||[]).length),
+    followingCount: (res[4].count!=null?res[4].count:(res[4].data||[]).length),
+    comments:(res[5].data||[]).map(rowToComment)
+  };
+  render();
+}
+
+/* ===== Comentários ===== */
+function isOwnProfile(){ return state.viewUser && state.viewUser.profile && state.viewUser.profile.id===state.user.id; }
+function openCommentModal(){
+  state.commentModal={ draft:{ item_type: (state.viewUser?state.viewUser.commentType:"movie"), title:"", body:"" }, busy:false, error:"" };
+  state._mo=true; render();
+}
+function updateCommentDraft(f,v){ state.commentModal.draft[f]=v; render(); }
+async function saveComment(){
+  var cm=state.commentModal; var dr=cm.draft;
+  if(!dr.title.trim() || !dr.body.trim()){ cm.error="Preencha o título e o comentário."; render(); return; }
+  cm.busy=true; cm.error=""; render();
+  var id=newId();
+  var res=await supabase.from("comments").insert({ id:id, user_id:state.user.id, item_type:dr.item_type, title:dr.title.trim(), body:dr.body.trim() }).select().single();
+  if(res.error){ cm.busy=false; cm.error=res.error.message||"Não foi possível salvar."; render(); return; }
+  if(state.viewUser && isOwnProfile()){
+    state.viewUser.comments.unshift(rowToComment(res.data));
+    state.viewUser.commentType=dr.item_type; state.viewUser.tab="comentarios";
+  }
+  state.commentModal=null; render();
+}
+function deleteComment(c){
+  if(state.viewUser) state.viewUser.comments=state.viewUser.comments.filter(function(x){return x.id!==c.id;});
+  cw(supabase.from("comments").delete().eq("id",c.id));
+  render();
+}
+
+/* ===== Listas de seguidores / seguindo ===== */
+async function openPeopleList(profileId, mode){
+  state.peopleModal={ loading:true, mode:mode, people:[] };
+  state._mo=true; render();
+  var col = mode==="followers" ? "follower_id" : "following_id";
+  var matchCol = mode==="followers" ? "following_id" : "follower_id";
+  var rel = await supabase.from("follows").select(col).eq(matchCol, profileId);
+  var ids = (rel.data||[]).map(function(r){ return r[col]; });
+  if(ids.length===0){ state.peopleModal.loading=false; state.peopleModal.people=[]; render(); return; }
+  var pr = await supabase.from("profiles").select("id,username,display_name,avatar_url").in("id", ids);
+  state.peopleModal.loading=false; state.peopleModal.people=pr.data||[];
+  render();
+}
+
+/* ===== Compartilhar por link ===== */
+function shareLink(type, id){ return location.origin + location.pathname + "?" + (type==="collection"?"c":(type==="item"?"i":"u")) + "=" + id; }
+function openShare(type, id, label){ state.shareModal={ url:shareLink(type,id), label:label, copied:false }; render(); }
+function exitShare(){ location.search=""; }
+async function loadShare(){
+  var sh=state.share;
+  if(sh.type==="collection"){
+    var cr=await supabase.from("collections").select("*").eq("id", sh.id).maybeSingle();
+    if(!cr.data){ sh.loading=false; sh.notFound=true; render(); return; }
+    var res=await Promise.all([
+      supabase.from("collection_items").select("*").eq("collection_id", sh.id),
+      supabase.from("profiles").select("id,username,display_name,avatar_url").eq("id", cr.data.user_id).maybeSingle()
+    ]);
+    var links=(res[0].data||[]).map(rowToLink);
+    var ids=links.map(function(l){ return l.itemId; });
+    var items=[];
+    if(ids.length){ var ir=await supabase.from("items").select("*").in("id", ids); items=(ir.data||[]).map(rowToItem); }
+    sh.loading=false; sh.collection=rowToColl(cr.data); sh.items=items; sh.owner=res[1].data; render();
+  } else if(sh.type==="item"){
+    var it=await supabase.from("items").select("*").eq("id", sh.id).maybeSingle();
+    if(!it.data){ sh.loading=false; sh.notFound=true; render(); return; }
+    var pr=await supabase.from("profiles").select("id,username,display_name,avatar_url").eq("id", it.data.user_id).maybeSingle();
+    sh.loading=false; sh.item=rowToItem(it.data); sh.owner=pr.data; render();
+  } else {
+    var prr=await supabase.from("profiles").select("*").eq("username", sh.username).maybeSingle();
+    if(!prr.data){ sh.loading=false; sh.notFound=true; render(); return; }
+    var prof=prr.data;
+    var r=await Promise.all([
+      supabase.from("items").select("*").eq("user_id", prof.id),
+      supabase.from("collections").select("*").eq("user_id", prof.id),
+      supabase.from("collection_items").select("*").eq("user_id", prof.id),
+      supabase.from("follows").select("follower_id", {count:"exact"}).eq("following_id", prof.id),
+      supabase.from("follows").select("following_id", {count:"exact"}).eq("follower_id", prof.id),
+      supabase.from("comments").select("*").eq("user_id", prof.id).order("created_at",{ascending:false})
+    ]);
+    sh.loading=false; sh.profile=prof;
+    sh.items=(r[0].data||[]).map(rowToItem);
+    sh.playlists=(r[1].data||[]).map(rowToColl);
+    sh.links=(r[2].data||[]).map(rowToLink);
+    sh.followers=(r[3].count!=null?r[3].count:(r[3].data||[]).length);
+    sh.followingCount=(r[4].count!=null?r[4].count:(r[4].data||[]).length);
+    sh.comments=(r[5].data||[]).map(rowToComment);
+    render();
+  }
+}
+
+/* ===== Avatar (foto da galeria ou gerado) ===== */
+function genIdenticon(seed){
+  try{
+    var h=0; for(var i=0;i<seed.length;i++) h=(h*31+seed.charCodeAt(i))>>>0;
+    var hue=h%360, size=160, cells=5, cell=size/cells;
+    var c=document.createElement("canvas"); c.width=size; c.height=size;
+    var ctx=c.getContext("2d"); if(!ctx) return null;
+    ctx.fillStyle="hsl("+hue+",28%,20%)"; ctx.fillRect(0,0,size,size);
+    ctx.fillStyle="hsl("+hue+",58%,62%)";
+    var rnd=h||1;
+    function bit(){ rnd=(rnd*1103515245+12345)&0x7fffffff; return (rnd>>17)&1; }
+    for(var x=0;x<3;x++) for(var y=0;y<cells;y++){ if(bit()){ ctx.fillRect(x*cell,y*cell,cell,cell); ctx.fillRect((cells-1-x)*cell,y*cell,cell,cell); } }
+    return c.toDataURL("image/png");
+  }catch(e){ return null; }
+}
+function fileToAvatar(file, cb){
+  if(!file){ cb(null); return; }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      try{
+        var size=256, c=document.createElement("canvas"); c.width=size; c.height=size;
+        var ctx=c.getContext("2d");
+        var s=Math.min(img.width,img.height), sx=(img.width-s)/2, sy=(img.height-s)/2;
+        ctx.drawImage(img,sx,sy,s,s,0,0,size,size);
+        cb(c.toDataURL("image/jpeg",0.82));
+      }catch(err){ cb(null); }
+    };
+    img.onerror=function(){ cb(null); };
+    img.src=e.target.result;
+  };
+  reader.onerror=function(){ cb(null); };
+  reader.readAsDataURL(file);
+}
+
+/* ===== Perfil ===== */
+function openProfile(){
+  var p=state.profile||{};
+  state.profileModal={ draft:{ display_name:p.display_name||"", username:p.username||"", avatar_url:p.avatar_url||"" }, error:"", busy:false };
+  state._mo=true; render();
+}
+function updateProfileDraft(f,v){ state.profileModal.draft[f]=v; if(state.profileModal.error){ state.profileModal.error=""; } render(); }
+async function saveProfile(){
+  var pm=state.profileModal; if(!pm) return;
+  var display=(pm.draft.display_name||"").trim();
+  var username=(pm.draft.username||"").trim().toLowerCase().replace(/[^a-z0-9_]/g,"");
+  if(!username){ pm.error="O nome de usuário não pode ficar vazio."; render(); return; }
+  pm.busy=true; pm.error=""; render();
+  var res=await supabase.from("profiles").update({ display_name:display, username:username, avatar_url: pm.draft.avatar_url||null }).eq("id", state.user.id).select().single();
+  if(res.error){
+    var taken=(res.error.code==="23505")||((res.error.message||"").toLowerCase().indexOf("duplicate")>=0);
+    pm.busy=false;
+    pm.error= taken ? "Esse nome de usuário já está em uso. Tente outro." : (res.error.message||"Não foi possível salvar.");
+    render(); return;
+  }
+  state.profile=res.data; state.profileModal=null; render();
+}
+
+/* ===== Auth ===== */
+async function doSignup(email,password,username,display){
+  if(!email || !password){ state.authError="Preencha e-mail e senha."; render(); return; }
+  state.authBusy=true; state.authError=""; render();
+  pendingUsername = username; pendingDisplay = display;
+  var res = await supabase.auth.signUp({ email:email, password:password });
+  if(res.error){ state.authBusy=false; state.authError=traduzErro(res.error.message); render(); return; }
+  if(!res.data.session){
+    state.authBusy=false; state.authMode="login";
+    state.authError="Conta criada. Se a confirmação de e-mail estiver ligada, confirme pelo link e depois entre.";
+    render();
+  }
+  // se já houver sessão, o onAuthStateChange assume a partir daqui
+}
+async function doLogin(email,password){
+  if(!email || !password){ state.authError="Preencha e-mail e senha."; render(); return; }
+  state.authBusy=true; state.authError=""; render();
+  var res = await supabase.auth.signInWithPassword({ email:email, password:password });
+  if(res.error){ state.authBusy=false; state.authError=traduzErro(res.error.message); render(); }
+}
+async function doLogout(){ await supabase.auth.signOut(); }
+function traduzErro(m){
+  m = m || "Erro";
+  if(/invalid login credentials/i.test(m)) return "E-mail ou senha incorretos.";
+  if(/already registered|already been registered/i.test(m)) return "Este e-mail já tem conta. Faça login.";
+  if(/password should be at least/i.test(m)) return "A senha precisa ter pelo menos 6 caracteres.";
+  if(/unable to validate email|invalid email/i.test(m)) return "E-mail inválido.";
+  return m;
+}
+
+/* ===== Componentes ===== */
+function TypeTab(type){ return el("span",{ "class":"av-typetab "+(type==="movie"?"film":"book") }, type==="movie"?"Filme":"Livro"); }
+function Chip(text){ return text?el("span",{ "class":"av-chip" },text):null; }
+function Placeholder(item,cls){ return el("div",{ "class":cls+" av-coverph", style:{ "--tint":tintFor(item.title) } }, el("span",{ "class":"av-coverinit" }, initialsOf(item.title))); }
+function Cover(item,cls){
+  cls=cls||"av-cover";
+  if(item.cover){
+    var wrap=el("div",{ "class":cls });
+    var img=el("img",{ alt:"", src:item.cover });
+    img.addEventListener("error", function(){ wrap.replaceWith(Placeholder(item,cls)); });
+    wrap.appendChild(img); return wrap;
+  }
+  return Placeholder(item,cls);
+}
+function Lamps(value,onChange,size,idleHint){
+  var wrap=el("span",{ "class":"av-lamps" });
+  var dots=[]; var word=null;
+  function paint(n){ for(var i=0;i<dots.length;i++) dots[i].classList.toggle("on", i<n); }
+  for(var i=1;i<=5;i++){
+    (function(i){
+      var style={ "--d":(size||14)+"px" };
+      if(!onChange){ var s=el("span",{ "class":"av-lamp"+(i<=value?" on":""), style:style }); dots.push(s); wrap.appendChild(s); }
+      else {
+        var b=el("button",{ type:"button", "class":"av-lamp av-lampbtn"+(i<=value?" on":""), style:style, "aria-label":"Nota "+i,
+          onmouseenter:function(){ paint(i); if(word) word.textContent=RATING_WORDS[i]; },
+          onmouseleave:function(){ paint(value); if(word) word.textContent=RATING_WORDS[value]; },
+          onclick:function(){ onChange(i===value?0:i); } });
+        dots.push(b); wrap.appendChild(b);
+      }
+    })(i);
+  }
+  if(idleHint && onChange){ word=el("span",{ "class":"av-lampword" }, RATING_WORDS[value]); wrap.appendChild(word); }
+  return wrap;
+}
+function ItemCard(item,context){
+  var st=statusOf(item);
+  var body=el("div",{ "class":"av-cardbody" });
+  body.appendChild(el("div",{ "class":"av-cardtop" }, TypeTab(item.type), st!=="done"?el("span",{ "class":"av-wishchip"+(st==="doing"?" doing":"") }, verb(item.type,st)):null));
+  body.appendChild(el("h4",{ "class":"av-title" }, item.title));
+  if(item.subtitle) body.appendChild(el("p",{ "class":"av-sub" }, item.subtitle));
+  if(st==="done") body.appendChild(el("div",{ "class":"av-cardrate" }, Lamps(item.rating)));
+  if(item.synopsis) body.appendChild(el("p",{ "class":"av-synopsis" }, item.synopsis));
+  if(item.notes) body.appendChild(el("p",{ "class":"av-notes" }, el("span",{ "class":"av-notelabel" },"Sua nota: "), item.notes));
+  var foot=el("div",{ "class":"av-cardfoot" });
+  if(context==="view"){
+    return el("article",{ "class":"av-card" }, Cover(item), body);
+  }
+  if(context==="library"){
+    if(st==="wish"){
+      foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ moveStatus(item,"doing",false); } }, "▶ Começar"));
+      foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ moveStatus(item,"done",true); } }, "✓ Concluir"));
+    } else if(st==="doing"){
+      foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ moveStatus(item,"done",true); } }, "✓ Concluir"));
+    }
+    foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ state.addTo=item; render(); } }, "+ Coleção"));
+    foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ openShare("item", item.id, "“"+item.title+"”"); } }, "↗"));
+  }
+  foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ openEditItem(item); } }, "Editar"));
+  if(context==="library") foot.appendChild(el("button",{ "class":"av-ghost sm danger", onclick:function(){ deleteItem(item); } }, "Excluir"));
+  else foot.appendChild(el("button",{ "class":"av-ghost sm danger", onclick:function(){ removeFromPl(state.openPl,item); } }, "Remover"));
+  body.appendChild(foot);
+  return el("article",{ "class":"av-card" }, Cover(item), body);
+}
+function PlaylistCard(pl){
+  var s=plStats(pl.id);
+  var body=el("div",{ "class":"av-cardbody" });
+  body.appendChild(el("div",{ "class":"av-plhead" }, el("h4",{ "class":"av-title" }, pl.name), Chip(pl.tag)));
+  if(pl.description) body.appendChild(el("p",{ "class":"av-notes" }, pl.description));
+  body.appendChild(el("div",{ "class":"av-plmeta" },
+    el("span",null, s.count+" "+(s.count===1?"item":"itens")),
+    el("span",{ "class":"av-dot" },"·"),
+    el("span",null,"média "+fmtAvg(s.avg)),
+    el("button",{ "class":"av-ghost sm danger av-pldel", onclick:function(e){ e.stopPropagation(); deletePl(pl); } }, "Excluir")
+  ));
+  return el("article",{ "class":"av-card av-pl", onclick:function(){ state.openPl=pl.id; state.screen="playlist"; render(); } }, body);
+}
+function seg(label,on,onclick){ return el("button",{ "class":"av-segbtn"+(on?" on":""), onclick:onclick }, label); }
+function inputField(focusId,value,placeholder,oninput){ var i=el("input",{ "class":"av-input", placeholder:placeholder, "data-focus-id":focusId, oninput:function(e){ oninput(e.target.value); } }); i.value=value||""; return i; }
+function labelOpt(text,opt){ return el("label",{ "class":"av-label" }, text, " ", el("span",{ "class":"av-opt" }, opt||"opcional")); }
+function ModalShell(title,onClose,bodyNode,footNode){
+  var head=el("div",{ "class":"av-modalhead" }, el("h3",null,title), el("button",{ "class":"av-x", "aria-label":"Fechar", onclick:onClose }, "✕"));
+  var modal=el("div",{ "class":"av-modal", role:"dialog", "aria-modal":"true", "aria-label":title }, head, bodyNode, footNode||null);
+  var back=el("div",{ "class":"av-backdrop" }, modal);
+  back.addEventListener("mousedown", function(e){ if(e.target===back) onClose(); });
+  return back;
+}
+function ItemModal(){
+  var im=state.itemModal;
+  var dr=state.itemModal.draft;
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("label",{ "class":"av-label" },"Tipo"));
+  body.appendChild(el("div",{ "class":"av-seg" }, seg("Filme",dr.type==="movie",function(){updateDraft("type","movie");}), seg("Livro",dr.type==="book",function(){updateDraft("type","book");})));
+  body.appendChild(el("label",{ "class":"av-label" },"Situação"));
+  body.appendChild(el("div",{ "class":"av-seg av-seg3" },
+    seg("Concluídos",dr.status==="done",function(){updateDraft("status","done");}),
+    seg("Desejados",dr.status==="wish",function(){updateDraft("status","wish");}),
+    seg("Em andamento",dr.status==="doing",function(){updateDraft("status","doing");})
+  ));
+  body.appendChild(el("label",{ "class":"av-label" },"Título"));
+  body.appendChild(inputField("f-title",dr.title, dr.type==="movie"?"ex: Cinema Paradiso":"ex: Noites Brancas", function(v){updateDraft("title",v);}));
+  var sr=im.search;
+  body.appendChild(el("button",{ "class":"av-metabtn", disabled: (sr&&sr.busy) || !dr.title.trim(), onclick:runMetaSearch },
+    (sr&&sr.busy) ? "buscando…" : ("🔍 Preencher "+(dr.type==="movie"?"direção, ano e capa":"autor, ano e capa"))));
+  if(sr && sr.error) body.appendChild(el("p",{ "class":"av-metaerr" }, sr.error));
+  if(sr && sr.results && sr.results.length){
+    var rl=el("div",{ "class":"av-metalist" });
+    sr.results.forEach(function(res){
+      var thumb = res.cover ? el("img",{ "class":"av-metathumb", src:res.cover, alt:"" }) : el("div",{ "class":"av-metathumb av-metaph" });
+      var meta=[res.name, res.year].filter(Boolean).join(" · ");
+      rl.appendChild(el("button",{ "class":"av-metarow", onclick:function(){ pickMeta(res); } },
+        thumb,
+        el("div",{ "class":"av-metainfo" }, el("span",{ "class":"av-metatitle" }, res.title), meta?el("span",{ "class":"av-metasub" }, meta):null)
+      ));
+    });
+    body.appendChild(rl);
+  }
+  body.appendChild(labelOpt(dr.type==="movie"?"Direção ou ano":"Autor"));
+  body.appendChild(inputField("f-sub",dr.subtitle, dr.type==="movie"?"ex: Tornatore, 1988":"ex: Dostoiévski", function(v){updateDraft("subtitle",v);}));
+  body.appendChild(labelOpt("Capa","URL da imagem, opcional"));
+  body.appendChild(el("div",{ "class":"av-cvrow" }, inputField("f-cover",dr.cover,"cole o link de uma imagem da capa",function(v){updateDraft("cover",v);}), Cover(dr,"av-cvprev")));
+  if(dr.status==="done"){
+    body.appendChild(el("label",{ "class":"av-label" },"Nota"));
+    body.appendChild(Lamps(dr.rating, function(v){updateDraft("rating",v);}, 20, true));
+  }
+  body.appendChild(labelOpt("Sinopse","preenchida pela busca, editável"));
+  var sy=el("textarea",{ "class":"av-input av-area", rows:3, "data-focus-id":"f-syn", placeholder:"resumo do enredo", oninput:function(e){updateDraft("synopsis",e.target.value);} });
+  sy.value=dr.synopsis||""; body.appendChild(sy);
+  var notesPh = dr.status==="wish" ? "por que quer ver/ler…" : (dr.status==="doing" ? "o que está achando até agora…" : "o que ficou de você…");
+  body.appendChild(labelOpt("Observação"));
+  var ta=el("textarea",{ "class":"av-input av-area", rows:3, "data-focus-id":"f-notes", placeholder:notesPh, oninput:function(e){updateDraft("notes",e.target.value);} });
+  ta.value=dr.notes||""; body.appendChild(ta);
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:closeItem }, "Cancelar"),
+    el("button",{ "class":"av-primary", disabled:!dr.title.trim(), onclick:saveItem }, state.itemModal.mode==="new"?"Adicionar":"Salvar")
+  );
+  return ModalShell(state.itemModal.mode==="new"?"Adicionar ao acervo":"Editar registro", closeItem, body, foot);
+}
+function PlModal(){
+  var dr=state.plModal.draft;
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("label",{ "class":"av-label" },"Nome"));
+  body.appendChild(inputField("p-name",dr.name,"ex: Literatura russa",function(v){updatePlDraft("name",v);}));
+  body.appendChild(labelOpt("Tema ou gênero"));
+  body.appendChild(inputField("p-tag",dr.tag,"ex: Drama · Noir · Ensaio",function(v){updatePlDraft("tag",v);}));
+  body.appendChild(labelOpt("Descrição"));
+  var ta=el("textarea",{ "class":"av-input av-area", rows:2, "data-focus-id":"p-desc", placeholder:"uma linha sobre o que reúne esta coleção", oninput:function(e){updatePlDraft("description",e.target.value);} });
+  ta.value=dr.description||""; body.appendChild(ta);
+  var close=function(){ state.plModal=null; render(); };
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:close }, "Cancelar"),
+    el("button",{ "class":"av-primary", disabled:!dr.name.trim(), onclick:savePl }, "Criar coleção")
+  );
+  return ModalShell("Nova coleção", close, body, foot);
+}
+function AddToModal(){
+  var it=state.addTo;
+  var close=function(){ state.addTo=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("p",{ "class":"av-modalsub" }, "“"+it.title+"”"));
+  if(state.playlists.length===0){
+    body.appendChild(el("div",{ "class":"av-empty sm" }, el("p",null,"Nenhuma coleção ainda."), el("button",{ "class":"av-primary", onclick:function(){ state.addTo=null; openNewPl(); } }, "Criar a primeira")));
+  } else {
+    var ul=el("ul",{ "class":"av-pllist" });
+    state.playlists.forEach(function(p){
+      var on=hasLink(p.id,it.id);
+      var btn=el("button",{ "class":"av-pltoggle"+(on?" on":""), onclick:function(){ toggleLink(p.id,it); render(); } },
+        el("span",{ "class":"av-check" }, on?"✓":""), el("span",{ "class":"av-pltname" }, p.name), Chip(p.tag));
+      ul.appendChild(el("li",null,btn));
+    });
+    body.appendChild(ul);
+  }
+  var foot=el("div",{ "class":"av-modalfoot" }, el("button",{ "class":"av-primary", onclick:close }, "Concluído"));
+  return ModalShell("Adicionar à coleção", close, body, foot);
+}
+function ProfileModal(){
+  var pm=state.profileModal; var dr=pm.draft;
+  var close=function(){ state.profileModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("label",{ "class":"av-label" },"Foto / avatar"));
+  var preview = dr.avatar_url
+    ? el("div",{ "class":"av-avatar lg av-avimg" }, el("img",{ "class":"av-avimgel", src:dr.avatar_url, alt:"" }))
+    : el("div",{ "class":"av-avatar lg" }, initialsOf(dr.display_name||dr.username||"?"));
+  var fileInput=el("input",{ type:"file", accept:"image/*", style:{ display:"none" }, onchange:function(e){ var f=e.target.files&&e.target.files[0]; fileToAvatar(f, function(url){ if(url) updateProfileDraft("avatar_url", url); }); } });
+  var btns=el("div",{ "class":"av-avbtns" },
+    el("button",{ "class":"av-ghost sm", onclick:function(){ fileInput.click(); } }, "Enviar foto"),
+    el("button",{ "class":"av-ghost sm", onclick:function(){ var u=genIdenticon(String(Math.random())+(dr.username||"")); if(u) updateProfileDraft("avatar_url", u); } }, "🎲 Gerar avatar"),
+    dr.avatar_url ? el("button",{ "class":"av-ghost sm danger", onclick:function(){ updateProfileDraft("avatar_url",""); } }, "Remover") : null
+  );
+  body.appendChild(el("div",{ "class":"av-aveditor" }, preview, btns, fileInput));
+  body.appendChild(el("label",{ "class":"av-label" },"Nome de exibição"));
+  body.appendChild(inputField("pf-name",dr.display_name,"ex: João Ferretti",function(v){updateProfileDraft("display_name",v);}));
+  body.appendChild(el("label",{ "class":"av-label" },"Nome de usuário"));
+  var u=inputField("pf-user",dr.username,"ex: joaoferretti",function(v){updateProfileDraft("username",v);});
+  body.appendChild(u);
+  body.appendChild(el("p",{ "class":"av-fieldhint" },"aparece como @"+( (dr.username||"").trim().toLowerCase().replace(/[^a-z0-9_]/g,"") || "usuario" )+" — só letras, números e _"));
+  if(pm.error) body.appendChild(el("p",{ "class":"av-autherr", style:{ textAlign:"left", marginTop:"12px" } }, pm.error));
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:close }, "Cancelar"),
+    el("button",{ "class":"av-primary", disabled:pm.busy, onclick:saveProfile }, pm.busy?"Salvando…":"Salvar")
+  );
+  return ModalShell("Editar perfil", close, body, foot);
+}
+function CommentModal(){
+  var cm=state.commentModal; var dr=cm.draft;
+  var close=function(){ state.commentModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("label",{ "class":"av-label" },"Tipo"));
+  body.appendChild(el("div",{ "class":"av-seg" }, seg("Filme",dr.item_type==="movie",function(){updateCommentDraft("item_type","movie");}), seg("Livro",dr.item_type==="book",function(){updateCommentDraft("item_type","book");})));
+  body.appendChild(el("label",{ "class":"av-label" },"Título"));
+  body.appendChild(inputField("cm-title",dr.title, dr.item_type==="movie"?"ex: Stalker":"ex: Noites Brancas", function(v){updateCommentDraft("title",v);}));
+  body.appendChild(el("label",{ "class":"av-label" },"Comentário"));
+  var ta=el("textarea",{ "class":"av-input av-area", rows:4, "data-focus-id":"cm-body", placeholder:"o que você achou…", oninput:function(e){updateCommentDraft("body",e.target.value);} });
+  ta.value=dr.body||""; body.appendChild(ta);
+  if(cm.error) body.appendChild(el("p",{ "class":"av-autherr", style:{ textAlign:"left", marginTop:"10px" } }, cm.error));
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:close }, "Cancelar"),
+    el("button",{ "class":"av-primary", disabled:cm.busy, onclick:saveComment }, cm.busy?"Publicando…":"Publicar")
+  );
+  return ModalShell("Novo comentário", close, body, foot);
+}
+function PeopleModal(){
+  var pm=state.peopleModal;
+  var close=function(){ state.peopleModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  if(pm.loading){ body.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); }
+  else if(pm.people.length===0){ body.appendChild(el("div",{ "class":"av-empty sm" }, el("p",null, pm.mode==="followers"?"Ninguém segue este perfil ainda.":"Este perfil ainda não segue ninguém."))); }
+  else {
+    var people=el("div",{ "class":"av-people" });
+    pm.people.forEach(function(p){
+      people.appendChild(el("div",{ "class":"av-person clickable", onclick:function(){ state.peopleModal=null; openUser(p.username); } },
+        Avatar(p),
+        el("div",{ "class":"av-personmeta" }, el("span",{ "class":"av-personname" }, p.display_name||p.username), el("span",{ "class":"av-personhandle" }, "@"+p.username)),
+        FollowButton(p.id)
+      ));
+    });
+    body.appendChild(people);
+  }
+  return ModalShell(pm.mode==="followers"?"Seguidores":"Seguindo", close, body, null);
+}
+function ShareModal(){
+  var sm=state.shareModal;
+  var close=function(){ state.shareModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  body.appendChild(el("p",{ "class":"av-modalsub" }, sm.label));
+  body.appendChild(el("p",{ "class":"av-fieldhint", style:{ margin:"0 0 12px" } }, "Qualquer pessoa com este link pode ver — mesmo sem ter conta."));
+  var input=el("input",{ "class":"av-input", readonly:true, "data-focus-id":"share-url" }); input.value=sm.url;
+  body.appendChild(input);
+  var copyBtn=el("button",{ "class":"av-primary", style:{ marginTop:"12px", width:"100%" }, onclick:function(){
+    try{ input.focus(); input.select(); }catch(e){}
+    var done=function(){ sm.copied=true; render(); };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(sm.url).then(done, function(){ try{document.execCommand("copy");}catch(e){} done(); }); }
+    else { try{document.execCommand("copy");}catch(e){} done(); }
+  } }, sm.copied?"Copiado ✓":"Copiar link");
+  body.appendChild(copyBtn);
+  return ModalShell("Compartilhar", close, body, null);
+}
+function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); if(state.commentModal) return CommentModal(); if(state.peopleModal) return PeopleModal(); if(state.shareModal) return ShareModal(); return null; }
+function SharePublic(){
+  var sh=state.share;
+  var wrap=el("div",{ "class":"av-sharewrap" });
+  wrap.appendChild(el("div",{ "class":"av-sharetop" },
+    el("span",{ "class":"av-logo" }, "Acervo"),
+    el("button",{ "class":"av-ghost sm", onclick:exitShare }, "Abrir o Acervo")
+  ));
+  if(sh.loading){ wrap.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return el("div",{ "class":"av-sharepage" }, wrap); }
+  if(sh.notFound){ wrap.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Esse link não existe mais."))); return el("div",{ "class":"av-sharepage" }, wrap); }
+  if(sh.type==="collection"){
+    var c=sh.collection, o=sh.owner;
+    wrap.appendChild(el("p",{ "class":"av-eyebrow" }, o?("Coleção de @"+o.username):"Coleção"));
+    wrap.appendChild(el("h1",{ "class":"av-h1" }, c.name));
+    if(c.tag) wrap.appendChild(el("div",{ "class":"av-detailtag" }, Chip(c.tag)));
+    if(c.description) wrap.appendChild(el("p",{ "class":"av-detaildesc" }, c.description));
+    if((sh.items||[]).length===0) wrap.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Coleção vazia.")));
+    else { var grid=el("div",{ "class":"av-grid" }); sh.items.forEach(function(it){ grid.appendChild(ItemCard(it,"view")); }); wrap.appendChild(grid); }
+  } else if(sh.type==="item"){
+    var it=sh.item, ow=sh.owner;
+    wrap.appendChild(el("p",{ "class":"av-eyebrow" }, ow?("No acervo de @"+ow.username):"Acervo"));
+    wrap.appendChild(el("h1",{ "class":"av-h1", style:{ marginBottom:"18px" } }, it.title));
+    var g=el("div",{ "class":"av-grid" }); g.appendChild(ItemCard(it,"view")); wrap.appendChild(g);
+  } else {
+    var p=sh.profile;
+    wrap.appendChild(el("div",{ "class":"av-profhead" },
+      Avatar(p,true),
+      el("div",null,
+        el("h1",{ "class":"av-h1", style:{ fontSize:"30px" } }, p.display_name||p.username),
+        el("p",{ "class":"av-personhandle" }, "@"+p.username),
+        el("div",{ "class":"av-profcounts" },
+          el("span",null, el("b",null,String(sh.followers)), " seguidores"),
+          el("span",null, el("b",null,String(sh.followingCount)), " seguindo"),
+          el("span",null, el("b",null,String(sh.items.filter(function(i){return statusOf(i)==="done";}).length)), " no acervo")
+        )
+      )
+    ));
+    wrap.appendChild(el("div",{ "class":"av-statusview" },
+      el("button",{ "class":sh.tab==="acervo"?"on":"", onclick:function(){ sh.tab="acervo"; render(); } }, "Acervo"),
+      el("button",{ "class":sh.tab==="comentarios"?"on":"", onclick:function(){ sh.tab="comentarios"; render(); } }, "Comentários")
+    ));
+    if(sh.tab==="acervo"){
+      var done=sh.items.filter(function(i){ return statusOf(i)==="done"; }).sort(function(a,b){ return (b.createdAt||"").localeCompare(a.createdAt||""); });
+      if(done.length===0) wrap.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Nada no acervo ainda.")));
+      else { var pg=el("div",{ "class":"av-grid" }); done.forEach(function(it){ pg.appendChild(ItemCard(it,"view")); }); wrap.appendChild(pg); }
+    } else {
+      wrap.appendChild(el("div",{ "class":"av-seg av-commentseg", style:{ marginBottom:"18px", maxWidth:"260px" } },
+        seg("Filmes", sh.commentType==="movie", function(){ sh.commentType="movie"; render(); }),
+        seg("Livros", sh.commentType==="book", function(){ sh.commentType="book"; render(); })
+      ));
+      var clist=(sh.comments||[]).filter(function(c){ return c.item_type===sh.commentType; });
+      if(clist.length===0) wrap.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Nenhum comentário de "+(sh.commentType==="movie"?"filmes":"livros")+" ainda.")));
+      else { var cl=el("div",{ "class":"av-commentlist" }); clist.forEach(function(c){ cl.appendChild(CommentCard(c, false)); }); wrap.appendChild(cl); }
+    }
+  }
+  return el("div",{ "class":"av-sharepage" }, wrap);
+}
+
+function counts(){ return { movie: state.items.filter(function(i){return statusOf(i)===state.statusView&&i.type==="movie";}).length, book: state.items.filter(function(i){return statusOf(i)===state.statusView&&i.type==="book";}).length }; }
+function libItems(){
+  var q=state.query.trim().toLowerCase();
+  return state.items
+    .filter(function(i){ return statusOf(i)===state.statusView; })
+    .filter(function(i){ return i.type===state.tab; })
+    .filter(function(i){ return state.statusView!=="done" || i.rating>=state.minRating; })
+    .filter(function(i){ return !q || i.title.toLowerCase().indexOf(q)>=0 || (i.subtitle||"").toLowerCase().indexOf(q)>=0; })
+    .sort(function(a,b){ return (b.createdAt||"").localeCompare(a.createdAt||""); });
+}
+function plStats(plId){
+  var list=state.links.filter(function(l){return l.playlistId===plId;}).map(function(l){return state.items.find(function(i){return i.id===l.itemId;});}).filter(Boolean);
+  var rated=list.filter(function(i){return i.rating>0;});
+  var avg=rated.length?rated.reduce(function(s,i){return s+i.rating;},0)/rated.length:null;
+  return { list:list, count:list.length, avg:avg };
+}
+function panorama(){
+  var done=state.items.filter(function(i){return statusOf(i)==="done";});
+  var wishItems=state.items.filter(function(i){return statusOf(i)==="wish";});
+  var doingItems=state.items.filter(function(i){return statusOf(i)==="doing";});
+  var avgOf=function(arr){ var r=arr.filter(function(i){return i.rating>0;}); return r.length?r.reduce(function(s,i){return s+i.rating;},0)/r.length:null; };
+  var dist=[5,4,3,2,1].map(function(n){ return { n:n, c:done.filter(function(i){return i.rating===n;}).length }; });
+  var top=done.filter(function(i){return i.rating>0;}).sort(function(a,b){return b.rating-a.rating||(b.createdAt||"").localeCompare(a.createdAt||"");}).slice(0,6);
+  var byCol=state.playlists.map(function(p){
+    var list=state.links.filter(function(l){return l.playlistId===p.id;}).map(function(l){return state.items.find(function(i){return i.id===l.itemId;});}).filter(Boolean);
+    var r=list.filter(function(i){return i.rating>0;});
+    return { id:p.id, name:p.name, tag:p.tag, count:list.length, avg:r.length?r.reduce(function(s,i){return s+i.rating;},0)/r.length:null };
+  }).sort(function(a,b){return b.count-a.count;});
+  return {
+    total:done.length, movies:done.filter(function(i){return i.type==="movie";}).length, books:done.filter(function(i){return i.type==="book";}).length,
+    avgAll:avgOf(done), avgMovies:avgOf(done.filter(function(i){return i.type==="movie";})), avgBooks:avgOf(done.filter(function(i){return i.type==="book";})),
+    wish:wishItems.length, wishMovies:wishItems.filter(function(i){return i.type==="movie";}).length, wishBooks:wishItems.filter(function(i){return i.type==="book";}).length,
+    doing:doingItems.length, doingMovies:doingItems.filter(function(i){return i.type==="movie";}).length, doingBooks:doingItems.filter(function(i){return i.type==="book";}).length,
+    dist:dist, top:top, byCol:byCol
+  };
+}
+function Library(){
+  var sec=el("section");
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, el("div",null, el("p",{ "class":"av-eyebrow" },"Seu acervo"), el("h1",{ "class":"av-h1" },"Biblioteca")), el("button",{ "class":"av-primary", onclick:openNewItem }, "+ Adicionar")));
+  sec.appendChild(el("div",{ "class":"av-statusview" },
+    el("button",{ "class":state.statusView==="done"?"on":"", onclick:function(){ state.statusView="done"; render(); } }, "Concluídos"),
+    el("button",{ "class":state.statusView==="wish"?"on":"", onclick:function(){ state.statusView="wish"; render(); } }, "Desejados"),
+    el("button",{ "class":state.statusView==="doing"?"on":"", onclick:function(){ state.statusView="doing"; render(); } }, "Em andamento")
+  ));
+  var c=counts();
+  sec.appendChild(el("div",{ "class":"av-tabs" },
+    el("button",{ "class":"av-tab"+(state.tab==="movie"?" on":""), onclick:function(){ state.tab="movie"; render(); } }, "Filmes ", el("span",{ "class":"av-count" }, String(c.movie))),
+    el("button",{ "class":"av-tab"+(state.tab==="book"?" on":""), onclick:function(){ state.tab="book"; render(); } }, "Livros ", el("span",{ "class":"av-count" }, String(c.book)))
+  ));
+  var filters=el("div",{ "class":"av-filters" });
+  var search=el("input",{ "class":"av-search", placeholder:"Buscar por título ou autor…", "data-focus-id":"search", oninput:function(e){ state.query=e.target.value; render(); } });
+  search.value=state.query; filters.appendChild(search);
+  if(state.statusView==="done"){
+    var mr=el("div",{ "class":"av-minrate" }, el("span",{ "class":"av-minlabel" },"nota mínima"), Lamps(state.minRating, function(v){ state.minRating=v; render(); }));
+    if(state.minRating>0) mr.appendChild(el("button",{ "class":"av-clear", onclick:function(){ state.minRating=0; render(); } }, "limpar"));
+    filters.appendChild(mr);
+  }
+  sec.appendChild(filters);
+  var list=libItems();
+  if(list.length===0){
+    var msg;
+    if(state.statusView==="wish") msg = state.tab==="movie"?"Nada na lista de filmes que você quer ver.":"Nada na lista de livros que você quer ler.";
+    else if(state.statusView==="doing") msg = state.tab==="movie"?"Nenhum filme em andamento.":"Nenhum livro em andamento.";
+    else msg = state.tab==="movie"?"Nenhum filme por aqui ainda.":"Nenhum livro por aqui ainda.";
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,msg), el("button",{ "class":"av-primary", onclick:openNewItem }, "Adicionar o primeiro")));
+  } else {
+    var grid=el("div",{ "class":"av-grid" });
+    list.forEach(function(it){ grid.appendChild(ItemCard(it,"library")); });
+    sec.appendChild(grid);
+  }
+  return sec;
+}
+function Playlists(){
+  var sec=el("section");
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, el("div",null, el("p",{ "class":"av-eyebrow" },"Por tema ou gênero"), el("h1",{ "class":"av-h1" },"Coleções")), el("button",{ "class":"av-primary", onclick:openNewPl }, "+ Nova coleção")));
+  if(state.playlists.length===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Nenhuma coleção ainda. Crie uma para agrupar filmes e livros por tema."), el("button",{ "class":"av-primary", onclick:openNewPl }, "Criar coleção")));
+  } else {
+    var grid=el("div",{ "class":"av-grid" });
+    state.playlists.forEach(function(pl){ grid.appendChild(PlaylistCard(pl)); });
+    sec.appendChild(grid);
+  }
+  return sec;
+}
+function PlaylistDetail(){
+  var pl=state.playlists.find(function(p){return p.id===state.openPl;});
+  if(!pl){ state.screen="playlists"; return Playlists(); }
+  var s=plStats(pl.id);
+  var sec=el("section");
+  sec.appendChild(el("button",{ "class":"av-back", onclick:function(){ state.screen="playlists"; state.openPl=null; render(); } }, "← Coleções"));
+  var head=el("div",null, el("p",{ "class":"av-eyebrow" },"Coleção"), el("h1",{ "class":"av-h1" }, pl.name));
+  if(pl.tag) head.appendChild(el("div",{ "class":"av-detailtag" }, Chip(pl.tag)));
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, head, el("button",{ "class":"av-ghost", onclick:function(){ openShare("collection", pl.id, "“"+pl.name+"”"); } }, "↗ Compartilhar")));
+  if(pl.description) sec.appendChild(el("p",{ "class":"av-detaildesc" }, pl.description));
+  sec.appendChild(el("div",{ "class":"av-stats" }, el("span",null, s.count+" "+(s.count===1?"item":"itens")), el("span",{ "class":"av-dot" },"·"), el("span",{ "class":"av-statavg" },"média "+fmtAvg(s.avg)), Lamps(s.avg?Math.round(s.avg):0)));
+  if(s.list.length===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Coleção vazia. Adicione itens pela Biblioteca, no botão “+ Coleção”.")));
+  } else {
+    var grid=el("div",{ "class":"av-grid" });
+    s.list.forEach(function(it){ grid.appendChild(ItemCard(it,"playlist")); });
+    sec.appendChild(grid);
+  }
+  return sec;
+}
+function statCard(num,label,sub){ var c=el("div",{ "class":"av-stat" }, el("span",{ "class":"av-statnum" },num), el("span",{ "class":"av-statlbl" },label)); if(sub) c.appendChild(el("span",{ "class":"av-statsub" },sub)); return c; }
+function barRow(headNode,ratio,valNode){ var track=el("span",{ "class":"av-bartrack" }, el("span",{ "class":"av-barfill", style:{ width:(ratio*100)+"%" } })); return el("div",{ "class":"av-barrow" }, headNode, track, typeof valNode==="string"?el("span",{ "class":"av-barval" },valNode):valNode); }
+function Stats(){
+  var d=panorama();
+  var sec=el("section");
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, el("div",null, el("p",{ "class":"av-eyebrow" },"Seu acervo em números"), el("h1",{ "class":"av-h1" },"Panorama"))));
+  if(d.total===0 && d.wish===0 && d.doing===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Ainda não há nada para medir. Adicione filmes e livros para ver o panorama do seu acervo."), el("button",{ "class":"av-primary", onclick:openNewItem }, "Adicionar o primeiro")));
+    return sec;
+  }
+  var sg=el("div",{ "class":"av-statgrid" });
+  sg.appendChild(statCard(String(d.total),"vistos & lidos"));
+  sg.appendChild(statCard(String(d.movies),"filmes","média "+fmtAvg(d.avgMovies)));
+  sg.appendChild(statCard(String(d.books),"livros","média "+fmtAvg(d.avgBooks)));
+  sg.appendChild(el("div",{ "class":"av-stat" }, el("span",{ "class":"av-statnum" }, fmtAvg(d.avgAll)), el("span",{ "class":"av-statlbl" },"nota média"), el("span",{ "class":"av-statsub" }, Lamps(d.avgAll?Math.round(d.avgAll):0))));
+  sec.appendChild(sg);
+  if(d.doing>0) sec.appendChild(el("p",{ "class":"av-wishline" }, "Em andamento: ", el("b",null,String(d.doing)), " — "+d.doingMovies+" "+(d.doingMovies===1?"filme":"filmes")+", "+d.doingBooks+" "+(d.doingBooks===1?"livro":"livros")));
+  if(d.wish>0) sec.appendChild(el("p",{ "class":"av-wishline" }, "Lista de desejos: ", el("b",null,String(d.wish)), " — "+d.wishMovies+" "+(d.wishMovies===1?"filme":"filmes")+", "+d.wishBooks+" "+(d.wishBooks===1?"livro":"livros")));
+  if(d.total>0){
+    sec.appendChild(el("h2",{ "class":"av-h2" },"Distribuição das notas"));
+    var maxD=Math.max.apply(null,[1].concat(d.dist.map(function(x){return x.c;})));
+    var bars=el("div",{ "class":"av-bars" });
+    d.dist.forEach(function(row){ bars.appendChild(barRow(el("span",{ "class":"av-barhead" }, Lamps(row.n)), row.c/maxD, String(row.c))); });
+    sec.appendChild(bars);
+  }
+  if(d.top.length>0){
+    sec.appendChild(el("h2",{ "class":"av-h2" },"Mais bem avaliados"));
+    var tl=el("div",{ "class":"av-toplist" });
+    d.top.forEach(function(it){ var name=el("span",{ "class":"av-topname" }, it.title); if(it.subtitle) name.appendChild(el("em",null," — "+it.subtitle)); tl.appendChild(el("div",{ "class":"av-toprow" }, Cover(it,"av-topcover"), name, Lamps(it.rating))); });
+    sec.appendChild(tl);
+  }
+  if(d.byCol.length>0){
+    sec.appendChild(el("h2",{ "class":"av-h2" },"Por coleção"));
+    var maxC=Math.max.apply(null,[1].concat(d.byCol.map(function(x){return x.count;})));
+    var bars2=el("div",{ "class":"av-bars" });
+    d.byCol.forEach(function(c){ var head=el("span",{ "class":"av-barhead av-colname" }, c.name); if(c.tag) head.appendChild(el("span",{ "class":"av-coltag" }," · "+c.tag)); var val=el("span",{ "class":"av-barval" }, String(c.count)); if(c.avg!=null) val.appendChild(el("span",{ "class":"av-colavg" }," · "+fmtAvg(c.avg))); bars2.appendChild(barRow(head, c.count/maxC, val)); });
+    sec.appendChild(bars2);
+  }
+  return sec;
+}
+function Avatar(profile,lg){
+  var name=profile? (profile.display_name||profile.username||"?") : "?";
+  if(profile && profile.avatar_url){
+    return el("div",{ "class":"av-avatar av-avimg"+(lg?" lg":"") }, el("img",{ "class":"av-avimgel", src:profile.avatar_url, alt:"" }));
+  }
+  return el("div",{ "class":"av-avatar"+(lg?" lg":"") }, initialsOf(name));
+}
+function FollowButton(id){
+  if(id===state.user.id) return null;
+  var on=isFollowing(id);
+  return el("button",{ "class":(on?"av-ghost sm":"av-primary")+" av-followbtn", onclick:function(e){ e.stopPropagation(); if(on) unfollow(id); else follow(id); } }, on?"Seguindo":"Seguir");
+}
+function PersonRow(p){
+  return el("div",{ "class":"av-person clickable", onclick:function(){ openUser(p.username); } },
+    Avatar(p),
+    el("div",{ "class":"av-personmeta" },
+      el("span",{ "class":"av-personname" }, p.display_name||p.username),
+      el("span",{ "class":"av-personhandle" }, "@"+p.username)
+    ),
+    FollowButton(p.id)
+  );
+}
+function ActivityRow(it){
+  var p=state.feed.peopleById[it.user_id];
+  var st=statusOf(it);
+  var actverb = st==="done" ? "avaliou" : (st==="doing" ? (it.type==="movie"?"está assistindo":"está lendo") : (it.type==="movie"?"quer ver":"quer ler"));
+  var text=el("div",{ "class":"av-acttext" },
+    el("b",null, p?(p.display_name||p.username):"alguém"), " ",
+    el("span",{ "class":"av-actverb" }, actverb+" "), 
+    el("span",{ "class":"av-acttitle" }, it.title),
+    st==="done" ? el("span",null, "  ") : null,
+    st==="done" ? Lamps(it.rating,null,11) : null
+  );
+  var row=el("div",{ "class":"av-actrow" }, Cover(it,"av-actcover"), text);
+  if(p) row.addEventListener("click", function(){ openUser(p.username); });
+  if(p) row.style.cursor="pointer";
+  return row;
+}
+function Feed(){
+  var sec=el("section");
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, el("div",null, el("p",{ "class":"av-eyebrow" },"Rede"), el("h1",{ "class":"av-h1" },"Comunidade"))));
+  var search=el("input",{ "class":"av-search av-feedsearch", placeholder:"Buscar pessoas por @usuário…", "data-focus-id":"discover", oninput:function(e){ searchPeople(e.target.value); } });
+  search.value=state.discover.q;
+  sec.appendChild(search);
+  if(state.discover.searched){
+    if(state.discover.results.length===0){
+      sec.appendChild(el("p",{ "class":"av-secsub" }, "Ninguém encontrado com esse nome."));
+    } else {
+      var people=el("div",{ "class":"av-people" });
+      state.discover.results.forEach(function(p){ people.appendChild(PersonRow(p)); });
+      sec.appendChild(people);
+    }
+  }
+  sec.appendChild(el("h2",{ "class":"av-h2" }, "Atividade de quem você segue"));
+  if(state.feed.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
+  if(state.following.length===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Você ainda não segue ninguém. Busque pelo @usuário de alguém acima para começar.")));
+  } else if(state.feed.activity.length===0){
+    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Quem você segue ainda não registrou nada.")));
+  } else {
+    var act=el("div",{ "class":"av-activity" });
+    state.feed.activity.forEach(function(it){ act.appendChild(ActivityRow(it)); });
+    sec.appendChild(act);
+  }
+  return sec;
+}
+function CommentCard(c, own){
+  var card=el("article",{ "class":"av-commentcard" });
+  card.appendChild(el("div",{ "class":"av-commenthead" }, el("span",{ "class":"av-typetab "+(c.item_type==="movie"?"film":"book") }, c.item_type==="movie"?"Filme":"Livro"), el("span",{ "class":"av-commenttitle" }, c.title)));
+  if(c.body) card.appendChild(el("p",{ "class":"av-commentbody" }, c.body));
+  if(own) card.appendChild(el("button",{ "class":"av-ghost sm danger av-commentdel", onclick:function(){ deleteComment(c); } }, "Excluir"));
+  return card;
+}
+function UserProfile(){
+  var vu=state.viewUser;
+  var sec=el("section");
+  sec.appendChild(el("button",{ "class":"av-back", onclick:openFeed }, "← Comunidade"));
+  if(vu.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
+  if(vu.notFound){ sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Perfil não encontrado."))); return sec; }
+  var p=vu.profile;
+  var own=isOwnProfile();
+  var doneCount=vu.items.filter(function(i){return statusOf(i)==="done";}).length;
+  sec.appendChild(el("div",{ "class":"av-profhead" },
+    Avatar(p,true),
+    el("div",null,
+      el("h1",{ "class":"av-h1", style:{ fontSize:"30px" } }, p.display_name||p.username),
+      el("p",{ "class":"av-personhandle" }, "@"+p.username),
+      el("div",{ "class":"av-profcounts" },
+        el("button",{ "class":"av-countlink", onclick:function(){ openPeopleList(p.id,"followers"); } }, el("b",null,String(vu.followers)), " seguidores"),
+        el("button",{ "class":"av-countlink", onclick:function(){ openPeopleList(p.id,"following"); } }, el("b",null,String(vu.followingCount)), " seguindo"),
+        el("span",null, el("b",null,String(doneCount)), " no acervo")
+      )
+    ),
+    el("div",{ "class":"av-profactions" },
+      FollowButton(p.id),
+      el("button",{ "class":"av-ghost sm", onclick:function(){ openShare("profile", p.username, "Perfil de @"+p.username); } }, "↗ Compartilhar")
+    )
+  ));
+  sec.appendChild(el("div",{ "class":"av-statusview" },
+    el("button",{ "class":vu.tab==="acervo"?"on":"", onclick:function(){ vu.tab="acervo"; render(); } }, "Acervo"),
+    el("button",{ "class":vu.tab==="comentarios"?"on":"", onclick:function(){ vu.tab="comentarios"; render(); } }, "Comentários")
+  ));
+
+  if(vu.tab==="acervo"){
+    var done=vu.items.filter(function(i){ return statusOf(i)==="done"; }).sort(function(a,b){ return (b.createdAt||"").localeCompare(a.createdAt||""); });
+    if(done.length===0){
+      sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Nada no acervo ainda.")));
+    } else {
+      var grid=el("div",{ "class":"av-grid" });
+      done.forEach(function(it){ grid.appendChild(ItemCard(it,"view")); });
+      sec.appendChild(grid);
+    }
+    if(vu.playlists.length>0){
+      sec.appendChild(el("h2",{ "class":"av-h2" }, "Coleções"));
+      var cg=el("div",{ "class":"av-grid" });
+      vu.playlists.forEach(function(pl){
+        var list=vu.links.filter(function(l){return l.playlistId===pl.id;}).map(function(l){return vu.items.find(function(i){return i.id===l.itemId;});}).filter(Boolean);
+        var body=el("div",{ "class":"av-cardbody" });
+        body.appendChild(el("div",{ "class":"av-plhead" }, el("h4",{ "class":"av-title" }, pl.name), Chip(pl.tag)));
+        if(pl.description) body.appendChild(el("p",{ "class":"av-notes" }, pl.description));
+        body.appendChild(el("div",{ "class":"av-plmeta" }, el("span",null, list.length+" "+(list.length===1?"item":"itens"))));
+        cg.appendChild(el("article",{ "class":"av-card" }, body));
+      });
+      sec.appendChild(cg);
+    }
+  } else {
+    // comentários, separados por filme/livro
+    var bar=el("div",{ "class":"av-commentbar" });
+    bar.appendChild(el("div",{ "class":"av-seg av-commentseg" },
+      seg("Filmes", vu.commentType==="movie", function(){ vu.commentType="movie"; render(); }),
+      seg("Livros", vu.commentType==="book", function(){ vu.commentType="book"; render(); })
+    ));
+    if(own) bar.appendChild(el("button",{ "class":"av-primary", onclick:openCommentModal }, "+ Comentar"));
+    sec.appendChild(bar);
+    var list=vu.comments.filter(function(c){ return c.item_type===vu.commentType; });
+    if(list.length===0){
+      sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null, own ? "Você ainda não comentou nenhum "+(vu.commentType==="movie"?"filme":"livro")+"." : "Nenhum comentário de "+(vu.commentType==="movie"?"filmes":"livros")+" ainda.")));
+    } else {
+      var clist=el("div",{ "class":"av-commentlist" });
+      list.forEach(function(c){ clist.appendChild(CommentCard(c, own)); });
+      sec.appendChild(clist);
+    }
+  }
+  return sec;
+}
+function navBtn(label,on,onclick){ return el("button",{ "class":"av-navitem"+(on?" active":""), onclick:onclick }, label); }
+function Sidebar(){
+  var nav=el("nav",{ "class":"av-nav" },
+    navBtn("Biblioteca", state.screen==="library", function(){ go("library"); }),
+    navBtn("Coleções", state.screen==="playlists"||state.screen==="playlist", function(){ go("playlists"); }),
+    navBtn("Comunidade", state.screen==="feed"||state.screen==="user", function(){ openFeed(); }),
+    navBtn("Panorama", state.screen==="stats", function(){ go("stats"); })
+  );
+  var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
+  var foot=el("div",{ "class":"av-sidefoot" },
+    el("div",{ "class":"av-acctrow" },
+      Avatar(state.profile),
+      el("div",{ "class":"av-acctblock" },
+        el("button",{ "class":"av-sideuser av-selfname", onclick:function(){ if(state.profile) openUser(state.profile.username); } }, pname),
+        state.profile && state.profile.display_name ? el("span",{ "class":"av-sidehandle" }, "@"+state.profile.username) : null,
+        el("button",{ "class":"av-editlink", onclick:openProfile }, "editar perfil")
+      )
+    ),
+    el("span",{ "class":"av-sidesub" }, state.items.length+" registros · "+state.playlists.length+" coleções"),
+    el("div",{ "class":"av-themeseg", role:"group", "aria-label":"Tema" },
+      el("button",{ "class":state.theme==="light"?"on":"", onclick:function(){ setTheme("light"); } }, "Claro"),
+      el("button",{ "class":state.theme==="dark"?"on":"", onclick:function(){ setTheme("dark"); } }, "Escuro")
+    ),
+    el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")
+  );
+  return el("aside",{ "class":"av-side" }, el("div",{ "class":"av-brand" }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu")), nav, foot);
+}
+function Bottom(){
+  return el("nav",{ "class":"av-bottom" },
+    el("button",{ "class":state.screen==="library"?"on":"", onclick:function(){ go("library"); } }, "Biblioteca"),
+    el("button",{ "class":(state.screen==="playlists"||state.screen==="playlist")?"on":"", onclick:function(){ go("playlists"); } }, "Coleções"),
+    el("button",{ "class":(state.screen==="feed"||state.screen==="user")?"on":"", onclick:function(){ openFeed(); } }, "Rede"),
+    el("button",{ "class":state.screen==="stats"?"on":"", onclick:function(){ go("stats"); } }, "Panorama"),
+    el("button",{ "class":"av-themebtn", "aria-label":"Alternar tema", onclick:function(){ setTheme(state.theme==="dark"?"light":"dark"); } }, state.theme==="dark"?"☀":"☾")
+  );
+}
+function MobileAccount(){
+  var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
+  return el("div",{ "class":"av-mobacct" },
+    el("button",{ "class":"av-editlink", onclick:openProfile }, pname+" · editar"),
+    el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")
+  );
+}
+function Main(){
+  var main=el("main",{ "class":"av-main" });
+  main.appendChild(MobileAccount());
+  if(state.screen==="library") main.appendChild(Library());
+  else if(state.screen==="playlists") main.appendChild(Playlists());
+  else if(state.screen==="playlist") main.appendChild(PlaylistDetail());
+  else if(state.screen==="stats") main.appendChild(Stats());
+  else if(state.screen==="feed") main.appendChild(Feed());
+  else if(state.screen==="user") main.appendChild(UserProfile());
+  return main;
+}
+
+/* ===== Telas de auth / carregamento / configuração ===== */
+function AuthScreen(){
+  var isSignup = state.authMode==="signup";
+  var card=el("div",{ "class":"av-authcard" });
+  card.appendChild(el("div",{ "class":"av-brand", style:{ alignItems:"center", textAlign:"center" } }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu")));
+  card.appendChild(el("h2",{ "class":"av-authtitle" }, isSignup?"Criar conta":"Entrar"));
+  var f=state.authForm;
+  card.appendChild(el("label",{ "class":"av-label" },"E-mail"));
+  var email=el("input",{ "class":"av-input", type:"email", autocomplete:"email", placeholder:"seu@email.com", oninput:function(e){ f.email=e.target.value; } }); email.value=f.email; card.appendChild(email);
+  card.appendChild(el("label",{ "class":"av-label" },"Senha"));
+  var pass=el("input",{ "class":"av-input", type:"password", autocomplete:isSignup?"new-password":"current-password", placeholder:"senha", oninput:function(e){ f.password=e.target.value; } }); pass.value=f.password; card.appendChild(pass);
+  var username=null, display=null;
+  if(isSignup){
+    card.appendChild(el("label",{ "class":"av-label" },"Nome de usuário"));
+    username=el("input",{ "class":"av-input", placeholder:"ex: joaoferretti", oninput:function(e){ f.username=e.target.value; } }); username.value=f.username; card.appendChild(username);
+    card.appendChild(labelOpt("Nome de exibição"));
+    display=el("input",{ "class":"av-input", placeholder:"seu nome", oninput:function(e){ f.display=e.target.value; } }); display.value=f.display; card.appendChild(display);
+  }
+  if(state.authError) card.appendChild(el("p",{ "class":"av-autherr" }, state.authError));
+  var submit=el("button",{ "class":"av-primary av-authbtn", disabled:state.authBusy, onclick:function(){
+    if(isSignup) doSignup(f.email.trim(), f.password, (f.username||"").trim(), (f.display||"").trim());
+    else doLogin(f.email.trim(), f.password);
+  } }, state.authBusy?"Aguarde…":(isSignup?"Criar conta":"Entrar"));
+  card.appendChild(submit);
+  card.appendChild(el("button",{ "class":"av-authtoggle", onclick:function(){ state.authMode=isSignup?"login":"signup"; state.authError=""; render(); } }, isSignup?"Já tem conta? Entrar":"Não tem conta? Criar uma"));
+  [email,pass,username,display].forEach(function(inp){ if(inp) inp.addEventListener("keydown", function(ev){ if(ev.key==="Enter") submit.click(); }); });
+  return el("div",{ "class":"av-authwrap" }, card);
+}
+function LoadingScreen(msg){ return el("div",{ "class":"av-loadwrap" }, el("div",{ "class":"av-loading" }, msg||"carregando…")); }
+function ConfigNotice(){
+  var card=el("div",{ "class":"av-confcard" });
+  card.appendChild(el("h2",null,"Falta configurar o Supabase"));
+  card.appendChild(el("p",null,"Este arquivo precisa das chaves do seu projeto Supabase para funcionar. Abra o arquivo e, no topo do script, substitua os dois valores:"));
+  card.appendChild(el("p",null, el("code",null,"SUPABASE_URL"), " e ", el("code",null,"SUPABASE_ANON_KEY")));
+  var ol=el("ol");
+  ol.appendChild(el("li",null,"Crie um projeto em supabase.com"));
+  ol.appendChild(el("li",null,"No SQL Editor, rode o conteúdo do arquivo supabase-setup.sql"));
+  ol.appendChild(el("li",null,"Em Project Settings → API, copie a Project URL e a chave anon public"));
+  ol.appendChild(el("li",null,"Cole as duas no topo deste arquivo e publique de novo"));
+  card.appendChild(ol);
+  return el("div",{ "class":"av-confwrap" }, card);
+}
+
+/* ===== Render ===== */
+function render(){
+  var a=document.activeElement, cap=null;
+  if(a && a.getAttribute && a.getAttribute("data-focus-id")) cap={ id:a.getAttribute("data-focus-id"), s:a.selectionStart, e:a.selectionEnd };
+  var root=document.getElementById("root");
+  while(root.firstChild) root.removeChild(root.firstChild);
+  var inApp = configured && !state.share && state.authResolved && state.user && !state.loadingData;
+  root.className=(inApp?"av-root":"av-shell")+" theme-"+state.theme;
+  document.body.style.background=PAGE_BG[state.theme];
+  var meta=document.querySelector("meta[name=theme-color]"); if(meta) meta.setAttribute("content", PAGE_BG[state.theme]);
+
+  if(!configured){ root.appendChild(ConfigNotice()); return; }
+  if(state.share){ root.appendChild(SharePublic()); var smodal=Modals(); if(smodal) root.appendChild(smodal); return; }
+  if(!state.authResolved){ root.appendChild(LoadingScreen("conectando…")); return; }
+  if(!state.user){ root.appendChild(AuthScreen()); return; }
+  if(state.loadingData){ root.appendChild(LoadingScreen("carregando seu acervo…")); return; }
+
+  root.appendChild(Sidebar());
+  root.appendChild(Main());
+  root.appendChild(Bottom());
+  var modal=Modals(); if(modal) root.appendChild(modal);
+  if(state._mo && modal){ var first=modal.querySelector("input, textarea"); if(first) first.focus(); state._mo=false; }
+  else if(cap){ var n=root.querySelector('[data-focus-id="'+cap.id+'"]'); if(n){ n.focus(); try{ n.setSelectionRange(cap.s,cap.e); }catch(e2){} } }
+}
+
+window.addEventListener("keydown", function(e){
+  if(e.key==="Escape"){
+    if(state.itemModal){ state.itemModal=null; render(); }
+    else if(state.plModal){ state.plModal=null; render(); }
+    else if(state.addTo){ state.addTo=null; render(); }
+    else if(state.profileModal){ state.profileModal=null; render(); }
+    else if(state.commentModal){ state.commentModal=null; render(); }
+    else if(state.peopleModal){ state.peopleModal=null; render(); }
+    else if(state.shareModal){ state.shareModal=null; render(); }
+  }
+});
+
+async function onSignedIn(){
+  try{ await ensureProfile(); }catch(e){ console.error("perfil:", e); }
+  state.loadingData=true; render();
+  try{ await cloudFetchAll(); }catch(e){ console.error("dados:", e && e.message); }
+  try{ await loadFollowing(); }catch(e){ console.error("follows:", e && e.message); }
+  state.loadingData=false; render();
+}
+
+function init(){
+  if(configured){
+    try{
+      var params=new URLSearchParams(location.search);
+      if(params.get("c")) state.share={ type:"collection", id:params.get("c"), loading:true };
+      else if(params.get("i")) state.share={ type:"item", id:params.get("i"), loading:true };
+      else if(params.get("u")) state.share={ type:"profile", username:params.get("u"), loading:true, tab:"acervo", commentType:"movie" };
+    }catch(e){}
+  }
+  render();
+  if(!configured) return;
+  if(state.share){ loadShare(); }
+  supabase.auth.onAuthStateChange(function(event, session){
+    state.authResolved=true;
+    if(session && session.user){ state.user=session.user; onSignedIn(); }
+    else { state.user=null; state.profile=null; state.items=[]; state.playlists=[]; state.links=[]; render(); }
+  });
+  setTimeout(function(){ if(!state.authResolved){ state.authResolved=true; render(); } }, 5000);
+}
+init();
 </script>
 </body>
 </html>
