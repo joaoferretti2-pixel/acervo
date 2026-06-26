@@ -61,6 +61,16 @@ body{margin:0;background:#F2EEE3}
 .av-aveditor{display:flex;align-items:center;gap:14px;margin-bottom:2px}
 .av-avbtns{display:flex;flex-wrap:wrap;gap:8px}
 .av-acctrow{display:flex;align-items:center;gap:11px}
+.av-sharediv{height:1px;background:var(--line);margin:18px 0 16px}
+.av-pubok{color:var(--lamp);font-size:13.5px;margin:2px 0 0}
+.av-sharecard{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:10px}
+.av-sharehead{display:flex;align-items:center;gap:11px}
+.av-shareby{font-size:14px;line-height:1.3}
+.av-sharenote{margin:0;font-size:14px;color:var(--parch);line-height:1.45}
+.av-shareprev{display:flex;align-items:center;gap:11px;background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer;transition:border-color .15s}
+.av-shareprev:hover{border-color:var(--lamp)}
+.av-collcover{display:grid;place-items:center;background:var(--accent-soft);color:var(--lamp);font-size:16px}
+.av-shareopen{margin-left:auto;font-size:12.5px;color:var(--lamp);white-space:nowrap;font-weight:600}
 .av-personmeta{flex:1;min-width:0;display:flex;flex-direction:column}
 .av-personname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .av-personhandle{font-size:12.5px;color:var(--muted)}
@@ -340,17 +350,19 @@ var state = {
   user: null, profile: null, authResolved: false,
   authMode: "login", authForm: { email:"", password:"", username:"", display:"" },
   authError: "", authBusy: false, loadingData: false,
-  following: [], feed: { loading:false, activity:[], peopleById:{} },
+  following: [], feed: { loading:false, tab:"shares", activity:[], shares:[], peopleById:{} },
   discover: { q:"", results:[], searched:false },
   viewUser: null, share: null, shareModal: null
 };
 var pendingUsername = null, pendingDisplay = null;
+var COMPOSING = false;
 
 /* ===== Camada de dados (Supabase) ===== */
 function cw(promise){ Promise.resolve(promise).then(function(res){ if(res && res.error) console.error("Supabase:", res.error.message); }).catch(function(e){ console.error("Supabase:", e); }); }
 function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, synopsis:r.synopsis, createdAt:r.created_at }; }
 function rowToColl(r){ return { id:r.id, name:r.name, tag:r.tag, description:r.description, isPublic:r.is_public, createdAt:r.created_at }; }
 function rowToLink(r){ return { id:r.id, playlistId:r.collection_id, itemId:r.item_id, itemType:r.item_type }; }
+function rowToShare(r){ return { id:r.id, user_id:r.user_id, kind:r.kind, ref_id:r.ref_id, title:r.title, subtitle:r.subtitle, cover:r.cover, note:r.note, createdAt:r.created_at }; }
 function rowToComment(r){ return { id:r.id, user_id:r.user_id, item_type:r.item_type, title:r.title, body:r.body, createdAt:r.created_at }; }
 
 async function cloudFetchAll(){
@@ -461,10 +473,14 @@ function removeFromPl(plId,item){
 async function metaSearch(type, q){
   q=(q||"").trim(); if(!q) return [];
   if(type==="book"){
-    var url="https://openlibrary.org/search.json?title="+encodeURIComponent(q)+"&limit=6&fields=title,author_name,first_publish_year,cover_i,key";
-    var r=await fetch(url); var d=await r.json();
+    var make=function(pt){ return "https://openlibrary.org/search.json?q="+encodeURIComponent(q)+"&limit=6"+(pt?"&language=por":"")+"&fields=title,author_name,first_publish_year,cover_i,key,editions,editions.title,editions.cover_i"; };
+    var r=await fetch(make(true)); var d=await r.json();
+    if(!d || !d.docs || !d.docs.length){ r=await fetch(make(false)); d=await r.json(); }
     return (d.docs||[]).map(function(b){
-      return { title:b.title, name:(b.author_name&&b.author_name[0])||"", year:b.first_publish_year||"", cover: b.cover_i?("https://covers.openlibrary.org/b/id/"+b.cover_i+"-M.jpg"):"", workKey:b.key||"", synopsis:"" };
+      var ed = b.editions && b.editions.docs && b.editions.docs[0];
+      var title = (ed && ed.title) || b.title;
+      var coverId = (ed && ed.cover_i) || b.cover_i;
+      return { title:title, name:(b.author_name&&b.author_name[0])||"", year:b.first_publish_year||"", cover: coverId?("https://covers.openlibrary.org/b/id/"+coverId+"-M.jpg"):"", workKey:b.key||"", synopsis:"" };
     });
   } else {
     if(!TMDB_KEY) { var e=new Error("nokey"); e.nokey=true; throw e; }
@@ -554,13 +570,19 @@ async function openFeed(){
 }
 async function loadFeed(){
   state.feed.loading=true; render();
-  if(state.following.length===0){ state.feed.activity=[]; state.feed.peopleById={}; state.feed.loading=false; render(); return; }
+  if(state.following.length===0){ state.feed.activity=[]; state.feed.shares=[]; state.feed.peopleById={}; state.feed.loading=false; render(); return; }
   var itemsRes = await supabase.from("items").select("*").in("user_id", state.following).order("created_at",{ascending:false}).limit(40);
+  var sharesRes = await supabase.from("shares").select("*").in("user_id", state.following).order("created_at",{ascending:false}).limit(40);
   var profRes = await supabase.from("profiles").select("id,username,display_name,avatar_url").in("id", state.following);
   var byId={}; (profRes.data||[]).forEach(function(p){ byId[p.id]=p; });
   state.feed.peopleById = byId;
   state.feed.activity = (itemsRes.data||[]).map(rowToItem).map(function(it, i){ var raw=(itemsRes.data||[])[i]; it.user_id = raw.user_id; return it; });
+  state.feed.shares = (sharesRes.data||[]).map(rowToShare);
   state.feed.loading=false; render();
+}
+function openSharedView(kind, refId){
+  state.share={ type:kind, id:refId, loading:true, fromFeed:true };
+  render(); loadShare();
 }
 async function openUser(username){
   state.screen="user";
@@ -631,7 +653,17 @@ async function openPeopleList(profileId, mode){
 
 /* ===== Compartilhar por link ===== */
 function shareLink(type, id){ return location.origin + location.pathname + "?" + (type==="collection"?"c":(type==="item"?"i":"u")) + "=" + id; }
-function openShare(type, id, label){ state.shareModal={ url:shareLink(type,id), label:label, copied:false }; render(); }
+function openShare(type, id, label, meta){ state.shareModal={ url:shareLink(type,id), label:label, copied:false, kind:type, refId:id, meta:meta||null, note:"", publishing:false, published:false, pubError:"" }; render(); }
+async function publishShare(){
+  var sm=state.shareModal; if(!sm || !sm.meta) return;
+  sm.publishing=true; sm.pubError=""; render();
+  var id=newId();
+  var res=await supabase.from("shares").insert({ id:id, user_id:state.user.id, kind:sm.kind, ref_id:sm.refId, title:sm.meta.title||"", subtitle:sm.meta.subtitle||"", cover:sm.meta.cover||"", note:(sm.note||"").trim() });
+  sm.publishing=false;
+  if(res && res.error){ sm.pubError="Não foi possível publicar agora."; }
+  else { sm.published=true; }
+  render();
+}
 function exitShare(){ location.search=""; }
 async function loadShare(){
   var sh=state.share;
@@ -819,7 +851,7 @@ function ItemCard(item,context){
       foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ moveStatus(item,"done",true); } }, "✓ Concluir"));
     }
     foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ state.addTo=item; render(); } }, "+ Coleção"));
-    foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ openShare("item", item.id, "“"+item.title+"”"); } }, "↗"));
+    foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ openShare("item", item.id, "“"+item.title+"”", { title:item.title, subtitle:item.subtitle||"", cover:item.cover||"" }); } }, "↗"));
   }
   foot.appendChild(el("button",{ "class":"av-ghost sm", onclick:function(){ openEditItem(item); } }, "Editar"));
   if(context==="library") foot.appendChild(el("button",{ "class":"av-ghost sm danger", onclick:function(){ deleteItem(item); } }, "Excluir"));
@@ -1018,6 +1050,19 @@ function ShareModal(){
     else { try{document.execCommand("copy");}catch(e){} done(); }
   } }, sm.copied?"Copiado ✓":"Copiar link");
   body.appendChild(copyBtn);
+  if(sm.meta && (sm.kind==="item" || sm.kind==="collection")){
+    body.appendChild(el("div",{ "class":"av-sharediv" }));
+    body.appendChild(el("p",{ "class":"av-label", style:{ margin:"0 0 7px" } }, "Publicar no feed"));
+    body.appendChild(el("p",{ "class":"av-fieldhint", style:{ margin:"0 0 9px" } }, "Aparece para quem te segue, na aba Comunidade."));
+    if(sm.published){
+      body.appendChild(el("p",{ "class":"av-pubok" }, "Publicado no seu feed ✓"));
+    } else {
+      var note=el("textarea",{ "class":"av-input av-area", rows:2, "data-focus-id":"share-note", placeholder:"escreva algo (opcional)…", oninput:function(e){ sm.note=e.target.value; } });
+      note.value=sm.note||""; body.appendChild(note);
+      if(sm.pubError) body.appendChild(el("p",{ "class":"av-metaerr" }, sm.pubError));
+      body.appendChild(el("button",{ "class":"av-ghost", style:{ marginTop:"10px", width:"100%" }, disabled:sm.publishing, onclick:publishShare }, sm.publishing?"Publicando…":"↗ Publicar no feed"));
+    }
+  }
   return ModalShell("Compartilhar", close, body, null);
 }
 function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); if(state.commentModal) return CommentModal(); if(state.peopleModal) return PeopleModal(); if(state.shareModal) return ShareModal(); return null; }
@@ -1026,7 +1071,7 @@ function SharePublic(){
   var wrap=el("div",{ "class":"av-sharewrap" });
   wrap.appendChild(el("div",{ "class":"av-sharetop" },
     el("span",{ "class":"av-logo" }, "Acervo"),
-    el("button",{ "class":"av-ghost sm", onclick:exitShare }, "Abrir o Acervo")
+    el("button",{ "class":"av-ghost sm", onclick: (sh.fromFeed ? function(){ state.share=null; state.screen="feed"; render(); } : exitShare) }, sh.fromFeed ? "← Voltar" : "Abrir o Acervo")
   ));
   if(sh.loading){ wrap.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return el("div",{ "class":"av-sharepage" }, wrap); }
   if(sh.notFound){ wrap.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Esse link não existe mais."))); return el("div",{ "class":"av-sharepage" }, wrap); }
@@ -1170,7 +1215,7 @@ function PlaylistDetail(){
   sec.appendChild(el("button",{ "class":"av-back", onclick:function(){ state.screen="playlists"; state.openPl=null; render(); } }, "← Coleções"));
   var head=el("div",null, el("p",{ "class":"av-eyebrow" },"Coleção"), el("h1",{ "class":"av-h1" }, pl.name));
   if(pl.tag) head.appendChild(el("div",{ "class":"av-detailtag" }, Chip(pl.tag)));
-  sec.appendChild(el("div",{ "class":"av-screenhead" }, head, el("button",{ "class":"av-ghost", onclick:function(){ openShare("collection", pl.id, "“"+pl.name+"”"); } }, "↗ Compartilhar")));
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, head, el("button",{ "class":"av-ghost", onclick:function(){ openShare("collection", pl.id, "“"+pl.name+"”", { title:pl.name, subtitle:pl.tag||"", cover:"" }); } }, "↗ Compartilhar")));
   if(pl.description) sec.appendChild(el("p",{ "class":"av-detaildesc" }, pl.description));
   sec.appendChild(el("div",{ "class":"av-stats" }, el("span",null, s.count+" "+(s.count===1?"item":"itens")), el("span",{ "class":"av-dot" },"·"), el("span",{ "class":"av-statavg" },"média "+fmtAvg(s.avg)), Lamps(s.avg?Math.round(s.avg):0)));
   if(s.list.length===0){
@@ -1275,18 +1320,56 @@ function Feed(){
       sec.appendChild(people);
     }
   }
-  sec.appendChild(el("h2",{ "class":"av-h2" }, "Atividade de quem você segue"));
+  sec.appendChild(el("div",{ "class":"av-statusview" },
+    el("button",{ "class":state.feed.tab==="shares"?"on":"", onclick:function(){ state.feed.tab="shares"; render(); } }, "Compartilhados"),
+    el("button",{ "class":state.feed.tab==="activity"?"on":"", onclick:function(){ state.feed.tab="activity"; render(); } }, "Atividade")
+  ));
   if(state.feed.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
   if(state.following.length===0){
     sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Você ainda não segue ninguém. Busque pelo @usuário de alguém acima para começar.")));
-  } else if(state.feed.activity.length===0){
-    sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Quem você segue ainda não registrou nada.")));
+    return sec;
+  }
+  if(state.feed.tab==="shares"){
+    if(state.feed.shares.length===0){
+      sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Ninguém que você segue compartilhou nada ainda. Quando compartilharem um título ou coleção, aparece aqui.")));
+    } else {
+      var sl=el("div",{ "class":"av-activity" });
+      state.feed.shares.forEach(function(s){ sl.appendChild(ShareCard(s)); });
+      sec.appendChild(sl);
+    }
   } else {
-    var act=el("div",{ "class":"av-activity" });
-    state.feed.activity.forEach(function(it){ act.appendChild(ActivityRow(it)); });
-    sec.appendChild(act);
+    if(state.feed.activity.length===0){
+      sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Quem você segue ainda não registrou nada.")));
+    } else {
+      var act=el("div",{ "class":"av-activity" });
+      state.feed.activity.forEach(function(it){ act.appendChild(ActivityRow(it)); });
+      sec.appendChild(act);
+    }
   }
   return sec;
+}
+function ShareCard(s){
+  var p=state.feed.peopleById[s.user_id];
+  var head=el("div",{ "class":"av-sharehead" },
+    Avatar(p),
+    el("div",{ "class":"av-shareby" },
+      el("span",null, el("b",null, p?(p.display_name||p.username):"alguém"), el("span",{ "class":"av-actverb" }, " compartilhou "+(s.kind==="collection"?"uma coleção":"um título")))
+    )
+  );
+  if(p){ head.style.cursor="pointer"; head.addEventListener("click", function(e){ e.stopPropagation(); openUser(p.username); }); }
+  var card=el("article",{ "class":"av-sharecard" });
+  card.appendChild(head);
+  if(s.note) card.appendChild(el("p",{ "class":"av-sharenote" }, s.note));
+  var prev=el("div",{ "class":"av-shareprev", onclick:function(){ openSharedView(s.kind, s.ref_id); } },
+    s.kind==="item" ? Cover({ title:s.title||"?", cover:s.cover }, "av-actcover") : el("div",{ "class":"av-actcover av-collcover" }, "▦"),
+    el("div",{ "class":"av-metainfo" },
+      el("span",{ "class":"av-metatitle" }, s.title||"(sem título)"),
+      s.subtitle ? el("span",{ "class":"av-metasub" }, s.subtitle) : null
+    ),
+    el("span",{ "class":"av-shareopen" }, "ver →")
+  );
+  card.appendChild(prev);
+  return card;
 }
 function CommentCard(c, own){
   var card=el("article",{ "class":"av-commentcard" });
@@ -1316,7 +1399,7 @@ function UserProfile(){
       )
     ),
     el("div",{ "class":"av-profactions" },
-      FollowButton(p.id),
+      own ? el("button",{ "class":"av-primary av-followbtn", onclick:openProfile }, "Editar perfil") : FollowButton(p.id),
       el("button",{ "class":"av-ghost sm", onclick:function(){ openShare("profile", p.username, "Perfil de @"+p.username); } }, "↗ Compartilhar")
     )
   ));
@@ -1467,6 +1550,7 @@ function ConfigNotice(){
 
 /* ===== Render ===== */
 function render(){
+  if(COMPOSING) return;
   var a=document.activeElement, cap=null;
   if(a && a.getAttribute && a.getAttribute("data-focus-id")) cap={ id:a.getAttribute("data-focus-id"), s:a.selectionStart, e:a.selectionEnd };
   var root=document.getElementById("root");
@@ -1511,6 +1595,8 @@ async function onSignedIn(){
 }
 
 function init(){
+  document.addEventListener("compositionstart", function(){ COMPOSING=true; });
+  document.addEventListener("compositionend", function(){ COMPOSING=false; render(); });
   if(configured){
     try{
       var params=new URLSearchParams(location.search);
