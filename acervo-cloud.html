@@ -87,6 +87,18 @@ body{margin:0;background:#F2EEE3}
 .av-sharepage{min-height:100vh;display:flex;justify-content:center;padding:34px 22px 90px}
 .av-sharewrap{width:100%;max-width:1040px}
 .av-sharetop{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.av-metabtn{margin-top:9px;width:100%;background:var(--accent-soft);color:var(--lamp);border:1px solid var(--accent-line);cursor:pointer;font:inherit;font-weight:600;font-size:13.5px;padding:9px;border-radius:8px;transition:background .15s,color .15s}
+.av-metabtn:hover:not(:disabled){background:var(--lamp);color:var(--tab-dark)}
+.av-metabtn:disabled{opacity:.5;cursor:not-allowed}
+.av-metaerr{margin:9px 0 0;font-size:13px;color:var(--muted)}
+.av-metalist{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:260px;overflow:auto}
+.av-metarow{display:flex;align-items:center;gap:11px;background:var(--raised);border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer;text-align:left;font:inherit;color:var(--parch);transition:border-color .15s}
+.av-metarow:hover{border-color:var(--lamp)}
+.av-metathumb{width:34px;flex:none;aspect-ratio:2/3;border-radius:4px;object-fit:cover;border:1px solid var(--line);background:var(--ink)}
+.av-metaph{background:var(--line)}
+.av-metainfo{display:flex;flex-direction:column;min-width:0}
+.av-metatitle{font-family:'Fraunces',serif;font-weight:600;font-size:15px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-metasub{font-size:12.5px;color:var(--muted)}
 .av-themeseg{display:inline-flex;align-self:flex-start;background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:3px;gap:3px}
 .av-themeseg button{background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:color .15s,background .15s}
 .av-themeseg button.on{color:var(--tab-dark);background:var(--lamp)}
@@ -124,6 +136,8 @@ body{margin:0;background:#F2EEE3}
 .av-sub{margin:-2px 0 0;font-family:'Fraunces',serif;font-style:italic;font-size:13.5px;color:var(--muted)}
 .av-cardrate{margin-top:2px}
 .av-notes{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.av-synopsis{margin:0;font-family:'Fraunces',serif;font-style:italic;font-size:13.5px;color:var(--muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.av-notelabel{font-family:'Hanken Grotesk',sans-serif;font-style:normal;font-weight:600;color:var(--parch)}
 .av-cardfoot{display:flex;gap:6px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
 .av-cover{position:relative;width:78px;flex:none;aspect-ratio:2/3;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--raised)}
 .av-cover img{width:100%;height:100%;object-fit:cover;display:block}
@@ -264,6 +278,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = "https://ervbyniwqikjyivmtnvd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_iVyfGPpwSsNewZumZynhUQ_q654koTV";
 
+/* Chave do TMDB para preencher dados de filmes automaticamente (opcional).
+   Pegue grátis em themoviedb.org → Settings → API → "API Key (v3 auth)".
+   Livros funcionam sem isto. */
+const TMDB_KEY = "ee0e196c08dd46bd0eb92a780dfde46d";
+
 const configured = SUPABASE_URL.indexOf("supabase.co") >= 0 && SUPABASE_ANON_KEY.length > 30;
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -324,7 +343,7 @@ var pendingUsername = null, pendingDisplay = null;
 
 /* ===== Camada de dados (Supabase) ===== */
 function cw(promise){ Promise.resolve(promise).then(function(res){ if(res && res.error) console.error("Supabase:", res.error.message); }).catch(function(e){ console.error("Supabase:", e); }); }
-function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, createdAt:r.created_at }; }
+function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, synopsis:r.synopsis, createdAt:r.created_at }; }
 function rowToColl(r){ return { id:r.id, name:r.name, tag:r.tag, description:r.description, isPublic:r.is_public, createdAt:r.created_at }; }
 function rowToLink(r){ return { id:r.id, playlistId:r.collection_id, itemId:r.item_id, itemType:r.item_type }; }
 function rowToComment(r){ return { id:r.id, user_id:r.user_id, item_type:r.item_type, title:r.title, body:r.body, createdAt:r.created_at }; }
@@ -369,21 +388,21 @@ async function ensureProfile(){
 function go(screen){ state.screen=screen; if(screen!=="playlist") state.openPl=null; render(); }
 function setTheme(t){ state.theme=t; saveTheme(t); render(); }
 
-function openNewItem(){ state.itemModal={mode:"new", draft:{type:state.tab, status:state.statusView, title:"", subtitle:"", cover:"", rating:0, notes:""}}; state._mo=true; render(); }
+function openNewItem(){ state.itemModal={mode:"new", draft:{type:state.tab, status:state.statusView, title:"", subtitle:"", cover:"", rating:0, notes:"", synopsis:""}}; state._mo=true; render(); }
 function openEditItem(it){ state.itemModal={mode:"edit", draft:Object.assign({},it)}; state._mo=true; render(); }
 function closeItem(){ state.itemModal=null; render(); }
 function updateDraft(f,v){ state.itemModal.draft[f]=v; render(); }
 function saveItem(){
   var dr=state.itemModal.draft; if(!dr.title.trim()) return;
-  var clean={ title:dr.title.trim(), subtitle:dr.subtitle||"", cover:(dr.cover||"").trim(), type:dr.type, status:dr.status, rating: dr.status==="done"?dr.rating:0, notes:dr.notes||"" };
+  var clean={ title:dr.title.trim(), subtitle:dr.subtitle||"", cover:(dr.cover||"").trim(), type:dr.type, status:dr.status, rating: dr.status==="done"?dr.rating:0, notes:dr.notes||"", synopsis:dr.synopsis||"" };
   if(state.itemModal.mode==="new"){
     var id=newId();
     state.items.unshift(Object.assign({id:id, createdAt:new Date().toISOString()}, clean));
-    cw(supabase.from("items").insert({ id:id, user_id:state.user.id, type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes }));
+    cw(supabase.from("items").insert({ id:id, user_id:state.user.id, type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }));
   } else {
     var pid=dr.id;
     state.items=state.items.map(function(x){ return x.id===pid?Object.assign({},x,clean):x; });
-    cw(supabase.from("items").update({ type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes }).eq("id",pid));
+    cw(supabase.from("items").update({ type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }).eq("id",pid));
   }
   state.itemModal=null; render();
 }
@@ -430,6 +449,70 @@ function toggleLink(plId,item){
 function removeFromPl(plId,item){
   state.links=state.links.filter(function(l){return !(l.playlistId===plId&&l.itemId===item.id);});
   cw(supabase.from("collection_items").delete().eq("collection_id",plId).eq("item_id",item.id));
+  render();
+}
+
+/* ===== Preenchimento automático (capa, autor/direção, ano) ===== */
+async function metaSearch(type, q){
+  q=(q||"").trim(); if(!q) return [];
+  if(type==="book"){
+    var url="https://openlibrary.org/search.json?title="+encodeURIComponent(q)+"&limit=6&fields=title,author_name,first_publish_year,cover_i,key";
+    var r=await fetch(url); var d=await r.json();
+    return (d.docs||[]).map(function(b){
+      return { title:b.title, name:(b.author_name&&b.author_name[0])||"", year:b.first_publish_year||"", cover: b.cover_i?("https://covers.openlibrary.org/b/id/"+b.cover_i+"-M.jpg"):"", workKey:b.key||"", synopsis:"" };
+    });
+  } else {
+    if(!TMDB_KEY) { var e=new Error("nokey"); e.nokey=true; throw e; }
+    var u="https://api.themoviedb.org/3/search/movie?api_key="+TMDB_KEY+"&language=pt-BR&include_adult=false&query="+encodeURIComponent(q);
+    var rr=await fetch(u); var dd=await rr.json();
+    return (dd.results||[]).slice(0,6).map(function(m){
+      return { id:m.id, title:m.title, name:"", year:(m.release_date||"").slice(0,4), cover: m.poster_path?("https://image.tmdb.org/t/p/w342"+m.poster_path):"", synopsis:(m.overview||"") };
+    });
+  }
+}
+async function fetchDirector(id){
+  if(!TMDB_KEY) return "";
+  try{
+    var r=await fetch("https://api.themoviedb.org/3/movie/"+id+"/credits?api_key="+TMDB_KEY);
+    var d=await r.json();
+    return (d.crew||[]).filter(function(c){ return c.job==="Director"; }).map(function(c){ return c.name; }).join(", ");
+  }catch(e){ return ""; }
+}
+async function runMetaSearch(){
+  var im=state.itemModal; if(!im) return;
+  var q=im.draft.title;
+  im.search={ busy:true, results:[], error:"" }; render();
+  try{
+    var res=await metaSearch(im.draft.type, q);
+    im.search={ busy:false, results:res, error: res.length?"":"Nada encontrado. Tente outro título." };
+  }catch(e){
+    im.search={ busy:false, results:[], error: e && e.nokey ? "Para filmes, configure a chave do TMDB no arquivo (livros já funcionam)." : "Não foi possível buscar agora." };
+  }
+  render();
+}
+async function pickMeta(res){
+  var im=state.itemModal; if(!im) return;
+  var sub=res.name||"";
+  if(im.draft.type==="movie"){
+    var dir = res.id ? await fetchDirector(res.id) : "";
+    sub = [dir, res.year].filter(Boolean).join(", ");
+    if(res.synopsis) im.draft.synopsis=res.synopsis;
+  } else {
+    sub = [res.name, res.year].filter(Boolean).join(", ");
+    if(res.workKey){
+      try{
+        var wr=await fetch("https://openlibrary.org"+res.workKey+".json");
+        var wd=await wr.json();
+        var desc=wd.description;
+        if(desc && typeof desc==="object") desc=desc.value;
+        if(desc) im.draft.synopsis=String(desc).replace(/\r/g,"").split("----------")[0].trim();
+      }catch(e){}
+    }
+  }
+  im.draft.title=res.title || im.draft.title;
+  im.draft.subtitle=sub;
+  if(res.cover) im.draft.cover=res.cover;
+  im.search=null;
   render();
 }
 
@@ -681,7 +764,8 @@ function ItemCard(item,context){
   body.appendChild(el("h4",{ "class":"av-title" }, item.title));
   if(item.subtitle) body.appendChild(el("p",{ "class":"av-sub" }, item.subtitle));
   if(st==="done") body.appendChild(el("div",{ "class":"av-cardrate" }, Lamps(item.rating)));
-  if(item.notes) body.appendChild(el("p",{ "class":"av-notes" }, item.notes));
+  if(item.synopsis) body.appendChild(el("p",{ "class":"av-synopsis" }, item.synopsis));
+  if(item.notes) body.appendChild(el("p",{ "class":"av-notes" }, el("span",{ "class":"av-notelabel" },"Sua nota: "), item.notes));
   var foot=el("div",{ "class":"av-cardfoot" });
   if(context==="view"){
     return el("article",{ "class":"av-card" }, Cover(item), body);
@@ -726,6 +810,7 @@ function ModalShell(title,onClose,bodyNode,footNode){
   return back;
 }
 function ItemModal(){
+  var im=state.itemModal;
   var dr=state.itemModal.draft;
   var body=el("div",{ "class":"av-modalbody" });
   body.appendChild(el("label",{ "class":"av-label" },"Tipo"));
@@ -738,6 +823,22 @@ function ItemModal(){
   ));
   body.appendChild(el("label",{ "class":"av-label" },"Título"));
   body.appendChild(inputField("f-title",dr.title, dr.type==="movie"?"ex: Cinema Paradiso":"ex: Noites Brancas", function(v){updateDraft("title",v);}));
+  var sr=im.search;
+  body.appendChild(el("button",{ "class":"av-metabtn", disabled: (sr&&sr.busy) || !dr.title.trim(), onclick:runMetaSearch },
+    (sr&&sr.busy) ? "buscando…" : ("🔍 Preencher "+(dr.type==="movie"?"direção, ano e capa":"autor, ano e capa"))));
+  if(sr && sr.error) body.appendChild(el("p",{ "class":"av-metaerr" }, sr.error));
+  if(sr && sr.results && sr.results.length){
+    var rl=el("div",{ "class":"av-metalist" });
+    sr.results.forEach(function(res){
+      var thumb = res.cover ? el("img",{ "class":"av-metathumb", src:res.cover, alt:"" }) : el("div",{ "class":"av-metathumb av-metaph" });
+      var meta=[res.name, res.year].filter(Boolean).join(" · ");
+      rl.appendChild(el("button",{ "class":"av-metarow", onclick:function(){ pickMeta(res); } },
+        thumb,
+        el("div",{ "class":"av-metainfo" }, el("span",{ "class":"av-metatitle" }, res.title), meta?el("span",{ "class":"av-metasub" }, meta):null)
+      ));
+    });
+    body.appendChild(rl);
+  }
   body.appendChild(labelOpt(dr.type==="movie"?"Direção ou ano":"Autor"));
   body.appendChild(inputField("f-sub",dr.subtitle, dr.type==="movie"?"ex: Tornatore, 1988":"ex: Dostoiévski", function(v){updateDraft("subtitle",v);}));
   body.appendChild(labelOpt("Capa","URL da imagem, opcional"));
@@ -746,6 +847,9 @@ function ItemModal(){
     body.appendChild(el("label",{ "class":"av-label" },"Nota"));
     body.appendChild(Lamps(dr.rating, function(v){updateDraft("rating",v);}, 20, true));
   }
+  body.appendChild(labelOpt("Sinopse","preenchida pela busca, editável"));
+  var sy=el("textarea",{ "class":"av-input av-area", rows:3, "data-focus-id":"f-syn", placeholder:"resumo do enredo", oninput:function(e){updateDraft("synopsis",e.target.value);} });
+  sy.value=dr.synopsis||""; body.appendChild(sy);
   var notesPh = dr.status==="wish" ? "por que quer ver/ler…" : (dr.status==="doing" ? "o que está achando até agora…" : "o que ficou de você…");
   body.appendChild(labelOpt("Observação"));
   var ta=el("textarea",{ "class":"av-input av-area", rows:3, "data-focus-id":"f-notes", placeholder:notesPh, oninput:function(e){updateDraft("notes",e.target.value);} });
