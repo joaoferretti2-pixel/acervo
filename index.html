@@ -439,7 +439,7 @@ var state = {
   following: [], feed: { loading:false, tab:"shares", activity:[], shares:[], peopleById:{}, likes:{} }, feedNew:false,
   discover: { q:"", results:[], searched:false },
   viewUser: null, share: null, shareModal: null,
-  recs: { loading:false, loaded:false, films:[], books:[], error:"" },
+  recs: { loading:false, loaded:false, films:[], series:[], books:[], error:"" },
   fbModal: null, importModal: null, goalEdit: null, installModal: null, pwModal: null, authNotice:"",
   admin: { loading:false, loaded:false, total:null, active:0, activeIds:{}, recent:[] },
   suggest: { loading:false, loaded:false, people:[] }
@@ -709,6 +709,13 @@ async function tmdbRecsFor(title){
   var r=await fetch("https://api.themoviedb.org/3/movie/"+m.id+"/recommendations?api_key="+TMDB_KEY+"&language=pt-BR");
   var rd=await r.json(); return rd.results||[];
 }
+async function tmdbRecsForTv(title){
+  if(!TMDB_KEY) return [];
+  var s=await fetch("https://api.themoviedb.org/3/search/tv?api_key="+TMDB_KEY+"&language=pt-BR&include_adult=false&query="+encodeURIComponent(title));
+  var sd=await s.json(); var m=(sd.results||[])[0]; if(!m) return [];
+  var r=await fetch("https://api.themoviedb.org/3/tv/"+m.id+"/recommendations?api_key="+TMDB_KEY+"&language=pt-BR");
+  var rd=await r.json(); return rd.results||[];
+}
 async function loadDiscover(force){
   var dv=state.recs;
   if(dv.loading || (dv.loaded && !force)) return;
@@ -729,6 +736,18 @@ async function loadDiscover(force){
     }
     films.sort(function(a,b){ return b.pop-a.pop; });
     dv.films=films.slice(0,12);
+    var seedT=state.items.filter(function(i){ return i.type==="tv" && i.status==="done"; }).sort(byRating).slice(0,3);
+    var series=[], seenT={};
+    for(var k=0;k<seedT.length;k++){
+      var recsT=await tmdbRecsForTv(seedT[k].title);
+      recsT.slice(0,10).forEach(function(m){
+        if(seenT[m.id] || owned[normTitle(m.name)]) return;
+        seenT[m.id]=1;
+        series.push({ title:m.name, sub:(m.first_air_date||"").slice(0,4), cover:m.poster_path?("https://image.tmdb.org/t/p/w342"+m.poster_path):"", synopsis:m.overview||"", seed:seedT[k].title, pop:m.popularity||0 });
+      });
+    }
+    series.sort(function(a,b){ return b.pop-a.pop; });
+    dv.series=series.slice(0,12);
     var allDoneB=state.items.filter(function(i){ return i.type==="book" && i.status==="done"; }).sort(byRating);
     var authors=[];
     allDoneB.forEach(function(b){
@@ -2136,10 +2155,10 @@ function RecCard(rec, type){
   body.appendChild(el("h4",{ "class":"av-title" }, rec.title));
   if(rec.sub) body.appendChild(el("p",{ "class":"av-notes" }, rec.sub));
   if(rec.synopsis) body.appendChild(el("p",{ "class":"av-synopsis" }, rec.synopsis.length>180 ? rec.synopsis.slice(0,180).trim()+"…" : rec.synopsis));
-  body.appendChild(el("span",{ "class":"av-recseed" }, "porque você "+(type==="movie"?"viu":"leu")+" “"+rec.seed+"”"));
+  body.appendChild(el("span",{ "class":"av-recseed" }, "porque você "+(type==="book"?"leu":"viu")+" “"+rec.seed+"”"));
   var foot=el("div",{ "class":"av-cardfoot" });
   if(rec.added) foot.appendChild(el("button",{ "class":"av-ghost sm", disabled:true }, "✓ Na lista de desejos"));
-  else foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ recAdd(rec, type); } }, type==="movie"?"+ Quero ver":"+ Quero ler"));
+  else foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ recAdd(rec, type); } }, type==="book"?"+ Quero ler":"+ Quero ver"));
   body.appendChild(foot);
   return el("article",{ "class":"av-card" }, Cover({ cover:rec.cover, type:type, title:rec.title }), body);
 }
@@ -2163,6 +2182,12 @@ function Discover(){
     dv.films.forEach(function(r){ gf.appendChild(RecCard(r,"movie")); });
     sec.appendChild(gf);
   }
+  if(dv.series.length){
+    sec.appendChild(el("div",{ "class":"av-dischead" }, el("h3",null,"Séries para você")));
+    var gt=el("div",{ "class":"av-grid" });
+    dv.series.forEach(function(r){ gt.appendChild(RecCard(r,"tv")); });
+    sec.appendChild(gt);
+  }
   if(dv.books.length){
     sec.appendChild(el("div",{ "class":"av-dischead" }, el("h3",null,"Livros para você")));
     var gb=el("div",{ "class":"av-grid" });
@@ -2172,7 +2197,7 @@ function Discover(){
   if(dv.loaded && !dv.books.length && dv.noBookSeeds){
     sec.appendChild(el("p",{ "class":"av-wishline" },"Para receber sugestões de livros, preencha o autor dos seus livros concluídos (a busca automática faz isso por você)."));
   }
-  if(dv.loaded && !dv.films.length && !dv.books.length && !dv.error){
+  if(dv.loaded && !dv.films.length && !dv.series.length && !dv.books.length && !dv.error){
     sec.appendChild(el("p",{ "class":"av-wishline" },"Ainda não encontrei sugestões novas — avalie mais itens concluídos e tente atualizar."));
   }
   return sec;
