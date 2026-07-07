@@ -502,21 +502,33 @@ var META_TIMER=null;
 async function metaSearch(type, q){
   q=(q||"").trim(); if(!q) return [];
   if(type==="book"){
-    var make=function(pt){ return "https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent(q)+"&printType=books&maxResults=8"+(pt?"&langRestrict=pt":""); };
-    var r=await fetch(make(true)); var d=await r.json();
-    var items=(d && d.items)||[];
-    if(items.length<4){
-      try{
-        var r2=await fetch(make(false)); var d2=await r2.json();
-        var seen={}; items.forEach(function(v){ seen[v.id]=1; });
-        ((d2 && d2.items)||[]).forEach(function(v){ if(!seen[v.id]){ seen[v.id]=1; items.push(v); } });
-      }catch(e2){}
-    }
-    return items.slice(0,8).map(function(v){
+    var enc=encodeURIComponent;
+    var urls=[
+      "https://www.googleapis.com/books/v1/volumes?q="+enc(q)+"&langRestrict=pt&printType=books&maxResults=10",
+      "https://www.googleapis.com/books/v1/volumes?q="+enc(q)+"&printType=books&maxResults=10",
+      "https://openlibrary.org/search.json?q="+enc(q)+"&limit=10&fields=title,author_name,first_publish_year,cover_i,key"
+    ];
+    var rs=await Promise.all(urls.map(function(u){ return fetch(u).then(function(r){ return r.json(); }).catch(function(){ return null; }); }));
+    var mapG=function(v){
       var vi=v.volumeInfo||{};
       var img=(vi.imageLinks && (vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail))||"";
-      return { gbId:v.id, title:vi.title||"", name:(vi.authors&&vi.authors.join(", "))||"", year:(vi.publishedDate||"").slice(0,4), cover: img.replace(/^http:/,"https:"), synopsis: stripHtml(vi.description||"") };
+      return { gbId:v.id, lang:vi.language||"", title:vi.title||"", name:(vi.authors&&vi.authors.join(", "))||"", year:(vi.publishedDate||"").slice(0,4), cover: img.replace(/^http:/,"https:"), synopsis: stripHtml(vi.description||"") };
+    };
+    var out=[], seen={};
+    var push=function(r){
+      if(!r.title) return;
+      var k=normTitle(r.title)+"|"+normTitle(r.name);
+      if(seen[k]) return; seen[k]=1; out.push(r);
+    };
+    var g1=(((rs[0]||{}).items)||[]).map(mapG);
+    var g2=(((rs[1]||{}).items)||[]).map(mapG);
+    g1.forEach(push);
+    g2.filter(function(r){ return r.lang==="pt"; }).forEach(push);
+    g2.forEach(push);
+    ((((rs[2]||{}).docs))||[]).forEach(function(b){
+      push({ workKey:b.key||"", title:b.title||"", name:(b.author_name&&b.author_name[0])||"", year:b.first_publish_year||"", cover: b.cover_i?("https://covers.openlibrary.org/b/id/"+b.cover_i+"-M.jpg"):"", synopsis:"" });
     });
+    return out.slice(0,10);
   } else {
     if(!TMDB_KEY) { var e=new Error("nokey"); e.nokey=true; throw e; }
     var u="https://api.themoviedb.org/3/search/movie?api_key="+TMDB_KEY+"&language=pt-BR&include_adult=false&query="+encodeURIComponent(q);
@@ -562,6 +574,15 @@ async function pickMeta(res){
         var wd=await wr.json();
         var desc=(wd.volumeInfo && wd.volumeInfo.description)||"";
         if(desc) im.draft.synopsis=stripHtml(desc);
+      }catch(e){}
+    }
+    else if(res.workKey){
+      try{
+        var or_=await fetch("https://openlibrary.org"+res.workKey+".json");
+        var od=await or_.json();
+        var odesc=od.description;
+        if(odesc && typeof odesc==="object") odesc=odesc.value;
+        if(odesc) im.draft.synopsis=String(odesc).replace(/\r/g,"").split("----------")[0].trim();
       }catch(e){}
     }
   }
