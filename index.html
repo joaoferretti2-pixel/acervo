@@ -2001,7 +2001,6 @@ function CommentCard(c, own){
 function UserProfile(){
   var vu=state.viewUser;
   var sec=el("section");
-  if(!isOwnProfileOpen()) sec.appendChild(el("button",{ "class":"av-back", onclick:openFeed }, "← Comunidade"));
   if(vu.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
   if(vu.notFound){ sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Perfil não encontrado."))); return sec; }
   var p=vu.profile;
@@ -2145,7 +2144,7 @@ function Sidebar(){
   var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
   var foot=el("div",{ "class":"av-sidefoot" },
     el("div",{ "class":"av-acctrow" },
-      Avatar(state.profile),
+      (function(){ var av=Avatar(state.profile); av.style.cursor="pointer"; av.setAttribute("role","button"); av.setAttribute("aria-label","Abrir meu perfil"); av.addEventListener("click", function(){ if(state.profile) openUser(state.profile.username); }); return av; })(),
       el("div",{ "class":"av-acctblock" },
         el("button",{ "class":"av-sideuser av-selfname", onclick:function(){ if(state.profile) openUser(state.profile.username); } }, pname),
         state.profile && state.profile.display_name ? el("span",{ "class":"av-sidehandle" }, "@"+state.profile.username) : null,
