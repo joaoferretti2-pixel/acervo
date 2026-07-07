@@ -46,6 +46,7 @@ body{margin:0;background:#F2EEE3}
 .av-logomark.lg{width:52px;height:52px}
 .av-recseed{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
 .av-sugwhy{font-size:11.5px;color:var(--lamp)}
+.av-fbok{margin:6px 0;font-size:15px;line-height:1.55;color:var(--parch)}
 .av-dischead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 14px}
 .av-dischead h3{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:21px}
 .av-logo{font-family:'Fraunces',serif;font-weight:600;font-size:27px;letter-spacing:.01em;color:var(--parch)}
@@ -369,6 +370,7 @@ var state = {
   discover: { q:"", results:[], searched:false },
   viewUser: null, share: null, shareModal: null,
   recs: { loading:false, loaded:false, films:[], books:[], error:"" },
+  fbModal: null,
   suggest: { loading:false, loaded:false, people:[] }
 };
 var pendingUsername = null, pendingDisplay = null;
@@ -811,6 +813,49 @@ async function openPeopleList(profileId, mode){
   render();
 }
 
+/* ===== Sugestões de melhoria (feedback por e-mail) ===== */
+var FEEDBACK_ENDPOINT = "https://formsubmit.co/ajax/joao.ferretti@me.com";
+function openFeedback(){ state.fbModal={ text:"", busy:false, sent:false, error:"" }; state._mo=true; render(); }
+async function sendFeedback(){
+  var fm=state.fbModal; if(!fm || !fm.text.trim() || fm.busy) return;
+  fm.busy=true; fm.error=""; render();
+  try{
+    var r=await fetch(FEEDBACK_ENDPOINT, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify({
+        _subject: "Sugestão do Acervo",
+        usuario: state.profile ? ("@"+state.profile.username) : "visitante",
+        email_do_usuario: (state.user && state.user.email) || "",
+        mensagem: fm.text.trim()
+      })
+    });
+    var d=await r.json().catch(function(){ return null; });
+    if(r.ok && d && (d.success===true || d.success==="true")) fm.sent=true;
+    else fm.error="Não foi possível enviar agora. Tente de novo em instantes.";
+  }catch(e){ fm.error="Não foi possível enviar agora. Tente de novo em instantes."; }
+  fm.busy=false; render();
+}
+function FeedbackModal(){
+  var fm=state.fbModal;
+  var close=function(){ state.fbModal=null; render(); };
+  var body=el("div",{ "class":"av-modalbody" });
+  if(fm.sent){
+    body.appendChild(el("p",{ "class":"av-fbok" },"Sugestão enviada — obrigado por ajudar a melhorar o Acervo!"));
+    return ModalShell("Sugerir melhoria", close, body,
+      el("div",{ "class":"av-modalfoot" }, el("button",{ "class":"av-primary", onclick:close },"Fechar")));
+  }
+  body.appendChild(el("p",{ "class":"av-secsub" },"Encontrou um problema ou teve uma ideia? Escreva abaixo — sua mensagem vai direto para quem faz o Acervo."));
+  var ta=el("textarea",{ "class":"av-input av-area", rows:5, "data-focus-id":"f-fb", placeholder:"sua sugestão…", oninput:function(e){ fm.text=e.target.value; } });
+  ta.value=fm.text; body.appendChild(ta);
+  if(fm.error) body.appendChild(el("p",{ "class":"av-metaerr" }, fm.error));
+  var foot=el("div",{ "class":"av-modalfoot" },
+    el("button",{ "class":"av-ghost", onclick:close },"Cancelar"),
+    el("button",{ "class":"av-primary", disabled: fm.busy || !fm.text.trim(), onclick:sendFeedback }, fm.busy?"Enviando…":"Enviar")
+  );
+  return ModalShell("Sugerir melhoria", close, body, foot);
+}
+
 /* ===== Convidar amigos ===== */
 function inviteApp(){
   var url=location.origin+location.pathname;
@@ -1233,7 +1278,7 @@ function ShareModal(){
   }
   return ModalShell("Compartilhar", close, body, null);
 }
-function Modals(){ if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); if(state.commentModal) return CommentModal(); if(state.peopleModal) return PeopleModal(); if(state.shareModal) return ShareModal(); return null; }
+function Modals(){ if(state.fbModal) return FeedbackModal(); if(state.itemModal) return ItemModal(); if(state.plModal) return PlModal(); if(state.addTo) return AddToModal(); if(state.profileModal) return ProfileModal(); if(state.commentModal) return CommentModal(); if(state.peopleModal) return PeopleModal(); if(state.shareModal) return ShareModal(); return null; }
 function SharePublic(){
   var sh=state.share;
   var wrap=el("div",{ "class":"av-sharewrap" });
@@ -1726,6 +1771,7 @@ function Sidebar(){
       el("button",{ "class":state.theme==="dark"?"on":"", onclick:function(){ setTheme("dark"); } }, "Escuro")
     ),
     el("button",{ "class":"av-ghost sm", onclick:inviteApp }, state.invited?"✓ Link copiado":"✉ Convidar amigos"),
+    el("button",{ "class":"av-ghost sm", onclick:openFeedback }, "💡 Sugerir melhoria"),
     el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")
   );
   return el("aside",{ "class":"av-side" }, el("div",{ "class":"av-brandrow" }, el("img",{ "class":"av-logomark", src:LOGO_URI, alt:"" }), el("div",{ "class":"av-brand" }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu"))), nav, foot);
@@ -1746,6 +1792,7 @@ function MobileAccount(){
   return el("div",{ "class":"av-mobacct" },
     el("button",{ "class":"av-editlink", onclick:openProfile }, pname+" · editar"),
     el("div",{ style:{ display:"flex", gap:"8px" } },
+      el("button",{ "class":"av-ghost sm", onclick:openFeedback }, "💡"),
       el("button",{ "class":"av-ghost sm", onclick:inviteApp }, state.invited?"✓":"✉ Convidar"),
       el("button",{ "class":"av-ghost sm", onclick:function(){ setTheme(state.theme==="dark"?"light":"dark"); } }, state.theme==="dark"?"☀":"☾"),
       el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair"))
