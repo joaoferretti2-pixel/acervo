@@ -660,24 +660,44 @@ async function loadDiscover(force){
     }
     films.sort(function(a,b){ return b.pop-a.pop; });
     dv.films=films.slice(0,12);
+    var allDoneB=state.items.filter(function(i){ return i.type==="book" && i.status==="done"; }).sort(byRating);
     var authors=[];
-    seedB.forEach(function(b){ var a=(b.subtitle||"").split(",")[0].trim(); if(a && authors.indexOf(a)<0) authors.push(a); });
-    authors=authors.slice(0,3);
+    allDoneB.forEach(function(b){
+      var a=(b.subtitle||"").split(",")[0].trim();
+      if(a && !/^\d+$/.test(a) && authors.indexOf(a)<0) authors.push(a);
+    });
+    /* se faltar autor no cadastro, descobre pelo título via Google Books */
+    if(authors.length<2){
+      var lookups=allDoneB.filter(function(b){ return !(b.subtitle||"").split(",")[0].trim(); }).slice(0,3);
+      for(var L=0; L<lookups.length && authors.length<3; L++){
+        try{
+          var lr=await fetch("https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent(lookups[L].title)+"&printType=books&maxResults=1");
+          var ld=await lr.json();
+          var la=ld && ld.items && ld.items[0] && ld.items[0].volumeInfo && ld.items[0].volumeInfo.authors && ld.items[0].volumeInfo.authors[0];
+          if(la && authors.indexOf(la)<0) authors.push(la);
+        }catch(el_){}
+      }
+    }
+    authors=authors.slice(0,4);
     var books=[], seenB={};
+    var collect=function(bd, seedName){
+      ((bd&&bd.items)||[]).forEach(function(v){
+        var vi=v.volumeInfo||{}; var nt=normTitle(vi.title);
+        if(!vi.title || seenB[nt] || owned[nt]) return;
+        seenB[nt]=1;
+        var img=(vi.imageLinks && (vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail))||"";
+        books.push({ title:vi.title, sub:[(vi.authors&&vi.authors[0])||seedName, (vi.publishedDate||"").slice(0,4)].filter(Boolean).join(", "), cover:img.replace(/^http:/,"https:"), synopsis:stripHtml(vi.description||""), seed:seedName });
+      });
+    };
     for(var j=0;j<authors.length;j++){
+      var base="https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent('inauthor:"'+authors[j]+'"')+"&printType=books&orderBy=relevance&maxResults=10";
       try{
-        var br=await fetch("https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent('inauthor:"'+authors[j]+'"')+"&langRestrict=pt&printType=books&orderBy=relevance&maxResults=10");
-        var bd=await br.json();
-        ((bd&&bd.items)||[]).forEach(function(v){
-          var vi=v.volumeInfo||{}; var nt=normTitle(vi.title);
-          if(!vi.title || seenB[nt] || owned[nt]) return;
-          seenB[nt]=1;
-          var img=(vi.imageLinks && (vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail))||"";
-          books.push({ title:vi.title, sub:[(vi.authors&&vi.authors[0])||authors[j], (vi.publishedDate||"").slice(0,4)].filter(Boolean).join(", "), cover:img.replace(/^http:/,"https:"), synopsis:stripHtml(vi.description||""), seed:authors[j] });
-        });
+        var br=await fetch(base+"&langRestrict=pt"); collect(await br.json(), authors[j]);
+        if(books.length<4){ var br2=await fetch(base); collect(await br2.json(), authors[j]); }
       }catch(eb){}
     }
     dv.books=books.slice(0,12);
+    dv.noBookSeeds = allDoneB.length>0 && authors.length===0;
     dv.loaded=true;
   }catch(e){ dv.error="Não foi possível gerar sugestões agora. Tente de novo em instantes."; }
   dv.loading=false; render();
@@ -784,7 +804,7 @@ function openSharedView(kind, refId){
 }
 async function openUser(username){
   state.screen="user";
-  state.viewUser={ loading:true, profile:null, items:[], playlists:[], links:[], followers:0, followingCount:0 };
+  state.viewUser={ username:username, loading:true, profile:null, items:[], playlists:[], links:[], followers:0, followingCount:0 };
   render();
   var pr = await supabase.from("profiles").select("*").eq("username", username).maybeSingle();
   if(!pr.data){ state.viewUser.loading=false; state.viewUser.notFound=true; render(); return; }
@@ -1763,6 +1783,9 @@ function Discover(){
     var gb=el("div",{ "class":"av-grid" });
     dv.books.forEach(function(r){ gb.appendChild(RecCard(r,"book")); });
     sec.appendChild(gb);
+  }
+  if(dv.loaded && !dv.books.length && dv.noBookSeeds){
+    sec.appendChild(el("p",{ "class":"av-wishline" },"Para receber sugestões de livros, preencha o autor dos seus livros concluídos (a busca automática faz isso por você)."));
   }
   if(dv.loaded && !dv.films.length && !dv.books.length && !dv.error){
     sec.appendChild(el("p",{ "class":"av-wishline" },"Ainda não encontrei sugestões novas — avalie mais itens concluídos e tente atualizar."));
