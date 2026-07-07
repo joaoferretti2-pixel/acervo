@@ -45,6 +45,7 @@ body{margin:0;background:#F2EEE3}
 .av-logomark{width:38px;height:38px;flex:none}
 .av-logomark.lg{width:52px;height:52px}
 .av-recseed{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+.av-sugwhy{font-size:11.5px;color:var(--lamp)}
 .av-dischead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 14px}
 .av-dischead h3{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:21px}
 .av-logo{font-family:'Fraunces',serif;font-weight:600;font-size:27px;letter-spacing:.01em;color:var(--parch)}
@@ -367,7 +368,8 @@ var state = {
   following: [], feed: { loading:false, tab:"shares", activity:[], shares:[], peopleById:{} },
   discover: { q:"", results:[], searched:false },
   viewUser: null, share: null, shareModal: null,
-  discover: { loading:false, loaded:false, films:[], books:[], error:"" }
+  recs: { loading:false, loaded:false, films:[], books:[], error:"" },
+  suggest: { loading:false, loaded:false, people:[] }
 };
 var pendingUsername = null, pendingDisplay = null;
 var COMPOSING = false;
@@ -580,7 +582,7 @@ async function tmdbRecsFor(title){
   var rd=await r.json(); return rd.results||[];
 }
 async function loadDiscover(force){
-  var dv=state.discover;
+  var dv=state.recs;
   if(dv.loading || (dv.loaded && !force)) return;
   dv.loading=true; dv.error=""; render();
   try{
@@ -640,12 +642,14 @@ async function follow(id){
   state.following.push(id);
   if(state.viewUser && state.viewUser.profile && state.viewUser.profile.id===id) state.viewUser.followers++;
   render();
+  state.suggest.loaded=false;
   cw(supabase.from("follows").insert({ follower_id: state.user.id, following_id: id }));
 }
 async function unfollow(id){
   state.following = state.following.filter(function(x){ return x!==id; });
   if(state.viewUser && state.viewUser.profile && state.viewUser.profile.id===id) state.viewUser.followers = Math.max(0, state.viewUser.followers-1);
   render();
+  state.suggest.loaded=false;
   cw(supabase.from("follows").delete().eq("follower_id", state.user.id).eq("following_id", id));
 }
 async function searchPeople(q){
@@ -658,7 +662,50 @@ async function searchPeople(q){
 }
 async function openFeed(){
   state.screen="feed"; state.viewUser=null; render();
+  loadSuggestions();
   await loadFeed();
+}
+async function loadSuggestions(force){
+  var sg=state.suggest;
+  if(sg.loading || (sg.loaded && !force)) return;
+  sg.loading=true; render();
+  try{
+    var me=state.user.id;
+    var mine={}; state.following.forEach(function(id){ mine[id]=1; });
+    var score={}, why={};
+    /* quem me segue e eu não sigo de volta */
+    var fr=await supabase.from("follows").select("follower_id").eq("following_id", me).limit(200);
+    (fr.data||[]).forEach(function(r){
+      var id=r.follower_id;
+      if(id===me || mine[id]) return;
+      score[id]=1000; why[id]="segue você";
+    });
+    /* quem é seguido por quem eu sigo */
+    if(state.following.length){
+      var ff=await supabase.from("follows").select("following_id").in("follower_id", state.following).limit(400);
+      var counts={};
+      (ff.data||[]).forEach(function(r){
+        var id=r.following_id;
+        if(id===me || mine[id]) return;
+        counts[id]=(counts[id]||0)+1;
+      });
+      Object.keys(counts).forEach(function(id){
+        if(score[id]){ score[id]+=counts[id]; }
+        else{
+          score[id]=counts[id];
+          why[id]="seguido por "+counts[id]+(counts[id]===1?" pessoa que você segue":" pessoas que você segue");
+        }
+      });
+    }
+    var ids=Object.keys(score).sort(function(a,b){ return score[b]-score[a]; }).slice(0,6);
+    if(ids.length){
+      var pr=await supabase.from("profiles").select("id,username,display_name,avatar_url").in("id", ids);
+      var byId={}; (pr.data||[]).forEach(function(p){ byId[p.id]=p; });
+      sg.people=ids.map(function(id){ var p=byId[id]; if(p) p._why=why[id]; return p; }).filter(Boolean);
+    } else sg.people=[];
+    sg.loaded=true;
+  }catch(e){ sg.people=[]; sg.loaded=true; }
+  sg.loading=false; render();
 }
 async function loadFeed(){
   state.feed.loading=true; render();
@@ -1399,6 +1446,17 @@ function PersonRow(p){
     FollowButton(p.id)
   );
 }
+function SuggestRow(p){
+  return el("div",{ "class":"av-person clickable", onclick:function(){ openUser(p.username); } },
+    Avatar(p),
+    el("div",{ "class":"av-personmeta" },
+      el("span",{ "class":"av-personname" }, p.display_name||p.username),
+      el("span",{ "class":"av-personhandle" }, "@"+p.username),
+      el("span",{ "class":"av-sugwhy" }, p._why||"")
+    ),
+    FollowButton(p.id)
+  );
+}
 function ActivityRow(it){
   var p=state.feed.peopleById[it.user_id];
   var st=statusOf(it);
@@ -1429,6 +1487,12 @@ function Feed(){
       state.discover.results.forEach(function(p){ people.appendChild(PersonRow(p)); });
       sec.appendChild(people);
     }
+  }
+  if(!state.discover.searched && state.suggest.people.length){
+    sec.appendChild(el("div",{ "class":"av-dischead" }, el("h3",null,"Sugestões para seguir")));
+    var sp=el("div",{ "class":"av-people" });
+    state.suggest.people.forEach(function(p){ sp.appendChild(SuggestRow(p)); });
+    sec.appendChild(sp);
   }
   sec.appendChild(el("div",{ "class":"av-statusview" },
     el("button",{ "class":state.feed.tab==="shares"?"on":"", onclick:function(){ state.feed.tab="shares"; render(); } }, "Compartilhados"),
@@ -1573,7 +1637,7 @@ function RecCard(rec, type){
   return el("article",{ "class":"av-card" }, Cover({ cover:rec.cover, type:type, title:rec.title }), body);
 }
 function Discover(){
-  var dv=state.discover;
+  var dv=state.recs;
   var sec=el("section");
   var head=el("div",null, el("h1",{ "class":"av-h1" },"Descobrir"), el("p",{ "class":"av-sub" },"sugestões a partir do que você viu e leu"));
   sec.appendChild(el("div",{ "class":"av-screenhead" }, head,
