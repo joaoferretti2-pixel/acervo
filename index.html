@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#F2EEE3" />
 <title>Acervo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23EFC36F%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23A85423%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M50%2010%20L16%2090%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%2213%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M50%2010%20L84%2090%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%2213%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M35%2050%20h30%20v30%20l-15%20-11%20-15%2011%20z%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" />
@@ -36,6 +37,12 @@ body{margin:0;background:#F2EEE3}
   color:var(--parch); font-family:'Hanken Grotesk',system-ui,sans-serif; font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; transition:background .3s,color .3s}
 .av-side{border-right:1px solid var(--line); padding:30px 22px; display:flex; flex-direction:column; gap:30px; position:sticky; top:0; height:100vh}
 .av-brand{display:flex;flex-direction:column;gap:4px}
+.av-brandrow{display:flex;align-items:center;gap:11px}
+.av-logomark{width:38px;height:38px;flex:none}
+.av-logomark.lg{width:52px;height:52px}
+.av-recseed{font-size:11.5px;color:var(--muted);letter-spacing:.02em}
+.av-dischead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 14px}
+.av-dischead h3{margin:0;font-family:'Fraunces',serif;font-weight:600;font-size:21px}
 .av-logo{font-family:'Fraunces',serif;font-weight:600;font-size:27px;letter-spacing:.01em;color:var(--parch)}
 .av-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .av-nav{display:flex;flex-direction:column;gap:2px}
@@ -102,6 +109,9 @@ body{margin:0;background:#F2EEE3}
 .av-sharepage{min-height:100vh;display:flex;justify-content:center;padding:34px 22px 90px}
 .av-sharewrap{width:100%;max-width:1040px}
 .av-sharetop{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.av-sharecta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:34px;padding:16px 18px;background:var(--raised);border:1px solid var(--accent-line);border-radius:12px}
+.av-sharectatxt{flex:1;min-width:200px;font-size:14px;line-height:1.5}
+.av-sharectabtn{white-space:nowrap}
 .av-metabtn{margin-top:9px;width:100%;background:var(--accent-soft);color:var(--lamp);border:1px solid var(--accent-line);cursor:pointer;font:inherit;font-weight:600;font-size:13.5px;padding:9px;border-radius:8px;transition:background .15s,color .15s}
 .av-metabtn:hover:not(:disabled){background:var(--lamp);color:var(--tab-dark)}
 .av-metabtn:disabled{opacity:.5;cursor:not-allowed}
@@ -269,9 +279,9 @@ body{margin:0;background:#F2EEE3}
   .av-grid{grid-template-columns:1fr}
   .av-mobacct{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;font-size:13px;color:var(--muted)}
   .av-bottom{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--ink);border-top:1px solid var(--line);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
-  .av-bottom button{flex:1;background:none;border:none;color:var(--muted);font:inherit;font-weight:600;padding:14px;cursor:pointer}
+  .av-bottom button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--muted);font:inherit;font-weight:600;font-size:10.5px;padding:9px 0 11px;cursor:pointer}
   .av-bottom button.on{color:var(--lamp)}
-  .av-bottom .av-themebtn{font-size:17px;flex:0 0 64px}
+  .av-bottom svg{width:21px;height:21px;display:block}
   .av-screenhead{flex-direction:column;align-items:flex-start}
   .av-statgrid{grid-template-columns:repeat(2,1fr)}
   .av-statnum{font-size:30px}
@@ -352,10 +362,12 @@ var state = {
   authError: "", authBusy: false, loadingData: false,
   following: [], feed: { loading:false, tab:"shares", activity:[], shares:[], peopleById:{} },
   discover: { q:"", results:[], searched:false },
-  viewUser: null, share: null, shareModal: null
+  viewUser: null, share: null, shareModal: null,
+  discover: { loading:false, loaded:false, films:[], books:[], error:"" }
 };
 var pendingUsername = null, pendingDisplay = null;
 var COMPOSING = false;
+var LOGO_URI = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23EFC36F%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23A85423%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M50%2010%20L16%2090%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%2213%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M50%2010%20L84%2090%22%20stroke%3D%22url%28%23g%29%22%20stroke-width%3D%2213%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M35%2050%20h30%20v30%20l-15%20-11%20-15%2011%20z%22%20fill%3D%22url%28%23g%29%22%2F%3E%3C%2Fsvg%3E";
 
 /* ===== Camada de dados (Supabase) ===== */
 function cw(promise){ Promise.resolve(promise).then(function(res){ if(res && res.error) console.error("Supabase:", res.error.message); }).catch(function(e){ console.error("Supabase:", e); }); }
@@ -408,7 +420,16 @@ function setTheme(t){ state.theme=t; saveTheme(t); render(); }
 function openNewItem(){ state.itemModal={mode:"new", draft:{type:state.tab, status:state.statusView, title:"", subtitle:"", cover:"", rating:0, notes:"", synopsis:""}}; state._mo=true; render(); }
 function openEditItem(it){ state.itemModal={mode:"edit", draft:Object.assign({},it)}; state._mo=true; render(); }
 function closeItem(){ state.itemModal=null; render(); }
-function updateDraft(f,v){ state.itemModal.draft[f]=v; render(); }
+function updateDraft(f,v){
+  state.itemModal.draft[f]=v;
+  if(f==="title"||f==="type"){
+    clearTimeout(META_TIMER);
+    if(f==="type") state.itemModal.search=null;
+    if(state.itemModal.draft.title.trim().length>=3){ META_TIMER=setTimeout(function(){ if(state.itemModal) runMetaSearch(); }, 650); }
+    else state.itemModal.search=null;
+  }
+  render();
+}
 function saveItem(){
   var dr=state.itemModal.draft; if(!dr.title.trim()) return;
   var clean={ title:dr.title.trim(), subtitle:dr.subtitle||"", cover:(dr.cover||"").trim(), type:dr.type, status:dr.status, rating: dr.status==="done"?dr.rating:0, notes:dr.notes||"", synopsis:dr.synopsis||"" };
@@ -470,17 +491,25 @@ function removeFromPl(plId,item){
 }
 
 /* ===== Preenchimento automático (capa, autor/direção, ano) ===== */
+function stripHtml(s){ return String(s).replace(/<br\s*\/?>/gi,"\n").replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g," ").trim(); }
+var META_TIMER=null;
 async function metaSearch(type, q){
   q=(q||"").trim(); if(!q) return [];
   if(type==="book"){
-    var make=function(pt){ return "https://openlibrary.org/search.json?q="+encodeURIComponent(q)+"&limit=6"+(pt?"&language=por":"")+"&fields=title,author_name,first_publish_year,cover_i,key,editions,editions.title,editions.cover_i"; };
+    var make=function(pt){ return "https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent(q)+"&printType=books&maxResults=8"+(pt?"&langRestrict=pt":""); };
     var r=await fetch(make(true)); var d=await r.json();
-    if(!d || !d.docs || !d.docs.length){ r=await fetch(make(false)); d=await r.json(); }
-    return (d.docs||[]).map(function(b){
-      var ed = b.editions && b.editions.docs && b.editions.docs[0];
-      var title = (ed && ed.title) || b.title;
-      var coverId = (ed && ed.cover_i) || b.cover_i;
-      return { title:title, name:(b.author_name&&b.author_name[0])||"", year:b.first_publish_year||"", cover: coverId?("https://covers.openlibrary.org/b/id/"+coverId+"-M.jpg"):"", workKey:b.key||"", synopsis:"" };
+    var items=(d && d.items)||[];
+    if(items.length<4){
+      try{
+        var r2=await fetch(make(false)); var d2=await r2.json();
+        var seen={}; items.forEach(function(v){ seen[v.id]=1; });
+        ((d2 && d2.items)||[]).forEach(function(v){ if(!seen[v.id]){ seen[v.id]=1; items.push(v); } });
+      }catch(e2){}
+    }
+    return items.slice(0,8).map(function(v){
+      var vi=v.volumeInfo||{};
+      var img=(vi.imageLinks && (vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail))||"";
+      return { gbId:v.id, title:vi.title||"", name:(vi.authors&&vi.authors.join(", "))||"", year:(vi.publishedDate||"").slice(0,4), cover: img.replace(/^http:/,"https:"), synopsis: stripHtml(vi.description||"") };
     });
   } else {
     if(!TMDB_KEY) { var e=new Error("nokey"); e.nokey=true; throw e; }
@@ -520,13 +549,13 @@ async function pickMeta(res){
     if(res.synopsis) im.draft.synopsis=res.synopsis;
   } else {
     sub = [res.name, res.year].filter(Boolean).join(", ");
-    if(res.workKey){
+    if(res.synopsis){ im.draft.synopsis=res.synopsis; }
+    else if(res.gbId){
       try{
-        var wr=await fetch("https://openlibrary.org"+res.workKey+".json");
+        var wr=await fetch("https://www.googleapis.com/books/v1/volumes/"+res.gbId);
         var wd=await wr.json();
-        var desc=wd.description;
-        if(desc && typeof desc==="object") desc=desc.value;
-        if(desc) im.draft.synopsis=String(desc).replace(/\r/g,"").split("----------")[0].trim();
+        var desc=(wd.volumeInfo && wd.volumeInfo.description)||"";
+        if(desc) im.draft.synopsis=stripHtml(desc);
       }catch(e){}
     }
   }
@@ -535,6 +564,65 @@ async function pickMeta(res){
   if(res.cover) im.draft.cover=res.cover;
   im.search=null;
   render();
+}
+
+/* ===== Descobrir (recomendações) ===== */
+function normTitle(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim(); }
+async function tmdbRecsFor(title){
+  if(!TMDB_KEY) return [];
+  var s=await fetch("https://api.themoviedb.org/3/search/movie?api_key="+TMDB_KEY+"&language=pt-BR&include_adult=false&query="+encodeURIComponent(title));
+  var sd=await s.json(); var m=(sd.results||[])[0]; if(!m) return [];
+  var r=await fetch("https://api.themoviedb.org/3/movie/"+m.id+"/recommendations?api_key="+TMDB_KEY+"&language=pt-BR");
+  var rd=await r.json(); return rd.results||[];
+}
+async function loadDiscover(force){
+  var dv=state.discover;
+  if(dv.loading || (dv.loaded && !force)) return;
+  dv.loading=true; dv.error=""; render();
+  try{
+    var owned={}; state.items.forEach(function(i){ owned[normTitle(i.title)]=1; });
+    var byRating=function(a,b){ return (b.rating||0)-(a.rating||0); };
+    var seedM=state.items.filter(function(i){ return i.type==="movie" && i.status==="done"; }).sort(byRating).slice(0,3);
+    var seedB=state.items.filter(function(i){ return i.type==="book" && i.status==="done"; }).sort(byRating).slice(0,4);
+    var films=[], seenF={};
+    for(var i=0;i<seedM.length;i++){
+      var recs=await tmdbRecsFor(seedM[i].title);
+      recs.slice(0,10).forEach(function(m){
+        if(seenF[m.id] || owned[normTitle(m.title)]) return;
+        seenF[m.id]=1;
+        films.push({ title:m.title, sub:(m.release_date||"").slice(0,4), cover:m.poster_path?("https://image.tmdb.org/t/p/w342"+m.poster_path):"", synopsis:m.overview||"", seed:seedM[i].title, pop:m.popularity||0 });
+      });
+    }
+    films.sort(function(a,b){ return b.pop-a.pop; });
+    dv.films=films.slice(0,12);
+    var authors=[];
+    seedB.forEach(function(b){ var a=(b.subtitle||"").split(",")[0].trim(); if(a && authors.indexOf(a)<0) authors.push(a); });
+    authors=authors.slice(0,3);
+    var books=[], seenB={};
+    for(var j=0;j<authors.length;j++){
+      try{
+        var br=await fetch("https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent('inauthor:"'+authors[j]+'"')+"&langRestrict=pt&printType=books&orderBy=relevance&maxResults=10");
+        var bd=await br.json();
+        ((bd&&bd.items)||[]).forEach(function(v){
+          var vi=v.volumeInfo||{}; var nt=normTitle(vi.title);
+          if(!vi.title || seenB[nt] || owned[nt]) return;
+          seenB[nt]=1;
+          var img=(vi.imageLinks && (vi.imageLinks.thumbnail||vi.imageLinks.smallThumbnail))||"";
+          books.push({ title:vi.title, sub:[(vi.authors&&vi.authors[0])||authors[j], (vi.publishedDate||"").slice(0,4)].filter(Boolean).join(", "), cover:img.replace(/^http:/,"https:"), synopsis:stripHtml(vi.description||""), seed:authors[j] });
+        });
+      }catch(eb){}
+    }
+    dv.books=books.slice(0,12);
+    dv.loaded=true;
+  }catch(e){ dv.error="Não foi possível gerar sugestões agora. Tente de novo em instantes."; }
+  dv.loading=false; render();
+}
+function recAdd(rec, type){
+  var id=newId();
+  var clean={ type:type, status:"wish", title:rec.title, subtitle:rec.sub||"", cover:rec.cover||"", rating:0, notes:"", synopsis:rec.synopsis||"" };
+  state.items.unshift(Object.assign({ id:id, createdAt:new Date().toISOString() }, clean));
+  cw(supabase.from("items").insert({ id:id, user_id:state.user.id, type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }));
+  rec.added=true; render();
 }
 
 /* ===== Social (seguir / feed / perfis) ===== */
@@ -649,6 +737,14 @@ async function openPeopleList(profileId, mode){
   var pr = await supabase.from("profiles").select("id,username,display_name,avatar_url").in("id", ids);
   state.peopleModal.loading=false; state.peopleModal.people=pr.data||[];
   render();
+}
+
+/* ===== Convidar amigos ===== */
+function inviteApp(){
+  var url=location.origin+location.pathname;
+  var text="Estou usando o Acervo para registrar os filmes que vejo e os livros que leio — e acompanhar o que os amigos andam curtindo. Cria o seu: ";
+  if(navigator.share){ navigator.share({ title:"Acervo", text:text, url:url }).catch(function(){}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(text+url).then(function(){ state.invited=true; render(); setTimeout(function(){ state.invited=false; render(); }, 2200); }); }
 }
 
 /* ===== Compartilhar por link ===== */
@@ -1120,6 +1216,16 @@ function SharePublic(){
       else { var cl=el("div",{ "class":"av-commentlist" }); clist.forEach(function(c){ cl.appendChild(CommentCard(c, false)); }); wrap.appendChild(cl); }
     }
   }
+  if(!sh.fromFeed){
+    var cta=el("div",{ "class":"av-sharecta" },
+      el("img",{ "class":"av-logomark", src:LOGO_URI, alt:"" }),
+      el("div",{ "class":"av-sharectatxt" },
+        el("b",null,"Guarde o que você viu e leu."),
+        el("span",null," O Acervo é grátis: registre filmes e livros, monte coleções e siga seus amigos.")),
+      el("button",{ "class":"av-primary av-sharectabtn", onclick:exitShare }, "Criar minha conta")
+    );
+    wrap.appendChild(cta);
+  }
   return el("div",{ "class":"av-sharepage" }, wrap);
 }
 
@@ -1450,11 +1556,68 @@ function UserProfile(){
   }
   return sec;
 }
+function RecCard(rec, type){
+  var body=el("div",{ "class":"av-cardbody" });
+  body.appendChild(el("h4",{ "class":"av-title" }, rec.title));
+  if(rec.sub) body.appendChild(el("p",{ "class":"av-notes" }, rec.sub));
+  if(rec.synopsis) body.appendChild(el("p",{ "class":"av-synopsis" }, rec.synopsis.length>180 ? rec.synopsis.slice(0,180).trim()+"…" : rec.synopsis));
+  body.appendChild(el("span",{ "class":"av-recseed" }, "porque você "+(type==="movie"?"viu":"leu")+" “"+rec.seed+"”"));
+  var foot=el("div",{ "class":"av-cardfoot" });
+  if(rec.added) foot.appendChild(el("button",{ "class":"av-ghost sm", disabled:true }, "✓ Na lista de desejos"));
+  else foot.appendChild(el("button",{ "class":"av-markbtn", onclick:function(){ recAdd(rec, type); } }, type==="movie"?"+ Quero ver":"+ Quero ler"));
+  body.appendChild(foot);
+  return el("article",{ "class":"av-card" }, Cover({ cover:rec.cover, type:type, title:rec.title }), body);
+}
+function Discover(){
+  var dv=state.discover;
+  var sec=el("section");
+  var head=el("div",null, el("h1",{ "class":"av-h1" },"Descobrir"), el("p",{ "class":"av-sub" },"sugestões a partir do que você viu e leu"));
+  sec.appendChild(el("div",{ "class":"av-screenhead" }, head,
+    el("button",{ "class":"av-ghost", disabled:dv.loading, onclick:function(){ loadDiscover(true); } }, dv.loading?"gerando…":"↻ Atualizar")));
+  var seeds=state.items.filter(function(i){ return i.status==="done"; });
+  if(seeds.length===0){
+    sec.appendChild(el("p",{ "class":"av-wishline" },"Adicione alguns filmes e livros concluídos à sua biblioteca — as sugestões nascem deles."));
+    return sec;
+  }
+  if(!dv.loaded && !dv.loading){ setTimeout(function(){ loadDiscover(); }, 0); }
+  if(dv.loading && !dv.loaded){ sec.appendChild(el("p",{ "class":"av-wishline" },"gerando sugestões…")); return sec; }
+  if(dv.error) sec.appendChild(el("p",{ "class":"av-metaerr" }, dv.error));
+  if(dv.films.length){
+    sec.appendChild(el("div",{ "class":"av-dischead" }, el("h3",null,"Filmes para você")));
+    var gf=el("div",{ "class":"av-grid" });
+    dv.films.forEach(function(r){ gf.appendChild(RecCard(r,"movie")); });
+    sec.appendChild(gf);
+  }
+  if(dv.books.length){
+    sec.appendChild(el("div",{ "class":"av-dischead" }, el("h3",null,"Livros para você")));
+    var gb=el("div",{ "class":"av-grid" });
+    dv.books.forEach(function(r){ gb.appendChild(RecCard(r,"book")); });
+    sec.appendChild(gb);
+  }
+  if(dv.loaded && !dv.films.length && !dv.books.length && !dv.error){
+    sec.appendChild(el("p",{ "class":"av-wishline" },"Ainda não encontrei sugestões novas — avalie mais itens concluídos e tente atualizar."));
+  }
+  return sec;
+}
+function ico(d){
+  var s=el("span",{ style:{ display:"contents" } });
+  s.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+d+"</svg>";
+  return s;
+}
+var ICONS={
+  lib:'<path d="M4 5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M9 3v18"/>',
+  col:'<path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+  disc:'<circle cx="12" cy="12" r="9"/><path d="M15 9l-2 5-4 2 2-5z"/>',
+  net:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M17.5 13.7A6.5 6.5 0 0 1 21.5 20"/>',
+  stats:'<path d="M5 20v-6"/><path d="M12 20V6"/><path d="M19 20v-10"/>',
+  me:'<circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>'
+};
 function navBtn(label,on,onclick){ return el("button",{ "class":"av-navitem"+(on?" active":""), onclick:onclick }, label); }
 function Sidebar(){
   var nav=el("nav",{ "class":"av-nav" },
     navBtn("Biblioteca", state.screen==="library", function(){ go("library"); }),
     navBtn("Coleções", state.screen==="playlists"||state.screen==="playlist", function(){ go("playlists"); }),
+    navBtn("Descobrir", state.screen==="discover", function(){ go("discover"); }),
     navBtn("Comunidade", state.screen==="feed"||state.screen==="user", function(){ openFeed(); }),
     navBtn("Panorama", state.screen==="stats", function(){ go("stats"); })
   );
@@ -1473,24 +1636,30 @@ function Sidebar(){
       el("button",{ "class":state.theme==="light"?"on":"", onclick:function(){ setTheme("light"); } }, "Claro"),
       el("button",{ "class":state.theme==="dark"?"on":"", onclick:function(){ setTheme("dark"); } }, "Escuro")
     ),
+    el("button",{ "class":"av-ghost sm", onclick:inviteApp }, state.invited?"✓ Link copiado":"✉ Convidar amigos"),
     el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")
   );
-  return el("aside",{ "class":"av-side" }, el("div",{ "class":"av-brand" }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu")), nav, foot);
+  return el("aside",{ "class":"av-side" }, el("div",{ "class":"av-brandrow" }, el("img",{ "class":"av-logomark", src:LOGO_URI, alt:"" }), el("div",{ "class":"av-brand" }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu"))), nav, foot);
 }
 function Bottom(){
+  var isMe = state.screen==="user" && state.viewUser && state.profile && state.viewUser.username===state.profile.username;
   return el("nav",{ "class":"av-bottom" },
-    el("button",{ "class":state.screen==="library"?"on":"", onclick:function(){ go("library"); } }, "Biblioteca"),
-    el("button",{ "class":(state.screen==="playlists"||state.screen==="playlist")?"on":"", onclick:function(){ go("playlists"); } }, "Coleções"),
-    el("button",{ "class":(state.screen==="feed"||state.screen==="user")?"on":"", onclick:function(){ openFeed(); } }, "Rede"),
-    el("button",{ "class":state.screen==="stats"?"on":"", onclick:function(){ go("stats"); } }, "Panorama"),
-    el("button",{ "class":"av-themebtn", "aria-label":"Alternar tema", onclick:function(){ setTheme(state.theme==="dark"?"light":"dark"); } }, state.theme==="dark"?"☀":"☾")
+    el("button",{ "class":state.screen==="library"?"on":"", onclick:function(){ go("library"); } }, ico(ICONS.lib), "Biblioteca"),
+    el("button",{ "class":(state.screen==="playlists"||state.screen==="playlist")?"on":"", onclick:function(){ go("playlists"); } }, ico(ICONS.col), "Coleções"),
+    el("button",{ "class":state.screen==="discover"?"on":"", onclick:function(){ go("discover"); } }, ico(ICONS.disc), "Descobrir"),
+    el("button",{ "class":(state.screen==="feed"||(state.screen==="user"&&!isMe))?"on":"", onclick:function(){ openFeed(); } }, ico(ICONS.net), "Rede"),
+    el("button",{ "class":state.screen==="stats"?"on":"", onclick:function(){ go("stats"); } }, ico(ICONS.stats), "Panorama"),
+    el("button",{ "class":isMe?"on":"", onclick:function(){ if(state.profile) openUser(state.profile.username); } }, ico(ICONS.me), "Perfil")
   );
 }
 function MobileAccount(){
   var pname=state.profile ? (state.profile.display_name || state.profile.username) : "…";
   return el("div",{ "class":"av-mobacct" },
     el("button",{ "class":"av-editlink", onclick:openProfile }, pname+" · editar"),
-    el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair")
+    el("div",{ style:{ display:"flex", gap:"8px" } },
+      el("button",{ "class":"av-ghost sm", onclick:inviteApp }, state.invited?"✓":"✉ Convidar"),
+      el("button",{ "class":"av-ghost sm", onclick:function(){ setTheme(state.theme==="dark"?"light":"dark"); } }, state.theme==="dark"?"☀":"☾"),
+      el("button",{ "class":"av-ghost sm", onclick:doLogout }, "Sair"))
   );
 }
 function Main(){
@@ -1499,6 +1668,7 @@ function Main(){
   if(state.screen==="library") main.appendChild(Library());
   else if(state.screen==="playlists") main.appendChild(Playlists());
   else if(state.screen==="playlist") main.appendChild(PlaylistDetail());
+  else if(state.screen==="discover") main.appendChild(Discover());
   else if(state.screen==="stats") main.appendChild(Stats());
   else if(state.screen==="feed") main.appendChild(Feed());
   else if(state.screen==="user") main.appendChild(UserProfile());
@@ -1509,7 +1679,7 @@ function Main(){
 function AuthScreen(){
   var isSignup = state.authMode==="signup";
   var card=el("div",{ "class":"av-authcard" });
-  card.appendChild(el("div",{ "class":"av-brand", style:{ alignItems:"center", textAlign:"center" } }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu")));
+  card.appendChild(el("div",{ "class":"av-brand", style:{ alignItems:"center", textAlign:"center", gap:"8px" } }, el("img",{ "class":"av-logomark lg", src:LOGO_URI, alt:"Acervo" }), el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu")));
   card.appendChild(el("h2",{ "class":"av-authtitle" }, isSignup?"Criar conta":"Entrar"));
   var f=state.authForm;
   card.appendChild(el("label",{ "class":"av-label" },"E-mail"));
