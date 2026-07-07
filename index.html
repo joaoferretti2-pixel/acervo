@@ -1494,7 +1494,7 @@ function ProfileModal(){
   body.appendChild(el("label",{ "class":"av-label" },"Nome de exibição"));
   body.appendChild(inputField("pf-name",dr.display_name,"ex: João Ferretti",function(v){updateProfileDraft("display_name",v);}));
   body.appendChild(el("label",{ "class":"av-label" },"Nome de usuário"));
-  var u=inputField("pf-user",dr.username,"ex: joaoferretti",function(v){updateProfileDraft("username",v);});
+  var u=inputField("pf-user",dr.username,"ex: leitora_de_domingo",function(v){updateProfileDraft("username",v);});
   body.appendChild(u);
   body.appendChild(el("p",{ "class":"av-fieldhint" },"aparece como @"+( (dr.username||"").trim().toLowerCase().replace(/[^a-z0-9_]/g,"") || "usuario" )+" — só letras, números e _"));
   if(pm.error) body.appendChild(el("p",{ "class":"av-autherr", style:{ textAlign:"left", marginTop:"12px" } }, pm.error));
@@ -2213,7 +2213,7 @@ function AuthScreen(){
   var username=null, display=null;
   if(isSignup){
     card.appendChild(el("label",{ "class":"av-label" },"Nome de usuário"));
-    username=el("input",{ "class":"av-input", placeholder:"ex: joaoferretti", oninput:function(e){ f.username=e.target.value; } }); username.value=f.username; card.appendChild(username);
+    username=el("input",{ "class":"av-input", placeholder:"ex: leitora_de_domingo", oninput:function(e){ f.username=e.target.value; } }); username.value=f.username; card.appendChild(username);
     card.appendChild(labelOpt("Nome de exibição"));
     display=el("input",{ "class":"av-input", placeholder:"seu nome", oninput:function(e){ f.display=e.target.value; } }); display.value=f.display; card.appendChild(display);
   }
