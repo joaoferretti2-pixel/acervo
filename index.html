@@ -1154,7 +1154,7 @@ function FeedbackModal(){
       el("div",{ "class":"av-modalfoot" }, el("button",{ "class":"av-primary", onclick:close },"Fechar")));
   }
   body.appendChild(el("p",{ "class":"av-secsub" },"Encontrou um problema ou teve uma ideia? Escreva abaixo — sua mensagem vai direto para o time Acervo."));
-  var ta=el("textarea",{ "class":"av-input av-area", rows:5, "data-focus-id":"f-fb", placeholder:"sua sugestão…", oninput:function(e){ fm.text=e.target.value; } });
+  var ta=el("textarea",{ "class":"av-input av-area", rows:5, "data-focus-id":"f-fb", placeholder:"sua sugestão…", oninput:function(e){ fm.text=e.target.value; render(); } });
   ta.value=fm.text; body.appendChild(ta);
   if(fm.error) body.appendChild(el("p",{ "class":"av-metaerr" }, fm.error));
   var foot=el("div",{ "class":"av-modalfoot" },
