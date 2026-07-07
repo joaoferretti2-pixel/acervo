@@ -2130,12 +2130,15 @@ var ICONS={
   me:'<circle cx="12" cy="8" r="3.8"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>'
 };
 function navBtn(label,on,onclick){ return el("button",{ "class":"av-navitem"+(on?" active":""), onclick:onclick }, label); }
+function isOwnProfileOpen(){
+  return state.screen==="user" && state.viewUser && state.profile && (state.viewUser.username===state.profile.username || (state.viewUser.profile && state.viewUser.profile.username===state.profile.username));
+}
 function Sidebar(){
   var nav=el("nav",{ "class":"av-nav" },
     navBtn("Biblioteca", state.screen==="library", function(){ go("library"); }),
     navBtn("Coleções", state.screen==="playlists"||state.screen==="playlist", function(){ go("playlists"); }),
     navBtn("Descobrir", state.screen==="discover", function(){ go("discover"); }),
-    (function(){ var b=navBtn("Comunidade", state.screen==="feed"||state.screen==="user", function(){ openFeed(); }); if(state.feedNew){ b.style.position="relative"; b.appendChild(el("span",{ "class":"av-newdot side" })); } return b; })(),
+    (function(){ var b=navBtn("Comunidade", state.screen==="feed"||(state.screen==="user"&&!isOwnProfileOpen()), function(){ openFeed(); }); if(state.feedNew){ b.style.position="relative"; b.appendChild(el("span",{ "class":"av-newdot side" })); } return b; })(),
     navBtn("Panorama", state.screen==="stats", function(){ go("stats"); }),
     isAdmin() ? navBtn("Painel ⚙", state.screen==="admin", function(){ go("admin"); }) : null
   );
@@ -2161,7 +2164,7 @@ function Sidebar(){
   return el("aside",{ "class":"av-side" }, el("div",{ "class":"av-brandrow" }, el("img",{ "class":"av-logomark", src:LOGO_URI, alt:"" }), el("div",{ "class":"av-brand" }, el("span",{ "class":"av-logo" },"Acervo"), el("span",{ "class":"av-tag" },"o que você viu e leu"))), nav, foot);
 }
 function Bottom(){
-  var isMe = state.screen==="user" && state.viewUser && state.profile && (state.viewUser.username===state.profile.username || (state.viewUser.profile && state.viewUser.profile.username===state.profile.username));
+  var isMe = isOwnProfileOpen();
   return el("nav",{ "class":"av-bottom" },
     el("button",{ "class":state.screen==="library"?"on":"", onclick:function(){ go("library"); } }, ico(ICONS.lib), "Biblioteca"),
     el("button",{ "class":(state.screen==="playlists"||state.screen==="playlist")?"on":"", onclick:function(){ go("playlists"); } }, ico(ICONS.col), "Coleções"),
