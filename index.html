@@ -65,6 +65,10 @@ body{margin:0;background:#F2EEE3}
 .av-installtitle{margin:0 0 6px;font-weight:700;font-size:14.5px}
 .av-installsteps{margin:0;padding-left:20px;font-size:14px;line-height:1.7;color:var(--parch)}
 .av-version{display:block;font-size:11px;color:var(--muted);opacity:.75;margin-top:4px;text-align:center}
+.av-consumed{margin:2px 0 0;font-size:12px;color:var(--muted);font-style:italic}
+.av-actwhen{font-size:12px;color:var(--muted)}
+.av-selrow{display:flex;gap:10px}
+.av-selhalf{flex:1;min-width:0}
 .av-fbok{margin:6px 0;font-size:15px;line-height:1.55;color:var(--parch)}
 .av-sharefoot{display:flex;align-items:center;gap:10px;margin-top:10px}
 .av-likebtn{background:none;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer}
@@ -451,7 +455,7 @@ var LOGO_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccq
 
 /* ===== Camada de dados (Supabase) ===== */
 function cw(promise){ Promise.resolve(promise).then(function(res){ if(res && res.error) console.error("Supabase:", res.error.message); }).catch(function(e){ console.error("Supabase:", e); }); }
-function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, synopsis:r.synopsis, createdAt:r.created_at }; }
+function rowToItem(r){ return { id:r.id, type:r.type, status:r.status, title:r.title, subtitle:r.subtitle, cover:r.cover, rating:r.rating, notes:r.notes, synopsis:r.synopsis, consumed:r.consumed||"", createdAt:r.created_at }; }
 function rowToColl(r){ return { id:r.id, name:r.name, tag:r.tag, description:r.description, isPublic:r.is_public, createdAt:r.created_at }; }
 function rowToLink(r){ return { id:r.id, playlistId:r.collection_id, itemId:r.item_id, itemType:r.item_type }; }
 function rowToShare(r){ return { id:r.id, user_id:r.user_id, kind:r.kind, ref_id:r.ref_id, title:r.title, subtitle:r.subtitle, cover:r.cover, note:r.note, createdAt:r.created_at }; }
@@ -526,15 +530,15 @@ function updateDraft(f,v){
 }
 function saveItem(){
   var dr=state.itemModal.draft; if(!dr.title.trim()) return;
-  var clean={ title:dr.title.trim(), subtitle:dr.subtitle||"", cover:(dr.cover||"").trim(), type:dr.type, status:dr.status, rating: dr.status==="done"?dr.rating:0, notes:dr.notes||"", synopsis:dr.synopsis||"" };
+  var clean={ title:dr.title.trim(), subtitle:dr.subtitle||"", cover:(dr.cover||"").trim(), type:dr.type, status:dr.status, rating: dr.status==="done"?dr.rating:0, notes:dr.notes||"", synopsis:dr.synopsis||"", consumed: dr.status==="done"?(dr.consumed||""):"" };
   if(state.itemModal.mode==="new"){
     var id=newId();
     state.items.unshift(Object.assign({id:id, createdAt:new Date().toISOString()}, clean));
-    cw(supabase.from("items").insert({ id:id, user_id:state.user.id, type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }));
+    cw(supabase.from("items").insert({ id:id, user_id:state.user.id, type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis, consumed:clean.consumed }));
   } else {
     var pid=dr.id;
     state.items=state.items.map(function(x){ return x.id===pid?Object.assign({},x,clean):x; });
-    cw(supabase.from("items").update({ type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis }).eq("id",pid));
+    cw(supabase.from("items").update({ type:clean.type, status:clean.status, title:clean.title, subtitle:clean.subtitle, cover:clean.cover, rating:clean.rating, notes:clean.notes, synopsis:clean.synopsis, consumed:clean.consumed }).eq("id",pid));
   }
   state.itemModal=null; render();
 }
@@ -883,7 +887,8 @@ async function loadFeed(){
   var profRes = await supabase.from("profiles").select("id,username,display_name,avatar_url").in("id", state.following);
   var byId={}; (profRes.data||[]).forEach(function(p){ byId[p.id]=p; });
   state.feed.peopleById = byId;
-  state.feed.activity = (itemsRes.data||[]).map(rowToItem).map(function(it, i){ var raw=(itemsRes.data||[])[i]; it.user_id = raw.user_id; return it; });
+  state.feed.activity = (itemsRes.data||[]).map(rowToItem).map(function(it, i){ var raw=(itemsRes.data||[])[i]; it.user_id = raw.user_id; return it; })
+    .sort(function(a,b){ return chronoKey(b).localeCompare(chronoKey(a)); });
   state.feed.shares = (sharesRes.data||[]).map(rowToShare);
   state.feed.likes = {};
   try{
@@ -1368,6 +1373,21 @@ function traduzErro(m){
 }
 
 /* ===== Componentes ===== */
+var MONTHS_PT=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+function fmtConsumed(c, type){
+  if(!c) return "";
+  var verb = type==="book" ? "lido" : "visto";
+  var parts=String(c).split("-");
+  if(parts.length===2){ var mi=parseInt(parts[1],10)-1; if(mi>=0&&mi<12) return verb+" em "+MONTHS_PT[mi]+" de "+parts[0]; }
+  return verb+" em "+parts[0];
+}
+function chronoKey(it){
+  if(it.consumed){
+    var p=String(it.consumed).split("-");
+    return p.length===2 ? p[0]+"-"+p[1]+"-28" : p[0]+"-12-31";
+  }
+  return (it.createdAt||"").slice(0,10);
+}
 function typeName(t){ return t==="movie"?"Filme":(t==="tv"?"Série":"Livro"); }
 function typeClass(t){ return t==="movie"?"film":(t==="tv"?"tv":"book"); }
 function TypeTab(type){ return el("span",{ "class":"av-typetab "+typeClass(type) }, typeName(type)); }
@@ -1409,6 +1429,7 @@ function ItemCard(item,context){
   body.appendChild(el("div",{ "class":"av-cardtop" }, TypeTab(item.type), st!=="done"?el("span",{ "class":"av-wishchip"+(st==="doing"?" doing":"") }, verb(item.type,st)):null));
   body.appendChild(el("h4",{ "class":"av-title" }, item.title));
   if(item.subtitle) body.appendChild(el("p",{ "class":"av-sub" }, item.subtitle));
+  if(item.consumed && statusOf(item)==="done") body.appendChild(el("p",{ "class":"av-consumed" }, fmtConsumed(item.consumed, item.type)));
   if(st==="done") body.appendChild(el("div",{ "class":"av-cardrate" }, Lamps(item.rating)));
   if(item.synopsis) body.appendChild(el("p",{ "class":"av-synopsis" }, item.synopsis));
   if(item.notes) body.appendChild(el("p",{ "class":"av-notes" }, el("span",{ "class":"av-notelabel" },"Sua nota: "), item.notes));
@@ -1500,6 +1521,20 @@ function ItemModal(){
   body.appendChild(labelOpt("Observação"));
   var ta=el("textarea",{ "class":"av-input av-area", rows:3, "data-focus-id":"f-notes", placeholder:notesPh, oninput:function(e){updateDraft("notes",e.target.value);} });
   ta.value=dr.notes||""; body.appendChild(ta);
+  if(dr.status==="done"){
+    body.appendChild(labelOpt("Quando você "+(dr.type==="book"?"leu":"viu")));
+    var cparts=String(dr.consumed||"").split("-");
+    var cy=cparts[0]||"", cm=cparts[1]||"";
+    var setConsumed=function(){ updateDraft("consumed", cy ? (cm ? cy+"-"+cm : cy) : ""); };
+    var selM=el("select",{ "class":"av-input av-selhalf", onchange:function(e){ cm=e.target.value; setConsumed(); } });
+    selM.appendChild(el("option",{ value:"" },"mês (opcional)"));
+    MONTHS_PT.forEach(function(nm,i){ var v=String(i+1).padStart(2,"0"); var o=el("option",{ value:v },nm); if(v===cm) o.selected=true; selM.appendChild(o); });
+    var selY=el("select",{ "class":"av-input av-selhalf", onchange:function(e){ cy=e.target.value; setConsumed(); } });
+    selY.appendChild(el("option",{ value:"" },"ano"));
+    var nowY=new Date().getFullYear();
+    for(var yy=nowY; yy>=1940; yy--){ var oy=el("option",{ value:String(yy) },String(yy)); if(String(yy)===cy) oy.selected=true; selY.appendChild(oy); }
+    body.appendChild(el("div",{ "class":"av-selrow" }, selM, selY));
+  }
   if(im.friends && im.friends.length){
     body.appendChild(labelOpt("Entre quem você segue"));
     var fl=el("div",{ "class":"av-friendtakes" });
@@ -1987,7 +2022,8 @@ function ActivityRow(it){
     el("span",{ "class":"av-actverb" }, actverb+" "), 
     el("span",{ "class":"av-acttitle" }, it.title),
     st==="done" ? el("span",null, "  ") : null,
-    st==="done" ? Lamps(it.rating,null,11) : null
+    st==="done" ? Lamps(it.rating,null,11) : null,
+    it.consumed && st==="done" ? el("span",{ "class":"av-actwhen" }, " · "+fmtConsumed(it.consumed, it.type)) : null
   );
   var row=el("div",{ "class":"av-actrow" }, Cover(it,"av-actcover"), text);
   if(p) row.addEventListener("click", function(){ openUser(p.username); });
