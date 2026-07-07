@@ -2413,6 +2413,14 @@ function init(){
   render();
   if(!configured) return;
   if(state.share){ loadShare(); }
+  try{
+    var h=location.hash||"";
+    if(h.indexOf("type=recovery")>=0){ state.pwModal={ p1:"", p2:"", busy:false, done:false, error:"" }; }
+    if(h.indexOf("error_code=otp_expired")>=0 || h.indexOf("error=access_denied")>=0){
+      state.authNotice="Esse link de senha expirou ou já foi usado. Peça um novo em \"Esqueci minha senha\".";
+      history.replaceState(null,"",location.pathname+location.search);
+    }
+  }catch(e){}
   supabase.auth.onAuthStateChange(function(event, session){
     state.authResolved=true;
     if(event==="PASSWORD_RECOVERY"){ state.pwModal={ p1:"", p2:"", busy:false, done:false, error:"" }; }
