@@ -2001,6 +2001,7 @@ function CommentCard(c, own){
 function UserProfile(){
   var vu=state.viewUser;
   var sec=el("section");
+  if(!isOwnProfileOpen()) sec.appendChild(el("button",{ "class":"av-back", onclick:openFeed }, "← Comunidade"));
   if(vu.loading){ sec.appendChild(el("p",{ "class":"av-secsub" }, "carregando…")); return sec; }
   if(vu.notFound){ sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Perfil não encontrado."))); return sec; }
   var p=vu.profile;
