@@ -1,5 +1,9 @@
-/* Acervo — service worker: casca offline, sempre buscando a versão nova primeiro */
-var CACHE = "acervo-v1";
+/* Acervo — service worker: casca offline, sempre buscando a versão nova primeiro.
+   v2: navegação busca com cache:"reload" (ignora o cache HTTP do navegador) —
+   sem isso, uma versão quebrada do index podia ficar presa em loop: o SW pedia
+   "rede", o navegador respondia do próprio cache HTTP com a versão velha, e o
+   SW ainda regravava essa versão velha por cima do cache offline. */
+var CACHE = "acervo-v2";
 var SHELL = ["./", "index.html", "og-image.png", "icon-192.png", "icon-512.png", "manifest.webmanifest"];
 
 self.addEventListener("install", function(e){
@@ -16,10 +20,11 @@ self.addEventListener("fetch", function(e){
   var url = new URL(e.request.url);
   if(e.request.method!=="GET") return;
 
-  /* Navegação e o próprio index: rede primeiro (atualizações chegam sempre), cache como reserva offline */
+  /* Navegação e o próprio index: rede DE VERDADE primeiro (cache:"reload"
+     pula o cache HTTP), cache como reserva offline */
   if(e.request.mode==="navigate" || url.pathname.endsWith("/index.html")){
     e.respondWith(
-      fetch(e.request).then(function(r){
+      fetch(e.request, { cache: "reload" }).then(function(r){
         var copy=r.clone();
         caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
         return r;
