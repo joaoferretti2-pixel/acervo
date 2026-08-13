@@ -236,6 +236,8 @@ body{margin:0;background:#F2EEE3}
 .av-pager{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:22px}
 .av-pagerinfo{font-size:13px;color:var(--muted);letter-spacing:.02em}
 .av-card{background:var(--raised);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:row;gap:14px;align-items:flex-start;transition:border-color .15s,transform .15s,box-shadow .15s}
+.av-clickcard{cursor:pointer}
+.av-clickcard:hover{border-color:var(--accent-line)}
 .av-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--shadow-card)}
 .av-cardbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
 .av-cardtop{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
@@ -3676,11 +3678,15 @@ function BackfillBanner(){
     return box;
   }
   /* itemNeedsMeta já exclui os marcados como meta_tried (persistido no banco,
-     então vale entre dispositivos) — este banner só aparece pra itens realmente
-     novos ainda não tentados. */
-  if(!need.length) return null;
+     então vale entre dispositivos). Some com o localStorage por cima como
+     reforço — cobre o intervalo entre subir esta versão e rodar a migração
+     acervo-meta-tried.sql no Supabase (sem a coluna, meta_tried nunca fica
+     true vindo do banco, e sem isso o banner voltaria neste meio-tempo). */
+  var tried=metaTriedSet();
+  var fresh=need.filter(function(it){ return !tried[it.id]; });
+  if(!fresh.length) return null;
   return el("div",{ "class":"av-bfbanner" },
-    el("span",null, el("b",null,String(need.length)), en?" items without genre yet.":" itens ainda sem gênero."),
+    el("span",null, el("b",null,String(fresh.length)), en?" items without genre yet.":" itens ainda sem gênero."),
     el("button",{ "class":"av-primary sm", onclick:backfillMeta }, gico(ICONS.sparkle), " ", en?"Fetch genres & directors":"Buscar gêneros e diretores"));
 }
 function Library(){
@@ -4523,9 +4529,24 @@ function UserProfile(){
         body.appendChild(el("div",{ "class":"av-plhead" }, el("h4",{ "class":"av-title" }, pl.name), pl.isPublic===false?el("span",{ "class":"av-favstar", title:"Privada" }, gico(ICONS.lock)):null, Chip(pl.tag)));
         if(pl.description) body.appendChild(el("p",{ "class":"av-notes" }, pl.description));
         body.appendChild(el("div",{ "class":"av-plmeta" }, el("span",null, plural(list.length,"item","itens","item","items"))));
-        cg.appendChild(el("article",{ "class":"av-card" }, body));
+        var card=el("article",{ "class":"av-card av-clickcard", onclick:function(){ vu.openColl=pl.id; vu.tab="coll-detail"; render(); } }, body);
+        cg.appendChild(card);
       });
       sec.appendChild(cg);
+    }
+  } else if(vu.tab==="coll-detail"){
+    var ocp=vu.playlists.find(function(p){return p.id===vu.openColl;});
+    if(!ocp){ vu.tab="acervo"; vu.openColl=null; }
+    else {
+      var ocList=vu.links.filter(function(l){return l.playlistId===ocp.id;}).map(function(l){return vu.items.find(function(i){return i.id===l.itemId;});}).filter(Boolean);
+      sec.appendChild(el("button",{ "class":"av-back", onclick:function(){ vu.tab="acervo"; vu.openColl=null; render(); } }, "← Coleções"));
+      sec.appendChild(el("div",null,
+        el("p",{ "class":"av-eyebrow" }, "Coleção de @"+p.username),
+        el("h1",{ "class":"av-h1" }, ocp.name),
+        ocp.description?el("p",{ "class":"av-screensub" }, ocp.description):null
+      ));
+      if(ocList.length===0) sec.appendChild(el("div",{ "class":"av-empty" }, el("p",null,"Coleção vazia.")));
+      else { var ocGrid=el("div",{ "class":"av-grid" }); ocList.forEach(function(it){ ocGrid.appendChild(ItemCard(it,"view")); }); sec.appendChild(ocGrid); }
     }
   } else if(vu.tab==="comentarios"){
     // comentários, separados por filme/livro
