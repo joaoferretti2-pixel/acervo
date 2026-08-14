@@ -48,7 +48,7 @@ self.addEventListener("fetch", function(e){
      cache como reserva offline. */
   if(e.request.mode==="navigate" || url.pathname.endsWith("/index.html")){
     e.respondWith(
-      fetch(e.request, { cache:"no-store" }).then(function(r){
+      fetch(e.request, { cache:"no-cache" }).then(function(r){
         var copy=r.clone();
         caches.open(CACHE).then(function(c){ c.put(e.request, copy); });
         return r;
